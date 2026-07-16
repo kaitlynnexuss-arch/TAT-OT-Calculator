@@ -845,8 +845,9 @@ html
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let holidayPicker;
-    let selectedHolidays = [];
+   let holidayPicker;
+let receivedDatePicker;
+let selectedHolidays = [];
     let latestCalculation = null;
 
     const WORK_START_HOUR = 9;
@@ -1363,33 +1364,51 @@ html
     }
 
     function setDefaultReceivedTime() {
-      const now = new Date();
-      document.getElementById("receivedDateTime").value = formatFullDateTime(now);
+  const now = new Date();
+
+  if (receivedDatePicker) {
+    receivedDatePicker.setDate(now, false);
+  } else {
+    document.getElementById("receivedDateTime").value = formatFullDateTime(now);
+  }
+}
+
+    ```js
+function initializePickers() {
+  // Public holidays: multiple dates can be selected
+  holidayPicker = flatpickr("#holidayPicker", {
+    mode: "multiple",
+    dateFormat: "Y-m-d",
+    allowInput: false,
+    onChange(selectedDates) {
+      selectedHolidays = selectedDates
+        .map(date => toLocalDateString(date))
+        .sort();
+      renderHolidayTags();
     }
+  });
 
-    function initializePickers() {
-      holidayPicker = flatpickr("#holidayPicker", {
-        mode: "multiple",
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        onChange(selectedDates) {
-          selectedHolidays = selectedDates
-            .map(date => toLocalDateString(date))
-            .sort();
+  // Received Date & Time: calendar and time picker; manual input is disabled
+  receivedDatePicker = flatpickr("#receivedDateTime", {
+    enableTime: true,
+    time_24hr: true,
+    dateFormat: "Y-m-d H:i",
+    defaultDate: new Date(),
+    allowInput: false,
+    clickOpens: true
+  });
 
-          renderHolidayTags();
-        }
-      });
-
-      ["#receivedDateTime", "#previousTat", "#clientTat"].forEach(selector => {
-        flatpickr(selector, {
-          enableTime: true,
-          time_24hr: true,
-          dateFormat: "Y-m-d H:i",
-          allowInput: true
-        });
-      });
-    }
+  // Previous TAT and Client TAT: calendar and time pickers
+  ["#previousTat", "#clientTat"].forEach(selector => {
+    flatpickr(selector, {
+      enableTime: true,
+      time_24hr: true,
+      dateFormat: "Y-m-d H:i",
+      allowInput: false,
+      clickOpens: true
+    });
+  });
+}
 
     form.addEventListener("submit", event => {
       event.preventDefault();
@@ -1664,10 +1683,11 @@ html
       loadSharedHolidays();
     });
 
-    initializeHolidayPicker();
-    renderHolidayTags();
-    setDefaultReceivedTime();
-    updateConditionalFields();
+    initializePickers();
+renderHolidayTags();
+setDefaultReceivedTime();
+updateConditionalFields();
+loadSharedHolidays();
   </script>
 </body>
 </html>
