@@ -1030,10 +1030,36 @@
       formError.classList.add("d-none");
       formError.textContent = "";
     }
+
+    // compute available working hours between start and end (used when client provides TAT)
+    function computeAvailableWorkingHours(startDate, endDate, jobType, skippedDates) {
+      if (!startDate || !endDate || endDate <= startDate) return 0;
+      const MS_PER_HOUR = 1000 * 60 * 60;
+      let total = 0;
+      let current = normalizeStartTime(startDate, skippedDates);
+      if (current >= endDate) return 0;
+      while (current < endDate) {
+        current = moveToNextWorkingDay(current, skippedDates);
+        const dailyLimit = getDailyEndTime(current, jobType);
+        if (current >= dailyLimit) {
+          current.setDate(current.getDate() + 1);
+          current = setTime(current, WORK_START_HOUR, 0);
+          continue;
+        }
+        const periodEnd = endDate < dailyLimit ? endDate : dailyLimit;
+        if (periodEnd > current) {
+          total += (periodEnd - current) / MS_PER_HOUR;
+        }
+        current = setTime(current, WORK_START_HOUR, 0);
+        current.setDate(current.getDate() + 1);
+      }
+      return total;
+    }
+
+    // existing OT calculation rule: compare standardTAT vs clientTAT to derive OT hours using full-day rule
     function calculateOT(standardTat, clientTat) {
       const MS_PER_HOUR = 1000 * 60 * 60;
-      const differenceHours =
-        (standardTat - clientTat) / MS_PER_HOUR;
+      const differenceHours = (standardTat - clientTat) / MS_PER_HOUR;
       if (differenceHours <= 0) {
         return {
           required: false,
@@ -1057,11 +1083,13 @@
         otHours
       };
     }
-    function displayOTResult(ot, jobType, receivedDateTime, clientTat) {
+
+    // display OT result - modified to handle cases where client did not provide TAT but requested OT (use buffer)
+    function displayOTResult(ot, jobType, receivedDateTime, clientTat, requireOT) {
       const container = document.getElementById("otResult");
-      if (!clientTat) {
+      if (!requireOT) {
         container.innerHTML = `
-          <div class="info-box border bg-light">
+          <div class="info-box">
             <strong><i class="bi bi-dash-circle me-1"></i>OT: N/A</strong><br>
             <span class="small text-muted">
               Client did not request an earlier TAT.
@@ -1070,65 +1098,109 @@
         `;
         return;
       }
-      if (!ot.required) {
+
+      // If client provided TAT we expect ot to be result from calculateOT
+      if (clientTat) {
+        if (!ot || !ot.required) {
+          container.innerHTML = `
+            <div class="info-box border" style="background: var(--success-bg); border-color: #a9e6be !important;">
+              <strong class="text-success">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                OT Required: No
+              </strong><br>
+              <span class="small text-muted">
+                The Client's Requested TAT is not earlier than the Standard Expected TAT (base, no buffer).
+              </span>
+            </div>
+          `;
+          return;
+        }
+        const remainingText = ot.remainingHours.toFixed(1).replace(".0", "");
+        const totalText = ot.differenceHours.toFixed(1).replace(".0", "");
+        let warning = "";
+        if (jobType === "Compliance") {
+          warning += `
+            <div class="alert alert-warning mt-3 mb-0">
+              <i class="bi bi-exclamation-circle-fill me-1"></i>
+              <strong>Note:</strong> Please avoid charging OT for Compliance jobs where possible.
+            </div>
+          `;
+        } else {
+          warning += `
+            <div class="alert alert-info mt-3 mb-0">
+              <i class="bi bi-info-circle-fill me-1"></i>
+              <strong>Note:</strong> OT charges are generally more acceptable for IPO jobs.
+            </div>
+          `;
+        }
+        if (clientTat < receivedDateTime || ot.fullDays >= 2) {
+          warning += `
+            <div class="alert alert-danger mt-3 mb-0">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+              <strong>Significant or highly urgent OT requirement.</strong>
+              Please report to Jeff/Nieves immediately.
+            </div>
+          `;
+        }
         container.innerHTML = `
-          <div class="info-box border" style="background: var(--success-bg); border-color: #a9e6be !important;">
-            <strong class="text-success">
-              <i class="bi bi-check-circle-fill me-1"></i>
-              OT Required: No
-            </strong><br>
-            <span class="small text-muted">
-              The Client's Requested TAT is not earlier than the Standard Expected TAT.
-            </span>
+          <div class="info-box" style="background: var(--danger-bg); border: 1px solid #fecaca;">
+            <div><strong>Effective Time Gap:</strong> ${totalText} hours</div>
+            <div><strong>Full 24-hour periods:</strong> ${ot.fullDays}</div>
+            <div><strong>Remaining hours:</strong> ${remainingText}</div>
+            <hr>
+            <div class="ot-value">
+              <i class="bi bi-lightning-charge-fill"></i>
+              Recommended OT Charge: ${ot.otHours}h OT
+            </div>
+            <div class="small mt-2 text-muted">
+              Rule: Each full 24-hour period = 10h OT. Remaining time of 5 hours
+              or above = 5h OT. Remaining time below 5 hours = no OT charge.
+            </div>
           </div>
+          ${warning}
         `;
         return;
       }
-      const remainingText = ot.remainingHours.toFixed(1).replace(".0", "");
-      const totalText = ot.differenceHours.toFixed(1).replace(".0", "");
-      let warning = "";
-      if (jobType === "Compliance") {
-        warning += `
-          <div class="alert alert-warning mt-3 mb-0">
-            <i class="bi bi-exclamation-circle-fill me-1"></i>
-            <strong>Note:</strong> Please avoid charging OT for Compliance jobs where possible.
+
+      // Client requested OT but did NOT provide TAT -> we use buffer-based OT suggestion (ot.otHours holds buffer-based suggestion)
+      if (ot && ot.required) {
+        let warning = "";
+        if (jobType === "Compliance") {
+          warning += `
+            <div class="alert alert-warning mt-3 mb-0">
+              <i class="bi bi-exclamation-circle-fill me-1"></i>
+              <strong>Note:</strong> Please avoid charging OT for Compliance jobs where possible.
+            </div>
+          `;
+        } else {
+          warning += `
+            <div class="alert alert-info mt-3 mb-0">
+              <i class="bi bi-info-circle-fill me-1"></i>
+              <strong>Note:</strong> OT charges are generally more acceptable for IPO jobs.
+            </div>
+          `;
+        }
+        container.innerHTML = `
+          <div class="info-box" style="background: var(--danger-bg); border: 1px solid #fecaca;">
+            <div><strong>Client requested earlier TAT but did not provide a specific TAT.</strong></div>
+            <div class="mt-2">Recommended OT Charge (based on selected buffer): <span class="ot-value">${ot.otHours}h OT</span></div>
+            <div class="small mt-2 text-muted">
+              OT hours here are based on the selected buffer hours.
+            </div>
           </div>
+          ${warning}
         `;
-      } else {
-        warning += `
-          <div class="alert alert-info mt-3 mb-0">
-            <i class="bi bi-info-circle-fill me-1"></i>
-            <strong>Note:</strong> OT charges are generally more acceptable for IPO jobs.
-          </div>
-        `;
+        return;
       }
-      if (clientTat < receivedDateTime || ot.fullDays >= 2) {
-        warning += `
-          <div class="alert alert-danger mt-3 mb-0">
-            <i class="bi bi-exclamation-triangle-fill me-1"></i>
-            <strong>Significant or highly urgent OT requirement.</strong>
-            Please report to Jeff/Nieves immediately.
-          </div>
-        `;
-      }
+
+      // fallback
       container.innerHTML = `
-        <div class="info-box" style="background: var(--danger-bg); border: 1px solid #fecaca;">
-          <div><strong>Effective Time Gap:</strong> ${totalText} hours</div>
-          <div><strong>Full 24-hour periods:</strong> ${ot.fullDays}</div>
-          <div><strong>Remaining hours:</strong> ${remainingText}</div>
-          <hr>
-          <div class="ot-value">
-            <i class="bi bi-lightning-charge-fill"></i>
-            Recommended OT Charge: ${ot.otHours}h OT
-          </div>
-          <div class="small mt-2 text-muted">
-            Rule: Each full 24-hour period = 10h OT. Remaining time of 5 hours
-            or above = 5h OT. Remaining time below 5 hours = no OT charge.
-          </div>
+        <div class="info-box">
+          <span class="small text-muted">No OT assessment available.</span>
         </div>
-        ${warning}
       `;
     }
+
     function generateEmailDraft(language, tNumber, tat, fileFormat) {
       const languageText =
         language === "E2C" ? "CHI translation" : "ENG translation";
@@ -1385,11 +1457,6 @@
         if (bufferHours < 0 || Number.isNaN(bufferHours)) {
           throw new Error("Buffer Hours must be 0 or above.");
         }
-        if (requireOT && !clientTatValue) {
-          throw new Error(
-            "Please provide Client's Requested TAT for OT assessment."
-          );
-        }
         if (
           taskType === "New Draft" &&
           startT > 1 &&
@@ -1424,56 +1491,99 @@
           language,
           pages
         );
+
+        // standard TAT WITHOUT buffer (base)
         const baseTat = addWorkingHours(
           adjustedStart,
           requiredHours,
           jobType,
           skippedDates
         );
-        const standardTat = addWorkingHours(
-          baseTat,
-          bufferHours,
+
+        // standard TAT WITH buffer
+        const standardTatWithBuffer = addWorkingHours(
+          adjustedStart,
+          requiredHours + bufferHours,
           jobType,
           skippedDates
         );
-        const clientTat = clientTatValue
-          ? parseDateTime(clientTatValue)
-          : null;
-        const ot = clientTat
-          ? calculateOT(standardTat, clientTat)
-          : null;
+
+        // Prepare steps
+        const stepsArr = [];
+        stepsArr.push(`Job Type: ${jobType}`);
+        stepsArr.push(`Task Type: ${taskType}`);
+        stepsArr.push(`Language: ${language}`);
+        stepsArr.push(`T Number: ${tNumber}`);
+        stepsArr.push(`Pages: ${pages}`);
+        stepsArr.push(`Processing Rate: ${getProcessingRateText(taskType, language)}`);
+        stepsArr.push(`Required Base Working Hours (no buffer): ${requiredHours.toFixed(1).replace(".0","")} hours`);
+        stepsArr.push("");
+        stepsArr.push(`Start Point: ${formatFullDateTime(startDateTime)}`);
+        stepsArr.push(`Start Reason: ${startReason}`);
+        stepsArr.push(`Adjusted Working Start: ${formatFullDateTime(adjustedStart)}`);
+        stepsArr.push("");
         const skippedText = skippedDates.size
           ? Array.from(skippedDates)
               .sort()
               .map(item => `- ${item}`)
               .join("\n")
           : "- No weekend or public holiday was crossed during this calculation.";
-        const calculationSteps = [
-          `Job Type: ${
-            jobType === "Compliance"
-              ? "Compliance Jobs"
-              : "IPO Jobs (including side jobs)"
-          }`,
-          `Task Type: ${taskType}`,
-          `Language: ${language === "E2C" ? "E to C" : "C to E"}`,
-          `T Number: ${tNumber}`,
-          `Pages: ${pages}`,
-          `Processing Rate: ${getProcessingRateText(taskType, language)}`,
-          `Required Base Working Hours: ${requiredHours
-            .toFixed(1)
-            .replace(".0", "")} hours`,
-          ``,
-          `Start Point: ${formatFullDateTime(startDateTime)}`,
-          `Start Reason: ${startReason}`,
-          `Adjusted Working Start: ${formatFullDateTime(adjustedStart)}`,
-          ``,
-          `Skipped Non-working Dates:`,
-          skippedText,
-          ``,
-          `Base TAT (before Buffer): ${formatFullDateTime(baseTat)}`,
-          `Buffer Added: ${bufferHours} hours`,
-          `Final Standard Expected TAT: ${formatFullDateTime(standardTat)}`
-        ].join("\n");
+        stepsArr.push("Skipped Non-working Dates:");
+        stepsArr.push(skippedText);
+        stepsArr.push("");
+        stepsArr.push(`Base TAT (before Buffer): ${formatFullDateTime(baseTat)}`);
+        stepsArr.push(`Buffer Added: ${bufferHours} hours`);
+        stepsArr.push(`Standard Expected TAT (with buffer): ${formatFullDateTime(standardTatWithBuffer)}`);
+
+        // OT handling per your requirement
+        let finalTat = standardTatWithBuffer;
+        let otResultObj = null;
+        const clientTat = clientTatValue ? parseDateTime(clientTatValue) : null;
+
+        if (requireOT) {
+          if (clientTat) {
+            // Client provided a specific TAT: use baseTat (no buffer) to assess OT via existing rule
+            const computeSkippedForClient = new Set(); // fresh set for computeAvailableWorkingHours
+            const availableHours = computeAvailableWorkingHours(adjustedStart, clientTat, jobType, computeSkippedForClient);
+            stepsArr.push("");
+            stepsArr.push(`Client Requested TAT: ${formatFullDateTime(clientTat)}`);
+            stepsArr.push(`Available working hours until client TAT: ${availableHours.toFixed(2)} hours`);
+            stepsArr.push(`Using base required hours (no buffer) => expected completion: ${formatFullDateTime(baseTat)}`);
+            // Use calculateOT(standardTatNoBuffer, clientTat) to compute OT using original full-day rule
+            otResultObj = calculateOT(baseTat, clientTat);
+            if (!otResultObj.required) {
+              stepsArr.push("No OT required (client TAT can be met using base hours).");
+            } else {
+              stepsArr.push(`OT required. Effective gap: ${otResultObj.differenceHours.toFixed(1)} hours => Recommended OT: ${otResultObj.otHours}h`);
+            }
+            // Final displayed TAT should be client's requested TAT
+            finalTat = clientTat;
+          } else {
+            // Client requested OT but did not provide TAT: normal calculation + buffer
+            // Per requirement: "那就正常計算並加上自己選的buffer來計算應該收取的OT費用"
+            // We'll use bufferHours as suggested OT-charge hours
+            otResultObj = {
+              required: bufferHours > 0,
+              differenceHours: bufferHours,
+              fullDays: 0,
+              remainingHours: bufferHours,
+              otHours: bufferHours
+            };
+            stepsArr.push("");
+            stepsArr.push("Client requested OT but did NOT provide a specific TAT.");
+            stepsArr.push(`Using standard calculation with buffer: ${bufferHours}h added`);
+            stepsArr.push(`Standard Expected TAT (with buffer): ${formatFullDateTime(standardTatWithBuffer)}`);
+            stepsArr.push(`Recommended OT (based on buffer): ${bufferHours}h`);
+            finalTat = standardTatWithBuffer;
+          }
+        } else {
+          // Not requesting OT -> normal standard TAT (with buffer)
+          stepsArr.push("");
+          stepsArr.push("OT not requested. Standard expected completion used (with buffer).");
+          finalTat = standardTatWithBuffer;
+        }
+
+        // Prepare recipients & email draft (preserve original logic)
         const recipients =
           jobType === "Compliance"
             ? { to: "ARCS; SZCS", cc: "LS-IS" }
@@ -1481,21 +1591,26 @@
         const emailDraft = generateEmailDraft(
           language,
           tNumber,
-          standardTat,
+          finalTat,
           fileFormat
         );
+
+        // Render to UI
         document.getElementById("standardTatDisplay").textContent =
-          formatFullDateTime(standardTat);
+          formatFullDateTime(finalTat);
         document.getElementById("standardTatShortDisplay").textContent =
-          `${formatShortDate(standardTat)} ${formatEmailTime(standardTat)}`;
+          `${formatShortDate(finalTat)} ${formatEmailTime(finalTat)}`;
         document.getElementById("calculationSteps").textContent =
-          calculationSteps;
+          stepsArr.join("\n");
         document.getElementById("recipientResult").innerHTML = `
           <div><strong><i class="bi bi-send me-1"></i>To:</strong> ${recipients.to}</div>
           <div class="mt-1"><strong><i class="bi bi-copy me-1"></i>CC:</strong> ${recipients.cc}</div>
         `;
         document.getElementById("emailDraft").textContent = emailDraft;
-        displayOTResult(ot, jobType, receivedDateTime, clientTat);
+
+        // OT display (pass requireOT so displayOTResult can show buffer-based suggestion)
+        displayOTResult(otResultObj, jobType, receivedDateTime, clientTat, requireOT);
+
         latestCalculation = {
           receivedDateTime: receivedValue,
           jobType,
@@ -1508,11 +1623,12 @@
           publicHolidays: selectedHolidays,
           bufferHours,
           clientRequestedTat: clientTatValue || null,
-          standardExpectedTat: formatInputDateTime(standardTat),
-          otHours: ot ? ot.otHours : 0,
+          standardExpectedTat: formatInputDateTime(finalTat),
+          otHours: otResultObj ? otResultObj.otHours : 0,
           emailDraft,
-          calculationSteps
+          calculationSteps: stepsArr.join("\n")
         };
+
         resultCard.style.display = "block";
         document.getElementById("saveStatus").textContent = "";
         window.scrollTo({
