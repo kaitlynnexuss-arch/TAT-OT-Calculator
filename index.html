@@ -1,45 +1,47 @@
-html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TAT &amp; OT Calculator</title>
-
+  <title>TAT & OT Calculator</title>
+  <!-- Bootstrap -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
+  <!-- Bootstrap Icons -->
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
   />
+  <!-- Flatpickr -->
   <link
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
     rel="stylesheet"
   />
-
   <style>
     :root {
       --primary: #273c9b;
       --primary-dark: #18265f;
       --primary-light: #edf0ff;
       --secondary: #7c3aed;
+      --accent: #14b8a6;
       --success: #16a34a;
       --success-bg: #ecfdf3;
+      --warning: #d97706;
+      --warning-bg: #fff8e8;
       --danger: #dc2626;
       --danger-bg: #fff1f2;
       --info-bg: #eff6ff;
       --text-main: #1e293b;
       --text-muted: #64748b;
       --border: #dbe3ef;
+      --surface: #ffffff;
       --background: #f4f7fb;
     }
-
     * {
       box-sizing: border-box;
     }
-
     body {
       min-height: 100vh;
       background:
@@ -49,7 +51,7 @@ html
       color: var(--text-main);
       font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
     }
-
+    /* Header */
     .navbar-custom {
       position: relative;
       overflow: hidden;
@@ -59,35 +61,30 @@ html
       background: linear-gradient(135deg, #172554 0%, #273c9b 50%, #6d28d9 100%);
       box-shadow: 0 8px 30px rgba(30, 41, 99, 0.24);
     }
-
     .navbar-custom::before,
     .navbar-custom::after {
       position: absolute;
+      content: "";
       border-radius: 50%;
       opacity: 0.16;
       background: #fff;
-      content: "";
     }
-
     .navbar-custom::before {
       width: 240px;
       height: 240px;
       top: -130px;
       right: 8%;
     }
-
     .navbar-custom::after {
       width: 170px;
       height: 170px;
       bottom: -110px;
       left: 18%;
     }
-
     .header-content {
       position: relative;
       z-index: 1;
     }
-
     .brand-icon {
       display: inline-flex;
       align-items: center;
@@ -101,20 +98,17 @@ html
       font-size: 1.45rem;
       backdrop-filter: blur(8px);
     }
-
     .navbar-custom h1 {
       margin: 0;
       font-size: clamp(1.45rem, 3vw, 2rem);
       font-weight: 800;
       letter-spacing: -0.5px;
     }
-
     .navbar-custom p {
       margin: 5px 0 0;
       color: rgba(255, 255, 255, 0.8);
       font-size: 0.92rem;
     }
-
     .header-badge {
       display: inline-flex;
       align-items: center;
@@ -128,7 +122,7 @@ html
       font-weight: 600;
       backdrop-filter: blur(8px);
     }
-
+    /* Cards */
     .main-card,
     .result-card {
       overflow: hidden;
@@ -137,17 +131,14 @@ html
       background: rgba(255, 255, 255, 0.95);
       box-shadow: 0 14px 42px rgba(30, 41, 59, 0.09);
     }
-
-    .main-card,
-    .result-card {
+    .main-card {
       animation: fadeUp 0.45s ease-out;
     }
-
     .result-card {
       display: none;
       margin-top: 28px;
+      animation: fadeUp 0.45s ease-out;
     }
-
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -158,7 +149,7 @@ html
         transform: translateY(0);
       }
     }
-
+    /* Form Section Title */
     .section-title {
       display: flex;
       align-items: center;
@@ -167,8 +158,8 @@ html
       color: var(--primary-dark);
       font-size: 1.05rem;
       font-weight: 800;
+      letter-spacing: -0.15px;
     }
-
     .section-title::before {
       display: inline-flex;
       align-items: center;
@@ -183,17 +174,14 @@ html
       content: "\f4e1";
       box-shadow: 0 4px 10px rgba(39, 60, 155, 0.24);
     }
-
     .section-title.holidays::before {
-      background: linear-gradient(135deg, #0284c7, #14b8a6);
       content: "\f1f9";
+      background: linear-gradient(135deg, #0284c7, #14b8a6);
     }
-
     .section-title.settings::before {
-      background: linear-gradient(135deg, #d97706, #f59e0b);
       content: "\f3e5";
+      background: linear-gradient(135deg, #d97706, #f59e0b);
     }
-
     .section-divider {
       height: 1px;
       margin: 30px 0;
@@ -206,25 +194,22 @@ html
         transparent
       );
     }
-
+    /* Form */
     .form-label {
       margin-bottom: 7px;
       color: #334155;
       font-size: 0.9rem;
       font-weight: 700;
     }
-
     .required::after {
       color: var(--danger);
       content: " *";
     }
-
     .small-note,
     .form-text {
       color: var(--text-muted);
       font-size: 0.78rem;
     }
-
     .form-control,
     .form-select,
     .input-group-text {
@@ -232,100 +217,84 @@ html
       border-color: var(--border);
       font-size: 0.92rem;
     }
-
     .form-control,
     .form-select {
       border-radius: 10px !important;
       transition: all 0.2s ease;
     }
-
     .input-group .form-control {
       border-radius: 0 10px 10px 0 !important;
     }
-
     .input-group-text {
       border-radius: 10px 0 0 10px;
       background: #f8fafc;
       color: var(--primary);
       font-weight: 800;
     }
-
     .form-control:focus,
     .form-select:focus {
       border-color: #8b9df0;
       box-shadow: 0 0 0 0.22rem rgba(80, 98, 211, 0.13);
     }
-
     .form-check {
       border: 1px solid var(--border) !important;
       border-radius: 12px !important;
       background: #fbfcff !important;
       transition: all 0.2s ease;
     }
-
     .form-check:hover {
       border-color: #aab7e9 !important;
       background: var(--primary-light) !important;
     }
-
     .form-check-input {
       cursor: pointer;
     }
-
     .form-check-input:checked {
       border-color: var(--primary);
       background-color: var(--primary);
     }
-
     .form-check-label {
       cursor: pointer;
       color: #334155;
       font-size: 0.9rem;
     }
-
     .conditional-section {
       display: none;
     }
-
+    /* Buttons */
     .btn {
       border-radius: 10px;
       font-weight: 700;
       transition: all 0.2s ease;
     }
-
     .btn-primary {
       border: 0;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       box-shadow: 0 5px 14px rgba(80, 70, 190, 0.24);
     }
-
     .btn-primary:hover,
     .btn-primary:focus {
       transform: translateY(-1px);
       background: linear-gradient(135deg, #1f3286, #6d28d9);
       box-shadow: 0 8px 18px rgba(80, 70, 190, 0.31);
     }
-
     .btn-success {
       border: 0;
       background: linear-gradient(135deg, #16a34a, #059669);
     }
-
     .btn-outline-primary {
       color: var(--primary);
       border-color: #aeb9eb;
     }
-
     .btn-outline-primary:hover {
       border-color: var(--primary);
       background: var(--primary);
     }
-
     .btn-outline-secondary {
       border-color: #cbd5e1;
       color: #475569;
     }
-
+    /* Holidays */
     .holiday-tags {
       display: flex;
       flex-wrap: wrap;
@@ -336,7 +305,6 @@ html
       border-radius: 12px;
       background: #fbfdff;
     }
-
     .holiday-badge {
       display: inline-flex;
       align-items: center;
@@ -350,7 +318,6 @@ html
       font-size: 0.8rem;
       font-weight: 700;
     }
-
     .remove-holiday {
       width: 18px;
       height: 18px;
@@ -363,18 +330,18 @@ html
       font-weight: 800;
       line-height: 16px;
       cursor: pointer;
+      transition: all 0.18s ease;
     }
-
     .remove-holiday:hover {
       background: var(--danger);
       color: #fff;
+      transform: scale(1.08);
     }
-
     .firebase-status {
       margin-top: 10px;
       font-size: 0.8rem;
     }
-
+    /* Result */
     .result-header {
       position: relative;
       overflow: hidden;
@@ -382,7 +349,6 @@ html
       color: #fff;
       background: linear-gradient(135deg, #172554, #273c9b, #6d28d9);
     }
-
     .result-header::after {
       position: absolute;
       top: -65px;
@@ -393,25 +359,20 @@ html
       background: rgba(255, 255, 255, 0.1);
       content: "";
     }
-
-    .result-header h2,
-    .result-header p {
+    .result-header h2 {
       position: relative;
       z-index: 1;
-    }
-
-    .result-header h2 {
       margin: 0;
       font-size: 1.22rem;
       font-weight: 800;
     }
-
     .result-header p {
+      position: relative;
+      z-index: 1;
       margin: 4px 0 0;
       color: rgba(255, 255, 255, 0.75);
       font-size: 0.84rem;
     }
-
     .tat-highlight {
       position: relative;
       overflow: hidden;
@@ -420,7 +381,15 @@ html
       border-radius: 15px;
       background: linear-gradient(135deg, #ecfdf3, #f0fdf4);
     }
-
+    .tat-highlight::after {
+      position: absolute;
+      top: -35px;
+      right: -15px;
+      color: rgba(22, 163, 74, 0.12);
+      font-family: "bootstrap-icons";
+      font-size: 8rem;
+      content: "\f26a";
+    }
     .tat-main {
       position: relative;
       z-index: 1;
@@ -428,7 +397,6 @@ html
       font-size: clamp(1.05rem, 2.2vw, 1.35rem);
       font-weight: 800;
     }
-
     .result-heading {
       display: flex;
       align-items: center;
@@ -438,11 +406,9 @@ html
       font-size: 1rem;
       font-weight: 800;
     }
-
     .result-heading i {
       color: var(--primary);
     }
-
     .steps-box {
       max-height: 410px;
       overflow: auto;
@@ -452,118 +418,73 @@ html
       border-radius: 10px;
       background: #f8fafc;
       color: #334155;
-      font-family: Consolas, monospace;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
       font-size: 0.84rem;
       line-height: 1.75;
       white-space: pre-line;
     }
-
     .email-draft-box {
       padding: 16px;
       border: 1px solid #cfd8e7;
       border-radius: 11px;
       background: #fbfcff;
       color: #26364d;
-      font-family: Consolas, monospace;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
       font-size: 0.9rem;
       line-height: 1.6;
       word-break: break-word;
     }
-
     .info-box {
       padding: 15px;
       border-radius: 12px;
     }
-
     .recipient-box {
       border: 1px solid #bdddff;
       background: var(--info-bg);
       color: #1e3a5f;
     }
-
     .ot-value {
       color: var(--danger);
       font-size: 1.3rem;
       font-weight: 800;
     }
-
     .footer-note {
       margin-top: 20px;
       color: #94a3b8;
       font-size: 0.78rem;
       text-align: center;
     }
-
+    /* Flatpickr */
     .flatpickr-calendar {
       border: 1px solid #dbe3ef;
       border-radius: 14px;
       box-shadow: 0 15px 35px rgba(30, 41, 59, 0.16);
     }
-
     .flatpickr-day.selected,
-    .flatpickr-day.selected:hover {
+    .flatpickr-day.selected:hover,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
       border-color: var(--primary);
       background: var(--primary);
     }
-
-    .datetime-picker-row .date-column {
-  position: relative;
-}
-
-.datetime-picker-row .date-column::after {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  z-index: 3;
-  color: var(--primary);
-  font-family: "bootstrap-icons";
-  content: "\f1f6";
-  pointer-events: none;
-  transform: translateY(-50%);
-}
-
-.datetime-picker-row .date-picker-input {
-  padding-right: 42px;
-  cursor: pointer;
-  background-color: #fff;
-}
-
-.datetime-picker-row .form-select {
-  cursor: pointer;
-}
-
-.datetime-separator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0;
-  color: var(--text-muted);
-  font-weight: 800;
-}
-    
     @media (max-width: 767px) {
       .navbar-custom {
         padding: 24px 0;
         margin-bottom: 20px;
       }
-
       .main-card,
       .result-card {
         border-radius: 15px;
       }
-
       .card-body {
         padding: 22px !important;
       }
-
       .header-badge {
         display: none;
       }
     }
   </style>
 </head>
-
 <body>
   <header class="navbar-custom">
     <div class="container header-content">
@@ -577,7 +498,6 @@ html
             <p>Standard Expected TAT and Overtime Assessment Tool</p>
           </div>
         </div>
-
         <div class="header-badge">
           <i class="bi bi-lightning-charge-fill"></i>
           Smart Calculation Tool
@@ -585,59 +505,24 @@ html
       </div>
     </div>
   </header>
-
   <main class="container pb-5">
     <div class="card main-card">
       <div class="card-body p-4 p-md-5">
         <form id="tatForm" novalidate>
-          <div class="section-title">Basic Job Information</div>
-
+          <div class="section-title">
+            Basic Job Information
+          </div>
           <div class="row g-3 mb-4">
             <div class="col-md-6">
               <label for="receivedDateTime" class="form-label required">
                 Received Date &amp; Time
               </label>
-              <div class="row g-2 datetime-picker-row">
-  <div class="col-12 col-sm-6 date-column">
-    <input
-      type="text"
-      id="receivedDate"
-      class="form-control date-picker-input"
-      placeholder="Select date"
-      readonly
-      aria-label="Received date"
-    />
-  </div>
-
-  <div class="col-5 col-sm-2">
-    <select
-      id="receivedHour"
-      class="form-select"
-      aria-label="Received hour"
-    >
-      <option value="">Hour</option>
-    </select>
-  </div>
-
-  <div class="col-2 col-sm-1 datetime-separator">:</div>
-
-  <div class="col-5 col-sm-3">
-    <select
-      id="receivedMinute"
-      class="form-select"
-      aria-label="Received minute"
-    >
-      <option value="">Minute</option>
-    </select>
-  </div>
-</div>
-
-<input type="hidden" id="receivedDateTime" />
+              <!-- use text input for Flatpickr -->
+              <input type="text" id="receivedDateTime" class="form-control" required />
               <div class="form-text">
                 Select the date and time when the job was received.
               </div>
             </div>
-
             <div class="col-md-6">
               <label for="jobType" class="form-label required">Job Type</label>
               <select id="jobType" class="form-select" required>
@@ -646,7 +531,6 @@ html
                 <option value="IPO">IPO Jobs (including side jobs)</option>
               </select>
             </div>
-
             <div class="col-md-6">
               <label for="taskType" class="form-label required">Task Type</label>
               <select id="taskType" class="form-select" required>
@@ -657,7 +541,6 @@ html
                 <option value="Call Obvious">Call Obvious</option>
               </select>
             </div>
-
             <div class="col-md-6">
               <label for="language" class="form-label required">Language</label>
               <select id="language" class="form-select" required>
@@ -666,7 +549,6 @@ html
                 <option value="C2E">C to E</option>
               </select>
             </div>
-
             <div class="col-md-6">
               <label for="startT" class="form-label required">Start T Number</label>
               <div class="input-group">
@@ -674,7 +556,6 @@ html
                 <input type="number" id="startT" class="form-control" min="1" step="1" required />
               </div>
             </div>
-
             <div class="col-md-6">
               <label for="endT" class="form-label">
                 End T Number <span class="small-note">(Optional)</span>
@@ -687,20 +568,11 @@ html
                 Example: Start T = 2 and End T = 5 will display as T2-T5.
               </div>
             </div>
-
             <div class="col-md-6">
-              <label for="pages" class="form-label">
-                Pages <span class="small-note">(Auto-calculated)</span>
-              </label>
-              <div class="input-group">
-                <input type="number" id="pages" class="form-control" value="1" readonly tabindex="-1" />
-                <span class="input-group-text">pages</span>
-              </div>
-              <div class="form-text">
-                Automatically calculated using: End T − Start T + 1.
-              </div>
+              <label for="pages" class="form-label required">Pages</label>
+              <!-- readonly pages field (auto-generated) -->
+              <input type="number" id="pages" class="form-control" min="0" step="1" required readonly />
             </div>
-
             <div class="col-md-6">
               <label for="fileFormat" class="form-label">File Format</label>
               <select id="fileFormat" class="form-select">
@@ -709,97 +581,70 @@ html
               </select>
             </div>
           </div>
-
           <div id="previousTatSection" class="conditional-section mb-4">
-            <div class="section-title">Previous TAT Setting</div>
-
+            <div class="section-title">
+              Previous TAT Setting
+            </div>
             <div class="form-check mb-3 p-3">
               <input class="form-check-input" type="checkbox" id="previousIsNewDraft" />
               <label class="form-check-label fw-semibold" for="previousIsNewDraft">
                 Previous task was also a New Draft
               </label>
             </div>
-
             <div id="previousTatInputSection" class="conditional-section">
-              <label for="previousTat" class="form-label required">Previous TAT End Time</label>
-             <div class="row g-2 datetime-picker-row">
-  <div class="col-12 col-sm-6 date-column">
-    <input
-      type="text"
-      id="previousDate"
-      class="form-control date-picker-input"
-      placeholder="Select date"
-      readonly
-      aria-label="Previous TAT date"
-    />
-  </div>
-
-  <div class="col-5 col-sm-2">
-    <select
-      id="previousHour"
-      class="form-select"
-      aria-label="Previous TAT hour"
-    >
-      <option value="">Hour</option>
-    </select>
-  </div>
-
-  <div class="col-2 col-sm-1 datetime-separator">:</div>
-
-  <div class="col-5 col-sm-3">
-    <select
-      id="previousMinute"
-      class="form-select"
-      aria-label="Previous TAT minute"
-    >
-      <option value="">Minute</option>
-    </select>
-  </div>
-</div>
-
-<input type="hidden" id="previousTat" />
+              <label for="previousTat" class="form-label required">
+                Previous TAT End Time
+              </label>
+              <input type="text" id="previousTat" class="form-control" />
               <div class="form-text">
                 Required only for a non-T1 New Draft where the previous task was also a New Draft.
               </div>
             </div>
           </div>
-
-          <div class="section-title holidays">Public Holidays</div>
-
+          <div class="section-title holidays">
+            Public Holidays
+          </div>
           <div class="row g-3 mb-4">
             <div class="col-md-8">
-              <label for="holidayPicker" class="form-label">Hong Kong Public Holidays</label>
+              <label for="holidayPicker" class="form-label">
+                Hong Kong Public Holidays
+              </label>
               <input
                 type="text"
                 id="holidayPicker"
                 class="form-control"
                 placeholder="Select one or more public holidays"
               />
-              <div class="form-text">Multiple dates and multiple years are supported.</div>
+              <div class="form-text">
+                Multiple dates and multiple years are supported.
+              </div>
             </div>
-
             <div class="col-md-4 d-flex align-items-end">
               <div class="d-grid gap-2 w-100">
                 <button type="button" id="saveHolidaysButton" class="btn btn-outline-primary">
-                  <i class="bi bi-cloud-arrow-up me-1"></i>Save Shared Holidays
+                  <i class="bi bi-cloud-arrow-up me-1"></i>
+                  Save Shared Holidays
                 </button>
                 <button type="button" id="clearHolidays" class="btn btn-outline-secondary">
-                  <i class="bi bi-trash3 me-1"></i>Clear All Holidays
+                  <i class="bi bi-trash3 me-1"></i>
+                  Clear All Holidays
                 </button>
               </div>
             </div>
-
             <div class="col-12">
               <label class="form-label">Selected Holidays</label>
-              <div id="holidayTags" class="holiday-tags"></div>
+              <div id="holidayTags" class="holiday-tags">
+                <span class="text-muted small">No holidays selected.</span>
+              </div>
               <div id="firebaseStatus" class="firebase-status text-muted">
-                <i class="bi bi-hourglass-split me-1"></i>Firebase status: Connecting...
+                <i class="bi bi-hourglass-split me-1"></i>
+                Firebase status: Loading...
               </div>
             </div>
           </div>
-
-          <div class="section-title settings">Buffer and OT Settings</div>
-
+          <div class="section-title settings">
+            Buffer and OT Settings
+          </div>
           <div class="row g-3">
             <div class="col-md-6">
               <label for="bufferHours" class="form-label required">Buffer Hours</label>
@@ -816,7 +661,6 @@ html
                 <span class="input-group-text">hours</span>
               </div>
             </div>
-
             <div class="col-md-6 d-flex align-items-end">
               <div class="form-check p-3 w-100">
                 <input class="form-check-input" type="checkbox" id="requireOT" />
@@ -825,127 +669,92 @@ html
                 </label>
               </div>
             </div>
-
             <div id="clientTatSection" class="conditional-section col-md-6">
-              <label for="clientTat" class="form-label required">Client's Requested TAT</label>
-             <div class="row g-2 datetime-picker-row">
-  <div class="col-12 col-sm-6 date-column">
-    <input
-      type="text"
-      id="clientDate"
-      class="form-control date-picker-input"
-      placeholder="Select date"
-      readonly
-      aria-label="Client requested TAT date"
-    />
-  </div>
-
-  <div class="col-5 col-sm-2">
-    <select
-      id="clientHour"
-      class="form-select"
-      aria-label="Client requested TAT hour"
-    >
-      <option value="">Hour</option>
-    </select>
-  </div>
-
-  <div class="col-2 col-sm-1 datetime-separator">:</div>
-
-  <div class="col-5 col-sm-3">
-    <select
-      id="clientMinute"
-      class="form-select"
-      aria-label="Client requested TAT minute"
-    >
-      <option value="">Minute</option>
-    </select>
-  </div>
-</div>
-
-<input type="hidden" id="clientTat" />
+              <label for="clientTat" class="form-label required">
+                Client's Requested TAT
+              </label>
+              <input type="text" id="clientTat" class="form-control" />
             </div>
           </div>
-
           <hr class="section-divider" />
-
           <div class="d-flex flex-wrap gap-2">
             <button type="submit" class="btn btn-primary px-4 py-2">
-              <i class="bi bi-calculator me-1"></i>Calculate TAT
+              <i class="bi bi-calculator me-1"></i>
+              Calculate TAT
             </button>
             <button type="button" id="resetButton" class="btn btn-outline-secondary px-4 py-2">
-              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+              <i class="bi bi-arrow-counterclockwise me-1"></i>
+              Reset
             </button>
           </div>
-
           <div id="formError" class="alert alert-danger mt-3 d-none"></div>
         </form>
       </div>
     </div>
-
     <section id="resultCard" class="card result-card">
       <div class="result-header">
-        <h2><i class="bi bi-clipboard2-check me-2"></i>TAT Calculation Result</h2>
+        <h2>
+          <i class="bi bi-clipboard2-check me-2"></i>
+          TAT Calculation Result
+        </h2>
         <p>Your standard expected completion time and OT assessment.</p>
       </div>
-
       <div class="card-body p-4 p-md-5">
         <div class="tat-highlight mb-4">
-          <div class="small text-uppercase text-muted fw-bold mb-1">Standard Expected TAT</div>
+          <div class="small text-uppercase text-muted fw-bold mb-1">
+            Standard Expected TAT
+          </div>
           <div id="standardTatDisplay" class="tat-main"></div>
           <div id="standardTatShortDisplay" class="small text-muted mt-2"></div>
         </div>
-
         <div class="mb-4">
           <div class="result-heading">
-            <i class="bi bi-list-check"></i>Calculation Steps
+            <i class="bi bi-list-check"></i>
+            Calculation Steps
           </div>
           <div id="calculationSteps" class="steps-box"></div>
         </div>
-
         <div class="mb-4">
           <div class="result-heading">
-            <i class="bi bi-lightning-charge"></i>OT Assessment
+            <i class="bi bi-lightning-charge"></i>
+            OT Assessment
           </div>
           <div id="otResult"></div>
         </div>
-
         <div class="mb-4">
           <div class="result-heading">
-            <i class="bi bi-people"></i>Email Recipients
+            <i class="bi bi-people"></i>
+            Email Recipients
           </div>
           <div id="recipientResult" class="info-box recipient-box"></div>
         </div>
-
-        <div>
+        <div class="mb-2">
           <div class="result-heading">
-            <i class="bi bi-envelope-paper"></i>Email Draft
+            <i class="bi bi-envelope-paper"></i>
+            Email Draft
           </div>
-
           <div id="emailDraft" class="email-draft-box mb-3"></div>
-
           <div class="d-flex flex-wrap gap-2">
             <button type="button" id="copyEmailButton" class="btn btn-outline-primary btn-sm px-3">
-              <i class="bi bi-copy me-1"></i>Copy Email Draft
+              <i class="bi bi-copy me-1"></i>
+              Copy Email Draft
             </button>
-
             <button type="button" id="saveCalculationButton" class="btn btn-success btn-sm px-3">
-              <i class="bi bi-cloud-arrow-up me-1"></i>Save Calculation to Firebase
+              <i class="bi bi-cloud-arrow-up me-1"></i>
+              Save Calculation to Firebase
             </button>
           </div>
-
           <div id="saveStatus" class="small mt-2"></div>
         </div>
       </div>
     </section>
-
     <div class="footer-note">
       TAT &amp; OT Calculator · Internal Processing Tool
     </div>
   </main>
-
+  <!-- Flatpickr -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
+  <!-- Firebase Realtime Database -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
@@ -955,7 +764,6 @@ html
       push,
       get
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
     const firebaseConfig = {
       apiKey: "AIzaSyBPzgZHbuzlFmcnJ3cZODruohfTXa-Yoy8",
       authDomain: "tat-calculate.firebaseapp.com",
@@ -966,270 +774,212 @@ html
       appId: "1:959491242554:web:56e48bb762389b9fda1303",
       measurementId: "G-67XS52H7MB"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-
-   let holidayPicker;
-let selectedHolidays = [];
-let latestCalculation = null;
-
-const dateTimeControls = {};
-
+    window.firebaseDb = db;
+    window.firebaseRef = ref;
+    window.firebaseSet = set;
+    window.firebasePush = push;
+    window.firebaseGet = get;
+    window.dispatchEvent(new Event("firebaseReady"));
+  </script>
+  <script>
+    let holidayPicker;
+    let receivedPicker;
+    let previousTatPicker;
+    let clientTatPicker;
+    let selectedHolidays = [];
+    let latestCalculation = null;
     const WORK_START_HOUR = 9;
-    const WORK_START_CUTOFF_HOUR = 19;
-    const COMPLIANCE_END_HOUR = 22;
+    const WORK_END_HOUR = 22;
 
     const form = document.getElementById("tatForm");
-    const resultCard = document.getElementById("resultCard");
     const formError = document.getElementById("formError");
+    const resultCard = document.getElementById("resultCard");
 
-    const pad = value => String(value).padStart(2, "0");
-
+    function pad(number) {
+      return String(number).padStart(2, "0");
+    }
     function toLocalDateString(date) {
       return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
     }
-
     function cloneDate(date) {
       return new Date(date.getTime());
     }
-
-    function setTime(date, hour, minute = 0) {
-      const result = cloneDate(date);
-      result.setHours(hour, minute, 0, 0);
-      return result;
+    // Accepts Date object or string in "Y-m-d H:i" format or ISO format
+    function parseDateTime(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      if (typeof value === "string") {
+        // flatpickr format "Y-m-d H:i" -> replace space with 'T' to make ISO-like local string
+        const isoish = value.replace(" ", "T");
+        return new Date(isoish);
+      }
+      return new Date(value);
     }
-
     function formatFullDateTime(date) {
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      return new Intl.DateTimeFormat("en-GB", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).format(date);
     }
-
     function formatShortDate(date) {
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "short"
+      }).format(date);
     }
-
     function formatEmailTime(date) {
       return `${pad(date.getHours())}${pad(date.getMinutes())}`;
     }
-
-    function parseDateTime(value) {
-      if (!value) return null;
-
-      const match = value.trim().match(
-        /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/
-      );
-
-      if (!match) {
-        throw new Error("Invalid date format. Please use YYYY-MM-DD HH:mm.");
-      }
-
-      const [, year, month, day, hour, minute] = match;
-      const date = new Date(
-        Number(year),
-        Number(month) - 1,
-        Number(day),
-        Number(hour),
-        Number(minute)
-      );
-
-      if (Number.isNaN(date.getTime())) {
-        throw new Error("Invalid date and time.");
-      }
-
-      return date;
+    function formatInputDateTime(date) {
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
     }
-
     function isWeekend(date) {
-      return date.getDay() === 0 || date.getDay() === 6;
+      const day = date.getDay();
+      return day === 0 || day === 6;
     }
-
     function isPublicHoliday(date) {
       return selectedHolidays.includes(toLocalDateString(date));
     }
-
     function isWorkingDay(date) {
       return !isWeekend(date) && !isPublicHoliday(date);
     }
-
+    function setTime(date, hour, minute = 0) {
+      const output = cloneDate(date);
+      output.setHours(hour, minute, 0, 0);
+      return output;
+    }
     function moveToNextWorkingDay(date, skippedDates) {
-      let current = cloneDate(date);
-
-      while (!isWorkingDay(current)) {
-        const dateText = toLocalDateString(current);
-
-        if (isWeekend(current)) {
+      let output = cloneDate(date);
+      // Ensure we start at the start of working hour of that day for checks
+      output = setTime(output, output.getHours(), output.getMinutes());
+      while (!isWorkingDay(output)) {
+        const dateText = toLocalDateString(output);
+        if (isWeekend(output)) {
           skippedDates.add(`Weekend: ${dateText}`);
         }
-
-        if (isPublicHoliday(current)) {
+        if (isPublicHoliday(output)) {
           skippedDates.add(`Public Holiday: ${dateText}`);
         }
-
-        current.setDate(current.getDate() + 1);
-        current = setTime(current, WORK_START_HOUR, 0);
+        output.setDate(output.getDate() + 1);
+        output = setTime(output, WORK_START_HOUR, 0);
       }
-
-      return current;
+      return output;
     }
-
     function normalizeStartTime(date, skippedDates) {
-      let current = moveToNextWorkingDay(date, skippedDates);
-
-      if (current.getHours() < WORK_START_HOUR) {
-        return setTime(current, WORK_START_HOUR, 0);
+      let output = cloneDate(date);
+      output = moveToNextWorkingDay(output, skippedDates);
+      const hour = output.getHours();
+      if (hour < WORK_START_HOUR) {
+        return setTime(output, WORK_START_HOUR, 0);
       }
-
-      if (current.getHours() >= WORK_START_CUTOFF_HOUR) {
-        current.setDate(current.getDate() + 1);
-        current = setTime(current, WORK_START_HOUR, 0);
-        return moveToNextWorkingDay(current, skippedDates);
+      if (hour >= 19) {
+        output.setDate(output.getDate() + 1);
+        output = setTime(output, WORK_START_HOUR, 0);
+        return moveToNextWorkingDay(output, skippedDates);
       }
-
-      return current;
+      if (hour >= WORK_END_HOUR) {
+        output.setDate(output.getDate() + 1);
+        output = setTime(output, WORK_START_HOUR, 0);
+        return moveToNextWorkingDay(output, skippedDates);
+      }
+      return output;
     }
-
     function getDailyEndTime(date, jobType) {
       if (jobType === "IPO") {
         return setTime(date, 23, 59);
       }
-
-      return setTime(date, COMPLIANCE_END_HOUR, 0);
+      return setTime(date, 22, 0);
     }
-
     function addWorkingHours(startDate, hours, jobType, skippedDates) {
       let current = normalizeStartTime(startDate, skippedDates);
       let remaining = hours;
-
+      const MS_PER_HOUR = 1000 * 60 * 60;
       while (remaining > 0.0001) {
         current = moveToNextWorkingDay(current, skippedDates);
-
-        const dailyEnd = getDailyEndTime(current, jobType);
-
-        if (current >= dailyEnd) {
+        const dailyLimit = getDailyEndTime(current, jobType);
+        if (current >= dailyLimit) {
           current.setDate(current.getDate() + 1);
           current = setTime(current, WORK_START_HOUR, 0);
           continue;
         }
-
-        const availableHours = (dailyEnd.getTime() - current.getTime()) / 3600000;
+        const availableMilliseconds = dailyLimit - current;
+        const availableHours = availableMilliseconds / MS_PER_HOUR;
         const hoursToAdd = Math.min(remaining, availableHours);
-
-        current = new Date(current.getTime() + hoursToAdd * 3600000);
+        current = new Date(current.getTime() + hoursToAdd * MS_PER_HOUR);
         remaining -= hoursToAdd;
-
         if (remaining > 0.0001) {
           current.setDate(current.getDate() + 1);
           current = setTime(current, WORK_START_HOUR, 0);
         }
       }
-
       return current;
     }
-
     function calculateRequiredHours(taskType, language, pages) {
       if (taskType === "New Draft") {
         return language === "E2C" ? pages : pages * 1.5;
       }
-
       if (taskType === "Chase Markups") {
         return (pages / 80) * 13;
       }
-
       if (taskType === "Line-by-line Review") {
         return pages;
       }
-
       if (taskType === "Call Obvious") {
         return pages / 10;
       }
-
       return 0;
     }
-
     function getProcessingRateText(taskType, language) {
       if (taskType === "New Draft") {
         return language === "E2C"
           ? "New Draft (E to C): 1 page = 1 hour"
           : "New Draft (C to E): 1 page = 1.5 hours";
       }
-
       if (taskType === "Chase Markups") {
         return "Chase Markups: estimated at 80 pages per 13-hour working day";
       }
-
       if (taskType === "Line-by-line Review") {
         return "Line-by-line Review: 1 page = 1 hour";
       }
-
       return "Call Obvious: 10 pages = 1 hour";
     }
-
-    function updatePagesFromTNumbers() {
-      const startTInput = document.getElementById("startT");
-      const endTInput = document.getElementById("endT");
-      const pagesInput = document.getElementById("pages");
-
-      const startT = Number(startTInput.value);
-      const endT = Number(endTInput.value);
-
-      if (!startT || startT < 1) {
-        pagesInput.value = "";
-        return;
-      }
-
-      if (!endTInput.value) {
-        pagesInput.value = 1;
-        return;
-      }
-
-      if (endT < startT) {
-        pagesInput.value = "";
-        return;
-      }
-
-      pagesInput.value = endT - startT + 1;
-    }
-
     function getTNumber() {
       const startT = Number(document.getElementById("startT").value);
       const endTValue = document.getElementById("endT").value;
       const endT = endTValue ? Number(endTValue) : null;
-
-      if (!startT || startT < 1) {
-        throw new Error("Please enter a valid Start T Number.");
-      }
-
-      if (endT !== null && endT < startT) {
+      if (endT && endT < startT) {
         throw new Error("End T Number cannot be smaller than Start T Number.");
       }
-
-      return endT !== null ? `T${startT}-T${endT}` : `T${startT}`;
+      return endT ? `T${startT}-T${endT}` : `T${startT}`;
     }
-
     function updateConditionalFields() {
       const taskType = document.getElementById("taskType").value;
       const startT = Number(document.getElementById("startT").value || 0);
       const isNonT1NewDraft = taskType === "New Draft" && startT > 1;
-
       document.getElementById("previousTatSection").style.display =
         isNonT1NewDraft ? "block" : "none";
-
       if (!isNonT1NewDraft) {
         document.getElementById("previousIsNewDraft").checked = false;
-        document.getElementById("previousTat").value = "";
         document.getElementById("previousTatInputSection").style.display = "none";
-      } else {
-        document.getElementById("previousTatInputSection").style.display =
-          document.getElementById("previousIsNewDraft").checked ? "block" : "none";
+        if (previousTatPicker) previousTatPicker.clear();
       }
-
+      document.getElementById("previousTatInputSection").style.display =
+        isNonT1NewDraft &&
+        document.getElementById("previousIsNewDraft").checked
+          ? "block"
+          : "none";
       document.getElementById("clientTatSection").style.display =
         document.getElementById("requireOT").checked ? "block" : "none";
     }
-
     function renderHolidayTags() {
       const container = document.getElementById("holidayTags");
-
       if (!selectedHolidays.length) {
         container.innerHTML = `
           <span class="text-muted small">
@@ -1239,9 +989,7 @@ const dateTimeControls = {};
         `;
         return;
       }
-
       container.innerHTML = selectedHolidays
-        .slice()
         .sort()
         .map(date => `
           <span class="holiday-badge">
@@ -1251,44 +999,41 @@ const dateTimeControls = {};
               type="button"
               class="remove-holiday"
               data-date="${date}"
-              title="Remove holiday"
+              title="Remove"
             >×</button>
           </span>
         `)
         .join("");
-
       document.querySelectorAll(".remove-holiday").forEach(button => {
         button.addEventListener("click", () => {
+          const date = button.dataset.date;
           selectedHolidays = selectedHolidays.filter(
-            item => item !== button.dataset.date
+            item => item !== date
           );
-
-          holidayPicker.setDate(selectedHolidays, false);
+          if (holidayPicker) holidayPicker.setDate(selectedHolidays, false);
           renderHolidayTags();
         });
       });
     }
-
     function showError(message) {
       formError.innerHTML = `
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>${message}
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        ${message}
       `;
       formError.classList.remove("d-none");
-
       window.scrollTo({
         top: formError.offsetTop - 120,
         behavior: "smooth"
       });
     }
-
     function hideError() {
       formError.classList.add("d-none");
       formError.textContent = "";
     }
-
     function calculateOT(standardTat, clientTat) {
-      const differenceHours = (standardTat.getTime() - clientTat.getTime()) / 3600000;
-
+      const MS_PER_HOUR = 1000 * 60 * 60;
+      const differenceHours =
+        (standardTat - clientTat) / MS_PER_HOUR;
       if (differenceHours <= 0) {
         return {
           required: false,
@@ -1298,16 +1043,12 @@ const dateTimeControls = {};
           otHours: 0
         };
       }
-
       const fullDays = Math.floor(differenceHours / 24);
       const remainingHours = differenceHours - fullDays * 24;
-
       let otHours = fullDays * 10;
-
       if (remainingHours >= 5) {
         otHours += 5;
       }
-
       return {
         required: true,
         differenceHours,
@@ -1316,25 +1057,25 @@ const dateTimeControls = {};
         otHours
       };
     }
-
     function displayOTResult(ot, jobType, receivedDateTime, clientTat) {
       const container = document.getElementById("otResult");
-
       if (!clientTat) {
         container.innerHTML = `
           <div class="info-box border bg-light">
             <strong><i class="bi bi-dash-circle me-1"></i>OT: N/A</strong><br>
-            <span class="small text-muted">Client did not request an earlier TAT.</span>
+            <span class="small text-muted">
+              Client did not request an earlier TAT.
+            </span>
           </div>
         `;
         return;
       }
-
       if (!ot.required) {
         container.innerHTML = `
           <div class="info-box border" style="background: var(--success-bg); border-color: #a9e6be !important;">
             <strong class="text-success">
-              <i class="bi bi-check-circle-fill me-1"></i>OT Required: No
+              <i class="bi bi-check-circle-fill me-1"></i>
+              OT Required: No
             </strong><br>
             <span class="small text-muted">
               The Client's Requested TAT is not earlier than the Standard Expected TAT.
@@ -1343,12 +1084,9 @@ const dateTimeControls = {};
         `;
         return;
       }
-
-      const totalText = ot.differenceHours.toFixed(1).replace(".0", "");
       const remainingText = ot.remainingHours.toFixed(1).replace(".0", "");
-
+      const totalText = ot.differenceHours.toFixed(1).replace(".0", "");
       let warning = "";
-
       if (jobType === "Compliance") {
         warning += `
           <div class="alert alert-warning mt-3 mb-0">
@@ -1364,7 +1102,6 @@ const dateTimeControls = {};
           </div>
         `;
       }
-
       if (clientTat < receivedDateTime || ot.fullDays >= 2) {
         warning += `
           <div class="alert alert-danger mt-3 mb-0">
@@ -1374,7 +1111,6 @@ const dateTimeControls = {};
           </div>
         `;
       }
-
       container.innerHTML = `
         <div class="info-box" style="background: var(--danger-bg); border: 1px solid #fecaca;">
           <div><strong>Effective Time Gap:</strong> ${totalText} hours</div>
@@ -1393,26 +1129,108 @@ const dateTimeControls = {};
         ${warning}
       `;
     }
-
     function generateEmailDraft(language, tNumber, tat, fileFormat) {
-      const languageText = language === "E2C" ? "CHI translation" : "ENG translation";
-
+      const languageText =
+        language === "E2C" ? "CHI translation" : "ENG translation";
       return `${languageText} ${tNumber} will be ready by ${formatEmailTime(
         tat
       )} ${formatShortDate(tat)}, in ${fileFormat}.`;
     }
-
+    async function saveSharedHolidays() {
+      const status = document.getElementById("firebaseStatus");
+      try {
+        if (!window.firebaseDb) {
+          throw new Error("Firebase is not ready yet.");
+        }
+        await window.firebaseSet(
+          window.firebaseRef(window.firebaseDb, "settings/publicHolidays"),
+          {
+            holidays: selectedHolidays,
+            updatedAt: new Date().toISOString()
+          }
+        );
+        status.className = "firebase-status text-success";
+        status.innerHTML = `
+          <i class="bi bi-check-circle-fill me-1"></i>
+          Shared holidays saved successfully to Firebase.
+        `;
+      } catch (error) {
+        console.error(error);
+        status.className = "firebase-status text-danger";
+        status.innerHTML = `
+          <i class="bi bi-x-circle-fill me-1"></i>
+          Unable to save holidays: ${error.message}
+        `;
+      }
+    }
+    async function autoResetHolidaysIfNewYear(snapshot) {
+      const status = document.getElementById("firebaseStatus");
+      try {
+        const now = new Date();
+        const todayIsJan1 = now.getMonth() === 0 && now.getDate() === 1;
+        let lastSavedYear = null;
+        if (snapshot && snapshot.exists() && snapshot.val().updatedAt) {
+          lastSavedYear = new Date(snapshot.val().updatedAt).getFullYear();
+        }
+        const currentYear = now.getFullYear();
+        // If current year is greater than lastSavedYear (cross-year) OR today is Jan 1 -> reset
+        if ((lastSavedYear !== null && currentYear > lastSavedYear) || todayIsJan1) {
+          // Clear local selection
+          selectedHolidays = [];
+          if (holidayPicker) holidayPicker.clear();
+          renderHolidayTags();
+          // Clear firebase stored holidays (force re-enter)
+          if (window.firebaseDb) {
+            await window.firebaseSet(
+              window.firebaseRef(window.firebaseDb, "settings/publicHolidays"),
+              {
+                holidays: [],
+                updatedAt: new Date().toISOString()
+              }
+            );
+          }
+          status.className = "firebase-status text-warning";
+          status.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            Holidays were reset for the new year. Please re-enter the public holidays for ${currentYear}.
+          `;
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error("Holiday reset check error:", error);
+        status.className = "firebase-status text-danger";
+        status.innerHTML = `
+          <i class="bi bi-x-circle-fill me-1"></i>
+          Unable to verify holiday reset: ${error.message}
+        `;
+        return false;
+      }
+    }
     async function loadSharedHolidays() {
       const status = document.getElementById("firebaseStatus");
-
       try {
-        const snapshot = await get(ref(db, "settings/publicHolidays"));
-
-        if (snapshot.exists() && Array.isArray(snapshot.val().holidays)) {
+        if (!window.firebaseDb) {
+          status.className = "firebase-status text-muted";
+          status.innerHTML = `
+            <i class="bi bi-info-circle me-1"></i>
+            Firebase not available in this environment.
+          `;
+          return;
+        }
+        const snapshot = await window.firebaseGet(
+          window.firebaseRef(window.firebaseDb, "settings/publicHolidays")
+        );
+        // If reset is needed, autoResetHolidaysIfNewYear will clear them both locally and in Firebase
+        const didReset = await autoResetHolidaysIfNewYear(snapshot);
+        if (didReset) {
+          // Nothing else to load
+          return;
+        }
+        if (snapshot.exists() && snapshot.val().holidays && snapshot.val().holidays.length) {
           selectedHolidays = [...new Set(snapshot.val().holidays)].sort();
-          holidayPicker.setDate(selectedHolidays, false);
+          if (holidayPicker) holidayPicker.setDate(selectedHolidays, false);
           renderHolidayTags();
-
           status.className = "firebase-status text-success";
           status.innerHTML = `
             <i class="bi bi-cloud-check-fill me-1"></i>
@@ -1430,50 +1248,26 @@ const dateTimeControls = {};
         status.className = "firebase-status text-danger";
         status.innerHTML = `
           <i class="bi bi-x-circle-fill me-1"></i>
-          Unable to load holidays. Please check Firebase permissions.
+          Unable to load holidays: ${error.message}
         `;
       }
     }
-
-    async function saveSharedHolidays() {
-      const status = document.getElementById("firebaseStatus");
-
-      try {
-        await set(ref(db, "settings/publicHolidays"), {
-          holidays: selectedHolidays,
-          updatedAt: new Date().toISOString()
-        });
-
-        status.className = "firebase-status text-success";
-        status.innerHTML = `
-          <i class="bi bi-check-circle-fill me-1"></i>
-          Shared holidays saved successfully to Firebase.
-        `;
-      } catch (error) {
-        console.error(error);
-        status.className = "firebase-status text-danger";
-        status.innerHTML = `
-          <i class="bi bi-x-circle-fill me-1"></i>
-          Unable to save holidays. Please check Firebase permissions.
-        `;
-      }
-    }
-
     async function saveCalculationToFirebase() {
       const saveStatus = document.getElementById("saveStatus");
-
       try {
         if (!latestCalculation) {
           throw new Error("Please calculate the TAT before saving.");
         }
-
-        const calculationReference = push(ref(db, "tatCalculations"));
-
-        await set(calculationReference, {
+        if (!window.firebaseDb) {
+          throw new Error("Firebase is not ready yet.");
+        }
+        const calculationReference = window.firebasePush(
+          window.firebaseRef(window.firebaseDb, "tatCalculations")
+        );
+        await window.firebaseSet(calculationReference, {
           ...latestCalculation,
           createdAt: new Date().toISOString()
         });
-
         saveStatus.className = "small mt-2 text-success";
         saveStatus.innerHTML = `
           <i class="bi bi-check-circle-fill me-1"></i>
@@ -1484,360 +1278,88 @@ const dateTimeControls = {};
         saveStatus.className = "small mt-2 text-danger";
         saveStatus.innerHTML = `
           <i class="bi bi-x-circle-fill me-1"></i>
-          ${error.message || "Unable to save calculation."}
+          Unable to save calculation: ${error.message}
         `;
       }
     }
 
-
-    可以。以下修改會讓：
-
-- 所有日期只能透過 Flatpickr 下拉日曆選擇
-- 時間改成「小時」與「分鐘」兩個下拉選單
-- 使用 24 小時制
-- 分鐘提供 `00–59`
-- 公眾假期繼續使用可多選的下拉日曆
-- 禁止手動輸入日期
-
-另外，你原本的 JavaScript 有幾個語法錯誤，我也一併列出修正方式。
-
----
-
-## 1. 加入日期時間欄位樣式
-
-把以下 CSS 加到原本 `<style>` 的最後、`@media` 前面：
-
-```css
-.datetime-picker-row .date-column {
-  position: relative;
-}
-
-.datetime-picker-row .date-column::after {
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  z-index: 3;
-  color: var(--primary);
-  font-family: "bootstrap-icons";
-  content: "\f1f6";
-  pointer-events: none;
-  transform: translateY(-50%);
-}
-
-.datetime-picker-row .date-picker-input {
-  padding-right: 42px;
-  cursor: pointer;
-  background-color: #fff;
-}
-
-.datetime-picker-row .form-select {
-  cursor: pointer;
-}
-
-.datetime-separator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0;
-  color: var(--text-muted);
-  font-weight: 800;
-}
-```
-
----
-
-## 2. 修改 Received Date & Time
-
-找到原本這段：
-
-```html
-<input
-  type="text"
-  id="receivedDateTime"
-  class="form-control"
-  placeholder="YYYY-MM-DD HH:mm"
-  required
-/>
-```
-
-替換成：
-
-```html
-<div class="row g-2 datetime-picker-row">
-  <div class="col-12 col-sm-6 date-column">
-    <input
-      type="text"
-      id="receivedDate"
-      class="form-control date-picker-input"
-      placeholder="Select date"
-      readonly
-      aria-label="Received date"
-    />
-  </div>
-
-  <div class="col-5 col-sm-2">
-    <select
-      id="receivedHour"
-      class="form-select"
-      aria-label="Received hour"
-    >
-      <option value="">Hour</option>
-    </select>
-  </div>
-
-  <div class="col-2 col-sm-1 datetime-separator">:</div>
-
-  <div class="col-5 col-sm-3">
-    <select
-      id="receivedMinute"
-      class="form-select"
-      aria-label="Received minute"
-    >
-      <option value="">Minute</option>
-    </select>
-  </div>
-</div>
-
-<input type="hidden" id="receivedDateTime" />
-```
-
-保留下面原有的說明：
-
-```html
-<div class="form-text">
-  Select the date and time when the job was received.
-</div>
-```
-
----
-
-## 3. 修改 Previous TAT End Time
-
-找到原本：
-
-```html
-<input
-  type="text"
-  id="previousTat"
-  class="form-control"
-  placeholder="YYYY-MM-DD HH:mm"
-/>
-```
-
-替換成：
-
-```html
-<div class="row g-2 datetime-picker-row">
-  <div class="col-12 col-sm-6 date-column">
-    <input
-      type="text"
-      id="previousDate"
-      class="form-control date-picker-input"
-      placeholder="Select date"
-      readonly
-      aria-label="Previous TAT date"
-    />
-  </div>
-
-  <div class="col-5 col-sm-2">
-    <select
-      id="previousHour"
-      class="form-select"
-      aria-label="Previous TAT hour"
-    >
-      <option value="">Hour</option>
-    </select>
-  </div>
-
-  <div class="col-2 col-sm-1 datetime-separator">:</div>
-
-  <div class="col-5 col-sm-3">
-    <select
-      id="previousMinute"
-      class="form-select"
-      aria-label="Previous TAT minute"
-    >
-      <option value="">Minute</option>
-    </select>
-  </div>
-</div>
-
-<input type="hidden" id="previousTat" />
-```
-
----
-
-## 4. 修改 Client's Requested TAT
-
-找到原本：
-
-```html
-<input
-  type="text"
-  id="clientTat"
-  class="form-control"
-  placeholder="YYYY-MM-DD HH:mm"
-/>
-```
-
-替換成：
-
-```html
-<div class="row g-2 datetime-picker-row">
-  <div class="col-12 col-sm-6 date-column">
-    <input
-      type="text"
-      id="clientDate"
-      class="form-control date-picker-input"
-      placeholder="Select date"
-      readonly
-      aria-label="Client requested TAT date"
-    />
-  </div>
-
-  <div class="col-5 col-sm-2">
-    <select
-      id="clientHour"
-      class="form-select"
-      aria-label="Client requested TAT hour"
-    >
-      <option value="">Hour</option>
-    </select>
-  </div>
-
-  <div class="col-2 col-sm-1 datetime-separator">:</div>
-
-  <div class="col-5 col-sm-3">
-    <select
-      id="clientMinute"
-      class="form-select"
-      aria-label="Client requested TAT minute"
-    >
-      <option value="">Minute</option>
-    </select>
-  </div>
-</div>
-
-<input type="hidden" id="clientTat" />
-```
-
----
-
-## 5. 替換日期時間初始化程式
-
-先把原本這幾個變數：
-
-```js
-let holidayPicker;
-let receivedDatePicker;
-let selectedHolidays = [];
-```
-
-替換成：
-
-```js
-let holidayPicker;
-let selectedHolidays = [];
-let latestCalculation = null;
-
-const dateTimeControls = {};
-```
-
-因為你後面原本還有：
-
-```js
-let latestCalculation = null;
-```
-
-請刪除重複的那一行。
-
----
-
-### 刪除原本的 `setDefaultReceivedTime()`
-
-刪除：
-
-```js
-function setDefaultReceivedTime() {
-  const now = new Date();
-  if (receivedDatePicker) {
-    receivedDatePicker.setDate(now, false);
-  } else {
-    document.getElementById("receivedDateTime").value = formatFullDateTime(now);
-  }
-}
-```
-
----
-
-### 刪除原本的 `initializePickers()`
-
-請把舊的 `initializePickers()` 整個刪除，改成以下完整版本：
-
-```js
-function populateTimeSelect(selectElement, maximum, placeholder) {
-  selectElement.innerHTML = `<option value="">${placeholder}</option>`;
-
-  for (let value = 0; value <= maximum; value += 1) {
-    const formattedValue = pad(value);
-    const option = document.createElement("option");
-
-    option.value = formattedValue;
-    option.textContent = formattedValue;
-
-    selectElement.appendChild(option);
-  }
-}
-
-function syncDateTimeValue(prefix) {
-  const dateInput = document.getElementById(`${prefix}Date`);
-  const hourSelect = document.getElementById(`${prefix}Hour`);
-  const minuteSelect = document.getElementById(`${prefix}Minute`);
-
-  const hiddenInputId =
-    prefix === "received"
-      ? "receivedDateTime"
-      : prefix === "previous"
-        ? "previousTat"
-        : "clientTat";
-
-  const hiddenInput = document.getElementById(hiddenInputId);
-
-  if (
-    dateInput.value &&
-    hourSelect.value !== "" &&
-    minuteSelect.value !== ""
-  ) {
-    hiddenInput.value =
-      `${dateInput.value} ${hourSelect.value}:${minuteSelect.value}`;
-  } else {
-    hiddenInput.value = "";
-  }
-}
-
-function initializeDateTimeControl(prefix) {
-  const dateInput = document.getElementById(`${prefix}Date`);
-  const hourSelect = document.getElementById(`${prefix}Hour`);
-  const minuteSelect = document.getElementById(`${prefix}Minute`);
-
-  populateTimeSelect(hourSelect, 23, "Hour");
-  populateTimeSelect(minuteSelect, 59, "Minute");
-
-  const picker = flatpickr(dateInput, {
-    enableTime: false,
-    dateFormat: "Y-m-d",
-    allowInput: false,
-    clickOpens: true,
-
-    disableMobile: true
-
-    form.addEventListener("submit", event => {
+    function setDefaultReceivedTime() {
+      const now = new Date();
+      // Round minutes to nearest 5 maybe not necessary; keep current time
+      const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      if (receivedPicker) {
+        receivedPicker.setDate(now, false);
+      } else {
+        document.getElementById("receivedDateTime").value = formatted;
+      }
+    }
+
+    function initializeHolidayPicker() {
+      holidayPicker = flatpickr("#holidayPicker", {
+        mode: "multiple",
+        dateFormat: "Y-m-d",
+        allowInput: false,
+        onChange: function(selectedDates) {
+          selectedHolidays = selectedDates
+            .map(date => toLocalDateString(date))
+            .sort();
+          renderHolidayTags();
+        }
+      });
+    }
+
+    function initializeDateTimePickers() {
+      const commonOpts = {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        allowInput: false,
+        time_24hr: true
+      };
+      receivedPicker = flatpickr("#receivedDateTime", {
+        ...commonOpts,
+        onChange: function(selectedDates, dateStr) {
+          // keep input in the same format; no extra handling required here
+        }
+      });
+      previousTatPicker = flatpickr("#previousTat", {
+        ...commonOpts
+      });
+      clientTatPicker = flatpickr("#clientTat", {
+        ...commonOpts
+      });
+    }
+
+    // Pages auto-calc logic
+    function updatePagesField() {
+      const startVal = document.getElementById("startT").value;
+      const endVal = document.getElementById("endT").value;
+      const pagesInput = document.getElementById("pages");
+      hideError();
+      if (!startVal) {
+        pagesInput.value = "";
+        return;
+      }
+      const start = Number(startVal);
+      if (!endVal) {
+        // default 1 page
+        pagesInput.value = 1;
+        return;
+      }
+      const end = Number(endVal);
+      if (end < start) {
+        pagesInput.value = "";
+        showError("End T Number cannot be smaller than Start T Number.");
+        return;
+      }
+      const pages = end - start + 1;
+      pagesInput.value = pages;
+    }
+
+    form.addEventListener("submit", function(event) {
       event.preventDefault();
       hideError();
-
       try {
-        const receivedValue = document.getElementById("receivedDateTime").value.trim();
+        const receivedValue = document.getElementById("receivedDateTime").value;
         const jobType = document.getElementById("jobType").value;
         const taskType = document.getElementById("taskType").value;
         const language = document.getElementById("language").value;
@@ -1845,23 +1367,29 @@ function initializeDateTimeControl(prefix) {
         const bufferHours = Number(document.getElementById("bufferHours").value);
         const fileFormat = document.getElementById("fileFormat").value;
         const requireOT = document.getElementById("requireOT").checked;
-        const clientTatValue = document.getElementById("clientTat").value.trim();
-        const previousIsNewDraft = document.getElementById("previousIsNewDraft").checked;
-        const previousTatValue = document.getElementById("previousTat").value.trim();
+        const clientTatValue = document.getElementById("clientTat").value;
+        const previousIsNewDraft =
+          document.getElementById("previousIsNewDraft").checked;
+        const previousTatValue = document.getElementById("previousTat").value;
         const startT = Number(document.getElementById("startT").value);
-
-        if (!receivedValue || !jobType || !taskType || !language || !pages || pages <= 0) {
+        if (
+          !receivedValue ||
+          !jobType ||
+          !taskType ||
+          !language ||
+          !pages ||
+          pages <= 0
+        ) {
           throw new Error("Please complete all required fields.");
         }
-
         if (bufferHours < 0 || Number.isNaN(bufferHours)) {
           throw new Error("Buffer Hours must be 0 or above.");
         }
-
         if (requireOT && !clientTatValue) {
-          throw new Error("Please provide Client's Requested TAT for OT assessment.");
+          throw new Error(
+            "Please provide Client's Requested TAT for OT assessment."
+          );
         }
-
         if (
           taskType === "New Draft" &&
           startT > 1 &&
@@ -1872,14 +1400,12 @@ function initializeDateTimeControl(prefix) {
             "Please provide Previous TAT because this is a non-T1 New Draft following another New Draft."
           );
         }
-
         const tNumber = getTNumber();
         const receivedDateTime = parseDateTime(receivedValue);
         const skippedDates = new Set();
-
         let startDateTime = receivedDateTime;
-        let startReason = "Received Date & Time — this task can be processed independently.";
-
+        let startReason =
+          "Received Date & Time — this task can be processed independently.";
         if (taskType === "New Draft") {
           if (startT === 1) {
             startReason = "Received Date & Time — this is a T1 New Draft.";
@@ -1892,85 +1418,84 @@ function initializeDateTimeControl(prefix) {
               "Received Date & Time — this non-T1 New Draft does not follow another New Draft.";
           }
         }
-
         const adjustedStart = normalizeStartTime(startDateTime, skippedDates);
-        const requiredHours = calculateRequiredHours(taskType, language, pages);
-
+        const requiredHours = calculateRequiredHours(
+          taskType,
+          language,
+          pages
+        );
         const baseTat = addWorkingHours(
           adjustedStart,
           requiredHours,
           jobType,
           skippedDates
         );
-
         const standardTat = addWorkingHours(
           baseTat,
           bufferHours,
           jobType,
           skippedDates
         );
-
-        const clientTat = clientTatValue ? parseDateTime(clientTatValue) : null;
-        const ot = clientTat ? calculateOT(standardTat, clientTat) : null;
-
+        const clientTat = clientTatValue
+          ? parseDateTime(clientTatValue)
+          : null;
+        const ot = clientTat
+          ? calculateOT(standardTat, clientTat)
+          : null;
         const skippedText = skippedDates.size
           ? Array.from(skippedDates)
               .sort()
               .map(item => `- ${item}`)
               .join("\n")
           : "- No weekend or public holiday was crossed during this calculation.";
-
         const calculationSteps = [
-          `Job Type: ${jobType === "Compliance" ? "Compliance Jobs" : "IPO Jobs (including side jobs)"}`,
+          `Job Type: ${
+            jobType === "Compliance"
+              ? "Compliance Jobs"
+              : "IPO Jobs (including side jobs)"
+          }`,
           `Task Type: ${taskType}`,
           `Language: ${language === "E2C" ? "E to C" : "C to E"}`,
           `T Number: ${tNumber}`,
           `Pages: ${pages}`,
           `Processing Rate: ${getProcessingRateText(taskType, language)}`,
-          `Required Base Working Hours: ${requiredHours.toFixed(1).replace(".0", "")} hours`,
-          "",
+          `Required Base Working Hours: ${requiredHours
+            .toFixed(1)
+            .replace(".0", "")} hours`,
+          ``,
           `Start Point: ${formatFullDateTime(startDateTime)}`,
           `Start Reason: ${startReason}`,
           `Adjusted Working Start: ${formatFullDateTime(adjustedStart)}`,
-          "",
-          "Skipped Non-working Dates:",
+          ``,
+          `Skipped Non-working Dates:`,
           skippedText,
-          "",
+          ``,
           `Base TAT (before Buffer): ${formatFullDateTime(baseTat)}`,
           `Buffer Added: ${bufferHours} hours`,
           `Final Standard Expected TAT: ${formatFullDateTime(standardTat)}`
         ].join("\n");
-
         const recipients =
           jobType === "Compliance"
             ? { to: "ARCS; SZCS", cc: "LS-IS" }
             : { to: "HKCS; SZCS", cc: "LS-IS" };
-
         const emailDraft = generateEmailDraft(
           language,
           tNumber,
           standardTat,
           fileFormat
         );
-
-          document.getElementById("standardTatDisplay").textContent =
+        document.getElementById("standardTatDisplay").textContent =
           formatFullDateTime(standardTat);
-
         document.getElementById("standardTatShortDisplay").textContent =
           `${formatShortDate(standardTat)} ${formatEmailTime(standardTat)}`;
-
         document.getElementById("calculationSteps").textContent =
           calculationSteps;
-
         document.getElementById("recipientResult").innerHTML = `
           <div><strong><i class="bi bi-send me-1"></i>To:</strong> ${recipients.to}</div>
           <div class="mt-1"><strong><i class="bi bi-copy me-1"></i>CC:</strong> ${recipients.cc}</div>
         `;
-
         document.getElementById("emailDraft").textContent = emailDraft;
-
         displayOTResult(ot, jobType, receivedDateTime, clientTat);
-
         latestCalculation = {
           receivedDateTime: receivedValue,
           jobType,
@@ -1988,10 +1513,8 @@ function initializeDateTimeControl(prefix) {
           emailDraft,
           calculationSteps
         };
-
         resultCard.style.display = "block";
         document.getElementById("saveStatus").textContent = "";
-
         window.scrollTo({
           top: resultCard.offsetTop - 25,
           behavior: "smooth"
@@ -2001,18 +1524,22 @@ function initializeDateTimeControl(prefix) {
       }
     });
 
+    // wire up conditional listeners
     document
       .getElementById("taskType")
       .addEventListener("change", updateConditionalFields);
-
     document
       .getElementById("startT")
-      .addEventListener("input", updateConditionalFields);
-
+      .addEventListener("input", function() {
+        updateConditionalFields();
+        updatePagesField();
+      });
+    document
+      .getElementById("endT")
+      .addEventListener("input", updatePagesField);
     document
       .getElementById("previousIsNewDraft")
       .addEventListener("change", updateConditionalFields);
-
     document
       .getElementById("requireOT")
       .addEventListener("change", updateConditionalFields);
@@ -2021,12 +1548,10 @@ function initializeDateTimeControl(prefix) {
       .getElementById("clearHolidays")
       .addEventListener("click", function() {
         selectedHolidays = [];
-        holidayPicker.clear();
+        if (holidayPicker) holidayPicker.clear();
         renderHolidayTags();
-
         document.getElementById("firebaseStatus").className =
           "firebase-status text-muted";
-
         document.getElementById("firebaseStatus").innerHTML = `
           <i class="bi bi-arrow-counterclockwise me-1"></i>
           Holiday settings reset locally.
@@ -2047,18 +1572,14 @@ function initializeDateTimeControl(prefix) {
         const emailDraft = document.getElementById("emailDraft").textContent;
         const button = this;
         const originalHTML = button.innerHTML;
-
         try {
           await navigator.clipboard.writeText(emailDraft);
-
           button.innerHTML = `
             <i class="bi bi-check2 me-1"></i>
             Copied!
           `;
-
           button.classList.remove("btn-outline-primary");
           button.classList.add("btn-success");
-
           setTimeout(() => {
             button.innerHTML = originalHTML;
             button.classList.remove("btn-success");
@@ -2076,24 +1597,21 @@ function initializeDateTimeControl(prefix) {
       .addEventListener("click", function() {
         form.reset();
         selectedHolidays = [];
-
-        holidayPicker.clear();
+        if (holidayPicker) holidayPicker.clear();
         renderHolidayTags();
         hideError();
-
         resultCard.style.display = "none";
         latestCalculation = null;
-
         updateConditionalFields();
         setDefaultReceivedTime();
-
         document.getElementById("firebaseStatus").className =
           "firebase-status text-muted";
-
         document.getElementById("firebaseStatus").innerHTML = `
           <i class="bi bi-arrow-counterclockwise me-1"></i>
           Holiday settings reset locally.
         `;
+        // reset pages field
+        document.getElementById("pages").value = "";
       });
 
     window.addEventListener("firebaseReady", function() {
@@ -2101,15 +1619,22 @@ function initializeDateTimeControl(prefix) {
         <i class="bi bi-cloud-arrow-down me-1"></i>
         Firebase connected. Loading shared holidays...
       `;
-
       loadSharedHolidays();
     });
 
-    initializePickers();
-renderHolidayTags();
-setDefaultReceivedTime();
-updateConditionalFields();
-loadSharedHolidays();
+    // init pickers and defaults
+    initializeHolidayPicker();
+    initializeDateTimePickers();
+    renderHolidayTags();
+    setDefaultReceivedTime();
+    updateConditionalFields();
+
+    // initialize pages field to 1 if start exists on first load
+    updatePagesField();
+
+    // Optional: quick HK holiday suggestions (commented out). You can integrate this array for quick-fill if desired.
+    // const hkStandardHolidaysQuick = ["2026-01-01","2026-01-02","2026-04-05","2026-05-01","2026-12-25"];
+
   </script>
 </body>
 </html>
