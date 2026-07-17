@@ -1942,77 +1942,100 @@
   }
 
   /*
-   * OT assessment rule:
+   * OT calculation rule:
    *
    * 1. OT is assessed using the Standard TAT without buffer.
    * 2. Compare the calendar dates first.
-   * 3. Each calendar-day difference equals 10h OT.
+   * 3. Each calendar-day is charged as 10h OT.
    * 4. Calculate the Client Requested TAT working hours
-   *    from 09:00.
-   * 5. If those remaining hours are 5 or above,
-   *    add another 5h OT.
+   *    from 09:00 to 22:00.
+   * 5. Remaining 6–11 hours are charged as 5h OT.
+   * 6. Remaining 1–5 hours are not charged.
    */
 
-  const standardDateOnly = Date.UTC(
-    standardTatNoBuffer.getFullYear(),
-    standardTatNoBuffer.getMonth(),
-    standardTatNoBuffer.getDate()
+  const hoursPerWorkingDay =
   );
 
-  const clientDateOnly = Date.UTC(
-    clientTat.getFullYear(),
-    clientTat.getMonth(),
-    clientTat.getDate()
-  );
+  while (currentDate <= finalDate) {
+    if (isWorkingDay(currentDate)) {
+      const workingDayStart =
+        setTime(
+          currentDate,
+          WORK_START_HOUR,
+          0
+        );
 
-  const fullDays = Math.max(
-    0,
-    Math.round(
-      (
-        standardDateOnly -
-        clientDateOnly
-      ) /
-      (
-        1000 * 60 * 60 * 24
-      )
-    )
-  );
+      const workingDayEnd =
+        setTime(
+          currentDate,
+          WORK_END_HOUR,
+          0
+        );
 
-  const clientWorkingDayStart =
-    setTime(
-      clientTat,
-      WORK_START_HOUR,
-      0
+      const periodStart =
+        clientTat > workingDayStart
+          ? clientTat
+          : workingDayStart;
+
+      const periodEnd =
+        standardTatNoBuffer < workingDayEnd
+          ? standardTatNoBuffer
+          : workingDayEnd;
+
+      if (periodEnd > periodStart) {
+        availableHours +=
+          (
+            periodEnd.getTime() -
+            periodStart.getTime()
+          ) / MS_PER_HOUR;
+      }
+    }
+
+    currentDate.setDate(
+      currentDate.getDate() + 1
     );
-
-  let remainingHours =
-    (
-      clientTat.getTime() -
-      clientWorkingDayStart.getTime()
-    ) / MS_PER_HOUR;
+  }
 
   /*
-   * Limit the remaining hours to one 13-hour working day.
+   * Avoid floating-point calculation errors.
    */
-  remainingHours = Math.max(
-    0,
-    Math.min(
-      remainingHours,
-      WORK_END_HOUR -
-        WORK_START_HOUR
-    )
-  );
+  availableHours =
+    Math.max(
+      0,
+      Math.round(availableHours * 100) / 100
+    );
 
-  let otHours = fullDays * 10;
+  const fullDays =
+    Math.floor(
+      availableHours /
+      hoursPerWorkingDay
+    );
 
-  if (remainingHours >= 5) {
+  const remainingHours =
+    availableHours -
+    fullDays * hoursPerWorkingDay;
+
+  let otHours =
+    fullDays * 10;
+
+  /*
+   * Remaining 6 hours or above, but less than
+   * one complete working day, is charged as 5h OT.
+   */
+  if (
+    remainingHours >= 6 &&
+    remainingHours < hoursPerWorkingDay
+  ) {
     otHours += 5;
   }
 
   return {
     required: otHours > 0,
     fullDays: fullDays,
-    remainingHours: remainingHours,
+    remainingHours:
+      remainingHours,
+    availableHours:
+      availableHours,
     otHours: otHours
   };
 }
