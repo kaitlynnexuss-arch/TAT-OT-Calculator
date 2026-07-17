@@ -294,161 +294,52 @@ background: var(--primary);
 border-color: #cbd5e1;
 color: #475569;
 }
-/* =========================
-   Public Holidays UI
-   ========================= */
-
-.holidays-panel {
-  padding: 22px 20px;
-  border: 1px solid #d6e1f0;
-  border-radius: 16px;
-  background: #f8fbff;
-}
-
-.holidays-panel .form-label {
-  color: #183153;
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.holiday-picker-wrapper {
-  position: relative;
-}
-
-.holiday-picker-wrapper .form-control {
-  min-height: 44px;
-  padding-right: 44px;
-  border: 1px solid #cbd8e8;
-  border-radius: 10px !important;
-  background: #ffffff;
-  color: #183153;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.holiday-picker-wrapper .form-control::placeholder {
-  color: #64748b;
-  font-weight: 500;
-}
-
-.holiday-picker-icon {
-  position: absolute;
-  top: 50%;
-  right: 14px;
-  z-index: 2;
-  color: var(--primary);
-  font-size: 1.05rem;
-  pointer-events: none;
-  transform: translateY(-50%);
-}
-
-.holiday-selection-count {
-  margin-top: 11px;
-  color: #64748b;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
+/* Holidays */
 .holiday-tags {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: 56px;
-  margin-top: 10px;
-  padding: 8px;
-  border: 1px solid #e0e9f5;
-  border-radius: 11px;
-  background: #ffffff;
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+min-height: 58px;
+padding: 9px;
+border: 1px dashed #aebddd;
+border-radius: 12px;
+background: #fbfdff;
 }
-
 .holiday-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin: 3px;
-  padding: 7px 10px;
-  border: 1px solid #d7e7fb;
-  border-radius: 50px;
-  background: #f2f7ff;
-  color: #075985;
-  font-size: 0.8rem;
-  font-weight: 700;
+display: inline-flex;
+align-items: center;
+gap: 7px;
+margin: 3px;
+padding: 7px 10px;
+border: 1px solid #b9d9f0;
+border-radius: 50px;
+background: linear-gradient(135deg, #e8f6ff, #edf7ff);
+color: #075985;
+font-size: 0.8rem;
+font-weight: 700;
 }
-
-.holiday-badge i {
-  color: #2563eb;
-}
-
 .remove-holiday {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: #e1edff;
-  color: #1d4ed8;
-  font-size: 0.85rem;
-  font-weight: 800;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.18s ease;
+width: 18px;
+height: 18px;
+padding: 0;
+border: 0;
+border-radius: 50%;
+background: #dbeafe;
+color: #1d4ed8;
+font-size: 0.95rem;
+font-weight: 800;
+line-height: 16px;
+cursor: pointer;
+transition: all 0.18s ease;
 }
-
-.remove-holiday:hover,
-.remove-holiday:focus {
-  background: var(--danger);
-  color: #ffffff;
-  transform: scale(1.08);
+.remove-holiday:hover {
+background: var(--danger);
+color: #fff;
+transform: scale(1.08);
 }
-
-.holiday-actions {
-  display: grid;
-  gap: 10px;
-  width: 100%;
-}
-
-.holiday-actions .btn {
-  min-height: 44px;
-}
-
-.holiday-actions .btn-outline-primary {
-  border: 0;
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  box-shadow: 0 5px 14px rgba(80, 70, 190, 0.2);
-}
-
-.holiday-actions .btn-outline-primary:hover,
-.holiday-actions .btn-outline-primary:focus {
-  border: 0;
-  color: #ffffff;
-  background: linear-gradient(135deg, #1f3286, #6d28d9);
-}
-
-.holiday-actions .btn-outline-secondary {
-  border-color: #f2aaaa;
-  color: #991b1b;
-  background: #ffffff;
-}
-
-.holiday-actions .btn-outline-secondary:hover,
-.holiday-actions .btn-outline-secondary:focus {
-  border-color: #dc2626;
-  color: #ffffff;
-  background: #dc2626;
-}
-
-@media (max-width: 767px) {
-  .holidays-panel {
-    padding: 18px 15px;
-  }
-
-  .holiday-actions {
-    margin-top: 3px;
-  }
+.firebase-status {
+margin-top: 10px;
+font-size: 0.8rem;
 }
 /* Result */
 .result-header {
@@ -711,86 +602,45 @@ Required only for a non-T1 New Draft where the previous task was also a New Draf
 </div>
 </div>
 <div class="section-title holidays">
-  Public Holidays
+Public Holidays
 </div>
-
-<div class="holidays-panel mb-4">
-  <div class="row g-3 align-items-start">
-
-    <div class="col-lg-8">
-      <label for="holidayPicker" class="form-label">
-        Hong Kong Public Holidays
-      </label>
-
-      <div class="holiday-picker-wrapper">
-        <input
-          type="text"
-          id="holidayPicker"
-          class="form-control"
-          placeholder="Select one or more public holidays"
-          autocomplete="off"
-        />
-
-        <i
-          class="bi bi-calendar3 holiday-picker-icon"
-          aria-hidden="true"
-        ></i>
-      </div>
-
-      <div class="form-text">
-        Multiple dates and multiple years are supported.
-      </div>
-
-      <div
-        id="holidaySelectionCount"
-        class="holiday-selection-count"
-        aria-live="polite"
-      >
-        0 holidays selected
-      </div>
-
-      <div
-        id="holidayTags"
-        class="holiday-tags"
-        aria-live="polite"
-      >
-        <span class="text-muted small">
-          <i class="bi bi-calendar-x me-1"></i>
-          No holidays selected.
-        </span>
-      </div>
-    </div>
-
-    <div class="col-lg-4 d-flex align-items-start">
-      <div class="holiday-actions">
-        <button
-          type="button"
-          id="saveHolidaysButton"
-          class="btn btn-outline-primary"
-        >
-          <i class="bi bi-cloud-arrow-up me-1"></i>
-          Save Online
-        </button>
-
-        <button
-          type="button"
-          id="clearHolidays"
-          class="btn btn-outline-secondary"
-        >
-          <i class="bi bi-trash3 me-1"></i>
-          Clear All Holidays
-        </button>
-      </div>
-    </div>
-
-    <div class="col-12">
-      <div id="firebaseStatus" class="firebase-status text-muted">
-        <i class="bi bi-hourglass-split me-1"></i>
-        Firebase status: Loading...
-      </div>
-    </div>
-
-  </div>
+<div class="row g-3 mb-4">
+<div class="col-md-8">
+<label for="holidayPicker" class="form-label">
+Hong Kong Public Holidays
+</label>
+<input
+type="text"
+id="holidayPicker"
+class="form-control"
+placeholder="Select one or more public holidays"
+/>
+<div class="form-text">
+Multiple dates and multiple years are supported.
+</div>
+</div>
+<div class="col-md-4 d-flex align-items-end">
+<div class="d-grid gap-2 w-100">
+<button type="button" id="saveHolidaysButton" class="btn btn-outline-primary">
+<i class="bi bi-cloud-arrow-up me-1"></i>
+Save Shared Holidays
+</button>
+<button type="button" id="clearHolidays" class="btn btn-outline-secondary">
+<i class="bi bi-trash3 me-1"></i>
+Clear All Holidays
+</button>
+</div>
+</div>
+<div class="col-12">
+<label class="form-label">Selected Holidays</label>
+<div id="holidayTags" class="holiday-tags">
+<span class="text-muted small">No holidays selected.</span>
+</div>
+<div id="firebaseStatus" class="firebase-status text-muted">
+<i class="bi bi-hourglass-split me-1"></i>
+Firebase status: Loading...
+</div>
+</div>
 </div>
 <div class="section-title settings">
 Buffer and OT Settings
@@ -1129,65 +979,41 @@ document.getElementById("clientTatSection").style.display =
 document.getElementById("requireOT").checked ? "block" : "none";
 }
 function renderHolidayTags() {
-  const container = document.getElementById("holidayTags");
-  const countContainer = document.getElementById("holidaySelectionCount");
-
-  const holidays = [...new Set(selectedHolidays)]
-    .filter(Boolean)
-    .sort();
-
-  // 保持 selectedHolidays 的內容及 YYYY-MM-DD 格式
-  selectedHolidays = holidays;
-
-  if (countContainer) {
-    const count = selectedHolidays.length;
-    countContainer.textContent =
-      `${count} ${count === 1 ? "holiday" : "holidays"} selected`;
-  }
-
-  if (!selectedHolidays.length) {
-    container.innerHTML = `
-      <span class="text-muted small">
-        <i class="bi bi-calendar-x me-1"></i>
-        No holidays selected.
-      </span>
-    `;
-    return;
-  }
-
-  container.innerHTML = selectedHolidays
-    .map((date) => `
-      <span class="holiday-badge">
-        <i class="bi bi-calendar-event" aria-hidden="true"></i>
-        <span>${date}</span>
-        <button
-          type="button"
-          class="remove-holiday"
-          data-date="${date}"
-          title="Remove ${date}"
-          aria-label="Remove ${date}"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </span>
-    `)
-    .join("");
-
-  container.querySelectorAll(".remove-holiday").forEach((button) => {
-    button.addEventListener("click", () => {
-      const dateToRemove = button.dataset.date;
-
-      selectedHolidays = selectedHolidays.filter(
-        (date) => date !== dateToRemove
-      );
-
-      if (holidayPicker) {
-        holidayPicker.setDate(selectedHolidays, false);
-      }
-
-      renderHolidayTags();
-    });
-  });
+const container = document.getElementById("holidayTags");
+if (!selectedHolidays.length) {
+container.innerHTML = `
+         <span class="text-muted small">
+           <i class="bi bi-calendar-x me-1"></i>
+           No holidays selected.
+         </span>
+       `;
+return;
+}
+container.innerHTML = selectedHolidays
+.sort()
+.map(date => `
+         <span class="holiday-badge">
+           <i class="bi bi-calendar-event"></i>
+           ${date}
+           <button
+             type="button"
+             class="remove-holiday"
+             data-date="${date}"
+             title="Remove"
+           >×</button>
+         </span>
+       `)
+.join("");
+document.querySelectorAll(".remove-holiday").forEach(button => {
+button.addEventListener("click", () => {
+const date = button.dataset.date;
+selectedHolidays = selectedHolidays.filter(
+item => item !== date
+);
+if (holidayPicker) holidayPicker.setDate(selectedHolidays, false);
+renderHolidayTags();
+});
+});
 }
 function showError(message) {
 formError.innerHTML = `
@@ -1450,7 +1276,7 @@ updatedAt: new Date().toISOString()
 status.className = "firebase-status text-success";
 status.innerHTML = `
          <i class="bi bi-check-circle-fill me-1"></i>
-         Holidays saved online successfully.
+         Shared holidays saved successfully to Firebase.
        `;
 } catch (error) {
 console.error(error);
@@ -1593,21 +1419,17 @@ document.getElementById("receivedDateTime").value = formatted;
 }
 
 function initializeHolidayPicker() {
-  holidayPicker = flatpickr("#holidayPicker", {
-    mode: "multiple",
-    dateFormat: "Y-m-d",
-    allowInput: false,
-    clickOpens: true,
-
-    onChange: function (selectedDates) {
-      selectedHolidays = selectedDates
-        .map((date) => toLocalDateString(date))
-        .filter(Boolean)
-        .sort();
-
-      renderHolidayTags();
-    }
-  });
+holidayPicker = flatpickr("#holidayPicker", {
+mode: "multiple",
+dateFormat: "Y-m-d",
+allowInput: false,
+onChange: function(selectedDates) {
+selectedHolidays = selectedDates
+.map(date => toLocalDateString(date))
+.sort();
+renderHolidayTags();
+}
+});
 }
 
 function initializeDateTimePickers() {
@@ -1939,24 +1761,18 @@ document
 .addEventListener("change", updateConditionalFields);
 
 document
-  .getElementById("clearHolidays")
-  .addEventListener("click", function () {
-    selectedHolidays = [];
-
-    if (holidayPicker) {
-      holidayPicker.clear();
-    }
-
-    renderHolidayTags();
-
-    const status = document.getElementById("firebaseStatus");
-
-    status.className = "firebase-status text-muted";
-    status.innerHTML = `
-      <i class="bi bi-arrow-counterclockwise me-1"></i>
-      Holiday settings reset locally.
-    `;
-  });
+.getElementById("clearHolidays")
+.addEventListener("click", function() {
+selectedHolidays = [];
+if (holidayPicker) holidayPicker.clear();
+renderHolidayTags();
+document.getElementById("firebaseStatus").className =
+"firebase-status text-muted";
+document.getElementById("firebaseStatus").innerHTML = `
+         <i class="bi bi-arrow-counterclockwise me-1"></i>
+         Holiday settings reset locally.
+       `;
+});
 
 document
 .getElementById("saveHolidaysButton")
