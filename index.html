@@ -1,1301 +1,1035 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TAT & OT Calculator</title>
-  <!-- Bootstrap -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <!-- Bootstrap Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-  />
-  <!-- Flatpickr -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    :root {
-      --primary: #273c9b;
-      --primary-dark: #18265f;
-      --primary-light: #edf0ff;
-      --secondary: #7c3aed;
-      --accent: #14b8a6;
-      --success: #16a34a;
-      --success-bg: #ecfdf3;
-      --warning: #d97706;
-      --warning-bg: #fff8e8;
-      --danger: #dc2626;
-      --danger-bg: #fff1f2;
-      --info-bg: #eff6ff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border: #dbe3ef;
-      --surface: #ffffff;
-      --background: #f4f7fb;
-    }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 8% 2%, rgba(124, 58, 237, 0.1), transparent 28%),
-        radial-gradient(circle at 92% 15%, rgba(20, 184, 166, 0.09), transparent 25%),
-        var(--background);
-      color: var(--text-main);
-      font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
-    }
-    /* Header */
-    .navbar-custom {
-      position: relative;
-      overflow: hidden;
-      padding: 30px 0;
-      margin-bottom: 32px;
-      color: #fff;
-      background: linear-gradient(135deg, #172554 0%, #273c9b 50%, #6d28d9 100%);
-      box-shadow: 0 8px 30px rgba(30, 41, 99, 0.24);
-    }
-    .navbar-custom::before,
-    .navbar-custom::after {
-      position: absolute;
-      content: "";
-      border-radius: 50%;
-      opacity: 0.16;
-      background: #fff;
-    }
-    .navbar-custom::before {
-      width: 240px;
-      height: 240px;
-      top: -130px;
-      right: 8%;
-    }
-    .navbar-custom::after {
-      width: 170px;
-      height: 170px;
-      bottom: -110px;
-      left: 18%;
-    }
-    .header-content {
-      position: relative;
-      z-index: 1;
-    }
-    .brand-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 50px;
-      height: 50px;
-      margin-right: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.26);
-      border-radius: 15px;
-      background: rgba(255, 255, 255, 0.16);
-      font-size: 1.45rem;
-      backdrop-filter: blur(8px);
-    }
-    .navbar-custom h1 {
-      margin: 0;
-      font-size: clamp(1.45rem, 3vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    .navbar-custom p {
-      margin: 5px 0 0;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.92rem;
-    }
-    .header-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 8px 13px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 50px;
-      background: rgba(255, 255, 255, 0.13);
-      color: #fff;
-      font-size: 0.8rem;
-      font-weight: 600;
-      backdrop-filter: blur(8px);
-    }
-    /* Cards */
-    .main-card,
-    .result-card {
-      overflow: hidden;
-      border: 1px solid rgba(219, 227, 239, 0.85);
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 14px 42px rgba(30, 41, 59, 0.09);
-    }
-    .main-card {
-      animation: fadeUp 0.45s ease-out;
-    }
-    .result-card {
-      display: none;
-      margin-top: 28px;
-      animation: fadeUp 0.45s ease-out;
-    }
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    /* Form Section Title */
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      margin: 8px 0 20px;
-      color: var(--primary-dark);
-      font-size: 1.05rem;
-      font-weight: 800;
-      letter-spacing: -0.15px;
-    }
-    .section-title::before {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 31px;
-      height: 31px;
-      border-radius: 9px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #fff;
-      font-family: "bootstrap-icons";
-      font-size: 0.9rem;
-      content: "\f4e1";
-      box-shadow: 0 4px 10px rgba(39, 60, 155, 0.24);
-    }
-    .section-title.holidays::before {
-      content: "\f1f9";
-      background: linear-gradient(135deg, #0284c7, #14b8a6);
-    }
-    .section-title.settings::before {
-      content: "\f3e5";
-      background: linear-gradient(135deg, #d97706, #f59e0b);
-    }
-    .section-divider {
-      height: 1px;
-      margin: 30px 0;
-      border: 0;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        var(--border) 12%,
-        var(--border) 88%,
-        transparent
-      );
-    }
-    /* Form */
-    .form-label {
-      margin-bottom: 7px;
-      color: #334155;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-    .required::after {
-      color: var(--danger);
-      content: " *";
-    }
-    .small-note,
-    .form-text {
-      color: var(--text-muted);
-      font-size: 0.78rem;
-    }
-    .form-control,
-    .form-select,
-    .input-group-text {
-      min-height: 44px;
-      border-color: var(--border);
-      font-size: 0.92rem;
-    }
-    .form-control,
-    .form-select {
-      border-radius: 10px !important;
-      transition: all 0.2s ease;
-    }
-    .input-group .form-control {
-      border-radius: 0 10px 10px 0 !important;
-    }
-    .input-group-text {
-      border-radius: 10px 0 0 10px;
-      background: #f8fafc;
-      color: var(--primary);
-      font-weight: 800;
-    }
-    .form-control:focus,
-    .form-select:focus {
-      border-color: #8b9df0;
-      box-shadow: 0 0 0 0.22rem rgba(80, 98, 211, 0.13);
-    }
-    .form-check {
-      border: 1px solid var(--border) !important;
-      border-radius: 12px !important;
-      background: #fbfcff !important;
-      transition: all 0.2s ease;
-    }
-    .form-check:hover {
-      border-color: #aab7e9 !important;
-      background: var(--primary-light) !important;
-    }
-    .form-check-input {
-      cursor: pointer;
-    }
-    .form-check-input:checked {
-      border-color: var(--primary);
-      background-color: var(--primary);
-    }
-    .form-check-label {
-      cursor: pointer;
-      color: #334155;
-      font-size: 0.9rem;
-    }
-    .conditional-section {
-      display: none;
-    }
-    /* Buttons */
-    .btn {
-      border-radius: 10px;
-      font-weight: 700;
-      transition: all 0.2s ease;
-    }
-    .btn-primary {
-      border: 0;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      box-shadow: 0 5px 14px rgba(80, 70, 190, 0.24);
-    }
-    .btn-primary:hover,
-    .btn-primary:focus {
-      transform: translateY(-1px);
-      background: linear-gradient(135deg, #1f3286, #6d28d9);
-      box-shadow: 0 8px 18px rgba(80, 70, 190, 0.31);
-    }
-    .btn-success {
-      border: 0;
-      background: linear-gradient(135deg, #16a34a, #059669);
-    }
-    .btn-outline-primary {
-      color: var(--primary);
-      border-color: #aeb9eb;
-    }
-    .btn-outline-primary:hover {
-      border-color: var(--primary);
-      background: var(--primary);
-    }
-    .btn-outline-secondary {
-      border-color: #cbd5e1;
-      color: #475569;
-    }
-        /* Public Holidays Card */
-    .holiday-card {
-      border: 1px solid rgba(148, 169, 202, 0.35);
-      background: rgba(235, 245, 255, 0.7);
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .holiday-row {
-      display: flex;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .holiday-picker-col {
-      flex: 0 0 70%;
-    }
-
-    .holiday-actions-col {
-      flex: 0 0 30%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Input styling override for concise summary display */
-    .holiday-input {
-      border-radius: 10px;
-      min-height: 44px;
-      background: rgba(255,255,255,0.9);
-      cursor: pointer;
-    }
-
-    .holiday-tags-wrap {
-      margin-top: 10px;
-    }
-
-    .holiday-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      min-height: 48px;
-      padding: 10px;
-      border: 1px solid rgba(140, 176, 222, 0.5);
-      border-radius: 10px;
-      background: rgba(245, 252, 255, 0.9);
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    .holiday-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(219, 234, 254, 0.9); /* 淡藍 */
-      color: #1e4db7; /* 藍色文字 */
-      font-size: 0.88rem;
-      font-weight: 700;
-      border: 1px solid rgba(142, 180, 255, 0.6);
-    }
-
-    .holiday-badge .badge-date {
-      white-space: nowrap;
-    }
-
-    .holiday-badge .btn-remove-holiday {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(30, 64, 175, 0.08);
-      color: #1e4db7;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    .holiday-badge .btn-remove-holiday:hover {
-      background: rgba(30, 64, 175, 0.16);
-      transform: scale(1.05);
-    }
-
-    /* mobile: stack */
-    @media (max-width: 767px) {
-      .holiday-row {
-        flex-direction: column;
-      }
-      .holiday-picker-col,
-      .holiday-actions-col {
-        flex: 1 0 auto;
-      }
-      .holiday-actions-col {
-        display: flex;
-        justify-content: stretch;
-      }
-    }
-
-    /* Firebase status colors */
-    .firebase-status {
-      margin-top: 10px;
-      font-size: 0.88rem;
-    }
-    .firebase-status.loading { color: #64748b; } /* gray */
-    .firebase-status.success { color: #16a34a; } /* green */
-    .firebase-status.error { color: #dc2626; } /* red */
-    /* Result */
-    .result-header {
-      position: relative;
-      overflow: hidden;
-      padding: 21px 26px;
-      color: #fff;
-      background: linear-gradient(135deg, #172554, #273c9b, #6d28d9);
-    }
-    .result-header::after {
-      position: absolute;
-      top: -65px;
-      right: 38px;
-      width: 170px;
-      height: 170px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      content: "";
-    }
-    .result-header h2 {
-      position: relative;
-      z-index: 1;
-      margin: 0;
-      font-size: 1.22rem;
-      font-weight: 800;
-    }
-    .result-header p {
-      position: relative;
-      z-index: 1;
-      margin: 4px 0 0;
-      color: rgba(255, 255, 255, 0.75);
-      font-size: 0.84rem;
-    }
-    .tat-highlight {
-      position: relative;
-      overflow: hidden;
-      padding: 21px;
-      border: 1px solid #a9e6be;
-      border-radius: 15px;
-      background: linear-gradient(135deg, #ecfdf3, #f0fdf4);
-    }
-    .tat-highlight::after {
-      position: absolute;
-      top: -35px;
-      right: -15px;
-      color: rgba(22, 163, 74, 0.12);
-      font-family: "bootstrap-icons";
-      font-size: 8rem;
-      content: "\f26a";
-    }
-    .tat-main {
-      position: relative;
-      z-index: 1;
-      color: #166534;
-      font-size: clamp(1.05rem, 2.2vw, 1.35rem);
-      font-weight: 800;
-    }
-    .result-heading {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 11px;
-      color: #24324a;
-      font-size: 1rem;
-      font-weight: 800;
-    }
-    .result-heading i {
-      color: var(--primary);
-    }
-    .steps-box {
-      max-height: 410px;
-      overflow: auto;
-      padding: 17px;
-      border: 1px solid #dbe5f1;
-      border-left: 4px solid #5264d8;
-      border-radius: 10px;
-      background: #f8fafc;
-      color: #334155;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      font-size: 0.84rem;
-      line-height: 1.75;
-      white-space: pre-line;
-    }
-    .email-draft-box {
-      padding: 16px;
-      border: 1px solid #cfd8e7;
-      border-radius: 11px;
-      background: #fbfcff;
-      color: #26364d;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      word-break: break-word;
-    }
-    .info-box {
-      padding: 15px;
-      border-radius: 12px;
-    }
-    .recipient-box {
-      border: 1px solid #bdddff;
-      background: var(--info-bg);
-      color: #1e3a5f;
-    }
-    .ot-value {
-      color: var(--danger);
-      font-size: 1.3rem;
-      font-weight: 800;
-    }
-    .footer-note {
-      margin-top: 20px;
-      color: #94a3b8;
-      font-size: 0.78rem;
-      text-align: center;
-    }
-    /* Flatpickr */
-    .flatpickr-calendar {
-      border: 1px solid #dbe3ef;
-      border-radius: 14px;
-      box-shadow: 0 15px 35px rgba(30, 41, 59, 0.16);
-    }
-    .flatpickr-day.selected,
-    .flatpickr-day.selected:hover,
-    .flatpickr-day.startRange,
-    .flatpickr-day.endRange {
-      border-color: var(--primary);
-      background: var(--primary);
-    }
-    @media (max-width: 767px) {
-      .navbar-custom {
-        padding: 24px 0;
-        margin-bottom: 20px;
-      }
-      .main-card,
-      .result-card {
-        border-radius: 15px;
-      }
-      .card-body {
-        padding: 22px !important;
-      }
-      .header-badge {
-        display: none;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TAT & OT Calculator</title>
+<!-- Bootstrap -->
+<link
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+rel="stylesheet"
+/>
+<!-- Bootstrap Icons -->
+<link
+rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
+<!-- Flatpickr -->
+<link
+href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+rel="stylesheet"
+/>
+<style>
+:root {
+--primary: #273c9b;
+--primary-dark: #18265f;
+--primary-light: #edf0ff;
+--secondary: #7c3aed;
+--accent: #14b8a6;
+--success: #16a34a;
+--success-bg: #ecfdf3;
+--warning: #d97706;
+--warning-bg: #fff8e8;
+--danger: #dc2626;
+--danger-bg: #fff1f2;
+--info-bg: #eff6ff;
+--text-main: #1e293b;
+--text-muted: #64748b;
+--border: #dbe3ef;
+--surface: #ffffff;
+--background: #f4f7fb;
+}
+* {
+box-sizing: border-box;
+}
+body {
+min-height: 100vh;
+background:
+radial-gradient(circle at 8% 2%, rgba(124, 58, 237, 0.1), transparent 28%),
+radial-gradient(circle at 92% 15%, rgba(20, 184, 166, 0.09), transparent 25%),
+var(--background);
+color: var(--text-main);
+font-family: "Inter", "Segoe UI", Arial, Helvetica, sans-serif;
+}
+/* Header */
+.navbar-custom {
+position: relative;
+overflow: hidden;
+padding: 30px 0;
+margin-bottom: 32px;
+color: #fff;
+background: linear-gradient(135deg, #172554 0%, #273c9b 50%, #6d28d9 100%);
+box-shadow: 0 8px 30px rgba(30, 41, 99, 0.24);
+}
+.navbar-custom::before,
+.navbar-custom::after {
+position: absolute;
+content: "";
+border-radius: 50%;
+opacity: 0.16;
+background: #fff;
+}
+.navbar-custom::before {
+width: 240px;
+height: 240px;
+top: -130px;
+right: 8%;
+}
+.navbar-custom::after {
+width: 170px;
+height: 170px;
+bottom: -110px;
+left: 18%;
+}
+.header-content {
+position: relative;
+z-index: 1;
+}
+.brand-icon {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 50px;
+height: 50px;
+margin-right: 14px;
+border: 1px solid rgba(255, 255, 255, 0.26);
+border-radius: 15px;
+background: rgba(255, 255, 255, 0.16);
+font-size: 1.45rem;
+backdrop-filter: blur(8px);
+}
+.navbar-custom h1 {
+margin: 0;
+font-size: clamp(1.45rem, 3vw, 2rem);
+font-weight: 800;
+letter-spacing: -0.5px;
+}
+.navbar-custom p {
+margin: 5px 0 0;
+color: rgba(255, 255, 255, 0.8);
+font-size: 0.92rem;
+}
+.header-badge {
+display: inline-flex;
+align-items: center;
+gap: 7px;
+padding: 8px 13px;
+border: 1px solid rgba(255, 255, 255, 0.25);
+border-radius: 50px;
+background: rgba(255, 255, 255, 0.13);
+color: #fff;
+font-size: 0.8rem;
+font-weight: 600;
+backdrop-filter: blur(8px);
+}
+/* Cards */
+.main-card,
+.result-card {
+overflow: hidden;
+border: 1px solid rgba(219, 227, 239, 0.85);
+border-radius: 20px;
+background: rgba(255, 255, 255, 0.95);
+box-shadow: 0 14px 42px rgba(30, 41, 59, 0.09);
+}
+.main-card {
+animation: fadeUp 0.45s ease-out;
+}
+.result-card {
+display: none;
+margin-top: 28px;
+animation: fadeUp 0.45s ease-out;
+}
+@keyframes fadeUp {
+from {
+opacity: 0;
+transform: translateY(12px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+/* Form Section Title */
+.section-title {
+display: flex;
+align-items: center;
+gap: 9px;
+margin: 8px 0 20px;
+color: var(--primary-dark);
+font-size: 1.05rem;
+font-weight: 800;
+letter-spacing: -0.15px;
+}
+.section-title::before {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 31px;
+height: 31px;
+border-radius: 9px;
+background: linear-gradient(135deg, var(--primary), var(--secondary));
+color: #fff;
+font-family: "bootstrap-icons";
+font-size: 0.9rem;
+content: "\f4e1";
+box-shadow: 0 4px 10px rgba(39, 60, 155, 0.24);
+}
+.section-title.holidays::before {
+content: "\f1f9";
+background: linear-gradient(135deg, #0284c7, #14b8a6);
+}
+.section-title.settings::before {
+content: "\f3e5";
+background: linear-gradient(135deg, #d97706, #f59e0b);
+}
+.section-divider {
+height: 1px;
+margin: 30px 0;
+border: 0;
+background: linear-gradient(
+90deg,
+transparent,
+var(--border) 12%,
+var(--border) 88%,
+transparent
+);
+}
+/* Form */
+.form-label {
+margin-bottom: 7px;
+color: #334155;
+font-size: 0.9rem;
+font-weight: 700;
+}
+.required::after {
+color: var(--danger);
+content: " *";
+}
+.small-note,
+.form-text {
+color: var(--text-muted);
+font-size: 0.78rem;
+}
+.form-control,
+.form-select,
+.input-group-text {
+min-height: 44px;
+border-color: var(--border);
+font-size: 0.92rem;
+}
+.form-control,
+.form-select {
+border-radius: 10px !important;
+transition: all 0.2s ease;
+}
+.input-group .form-control {
+border-radius: 0 10px 10px 0 !important;
+}
+.input-group-text {
+border-radius: 10px 0 0 10px;
+background: #f8fafc;
+color: var(--primary);
+font-weight: 800;
+}
+.form-control:focus,
+.form-select:focus {
+border-color: #8b9df0;
+box-shadow: 0 0 0 0.22rem rgba(80, 98, 211, 0.13);
+}
+.form-check {
+border: 1px solid var(--border) !important;
+border-radius: 12px !important;
+background: #fbfcff !important;
+transition: all 0.2s ease;
+}
+.form-check:hover {
+border-color: #aab7e9 !important;
+background: var(--primary-light) !important;
+}
+.form-check-input {
+cursor: pointer;
+}
+.form-check-input:checked {
+border-color: var(--primary);
+background-color: var(--primary);
+}
+.form-check-label {
+cursor: pointer;
+color: #334155;
+font-size: 0.9rem;
+}
+.conditional-section {
+display: none;
+}
+/* Buttons */
+.btn {
+border-radius: 10px;
+font-weight: 700;
+transition: all 0.2s ease;
+}
+.btn-primary {
+border: 0;
+background: linear-gradient(135deg, var(--primary), var(--secondary));
+box-shadow: 0 5px 14px rgba(80, 70, 190, 0.24);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+transform: translateY(-1px);
+background: linear-gradient(135deg, #1f3286, #6d28d9);
+box-shadow: 0 8px 18px rgba(80, 70, 190, 0.31);
+}
+.btn-success {
+border: 0;
+background: linear-gradient(135deg, #16a34a, #059669);
+}
+.btn-outline-primary {
+color: var(--primary);
+border-color: #aeb9eb;
+}
+.btn-outline-primary:hover {
+border-color: var(--primary);
+background: var(--primary);
+}
+.btn-outline-secondary {
+border-color: #cbd5e1;
+color: #475569;
+}
+/* Holidays */
+.holiday-tags {
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+min-height: 58px;
+padding: 9px;
+border: 1px dashed #aebddd;
+border-radius: 12px;
+background: #fbfdff;
+}
+.holiday-badge {
+display: inline-flex;
+align-items: center;
+gap: 7px;
+margin: 3px;
+padding: 7px 10px;
+border: 1px solid #b9d9f0;
+border-radius: 50px;
+background: linear-gradient(135deg, #e8f6ff, #edf7ff);
+color: #075985;
+font-size: 0.8rem;
+font-weight: 700;
+}
+.remove-holiday {
+width: 18px;
+height: 18px;
+padding: 0;
+border: 0;
+border-radius: 50%;
+background: #dbeafe;
+color: #1d4ed8;
+font-size: 0.95rem;
+font-weight: 800;
+line-height: 16px;
+cursor: pointer;
+transition: all 0.18s ease;
+}
+.remove-holiday:hover {
+background: var(--danger);
+color: #fff;
+transform: scale(1.08);
+}
+.firebase-status {
+margin-top: 10px;
+font-size: 0.8rem;
+}
+/* Result */
+.result-header {
+position: relative;
+overflow: hidden;
+padding: 21px 26px;
+color: #fff;
+background: linear-gradient(135deg, #172554, #273c9b, #6d28d9);
+}
+.result-header::after {
+position: absolute;
+top: -65px;
+right: 38px;
+width: 170px;
+height: 170px;
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.1);
+content: "";
+}
+.result-header h2 {
+position: relative;
+z-index: 1;
+margin: 0;
+font-size: 1.22rem;
+font-weight: 800;
+}
+.result-header p {
+position: relative;
+z-index: 1;
+margin: 4px 0 0;
+color: rgba(255, 255, 255, 0.75);
+font-size: 0.84rem;
+}
+.tat-highlight {
+position: relative;
+overflow: hidden;
+padding: 21px;
+border: 1px solid #a9e6be;
+border-radius: 15px;
+background: linear-gradient(135deg, #ecfdf3, #f0fdf4);
+}
+.tat-highlight::after {
+position: absolute;
+top: -35px;
+right: -15px;
+color: rgba(22, 163, 74, 0.12);
+font-family: "bootstrap-icons";
+font-size: 8rem;
+content: "\f26a";
+}
+.tat-main {
+position: relative;
+z-index: 1;
+color: #166534;
+font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+font-weight: 800;
+}
+.result-heading {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 11px;
+color: #24324a;
+font-size: 1rem;
+font-weight: 800;
+}
+.result-heading i {
+color: var(--primary);
+}
+.steps-box {
+max-height: 410px;
+overflow: auto;
+padding: 17px;
+border: 1px solid #dbe5f1;
+border-left: 4px solid #5264d8;
+border-radius: 10px;
+background: #f8fafc;
+color: #334155;
+font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+font-size: 0.84rem;
+line-height: 1.75;
+white-space: pre-line;
+}
+.email-draft-box {
+padding: 16px;
+border: 1px solid #cfd8e7;
+border-radius: 11px;
+background: #fbfcff;
+color: #26364d;
+font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+font-size: 0.9rem;
+line-height: 1.6;
+word-break: break-word;
+}
+.info-box {
+padding: 15px;
+border-radius: 12px;
+}
+.recipient-box {
+border: 1px solid #bdddff;
+background: var(--info-bg);
+color: #1e3a5f;
+}
+.ot-value {
+color: var(--danger);
+font-size: 1.3rem;
+font-weight: 800;
+}
+.footer-note {
+margin-top: 20px;
+color: #94a3b8;
+font-size: 0.78rem;
+text-align: center;
+}
+/* Flatpickr */
+.flatpickr-calendar {
+border: 1px solid #dbe3ef;
+border-radius: 14px;
+box-shadow: 0 15px 35px rgba(30, 41, 59, 0.16);
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+border-color: var(--primary);
+background: var(--primary);
+}
+@media (max-width: 767px) {
+.navbar-custom {
+padding: 24px 0;
+margin-bottom: 20px;
+}
+.main-card,
+.result-card {
+border-radius: 15px;
+}
+.card-body {
+padding: 22px !important;
+}
+.header-badge {
+display: none;
+}
+}
+</style>
 </head>
 <body>
-  <header class="navbar-custom">
-    <div class="container header-content">
-      <div class="d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center">
-          <div class="brand-icon">
-            <i class="bi bi-clock-history"></i>
-          </div>
-          <div>
-            <h1>TAT &amp; OT Calculator</h1>
-            <p>Standard Expected TAT and Overtime Assessment Tool</p>
-          </div>
-        </div>
-        <div class="header-badge">
-          <i class="bi bi-lightning-charge-fill"></i>
-          Smart Calculation Tool
-        </div>
-      </div>
-    </div>
-  </header>
-  <main class="container pb-5">
-    <div class="card main-card">
-      <div class="card-body p-4 p-md-5">
-        <form id="tatForm" novalidate>
-          <div class="section-title">
-            Basic Job Information
-          </div>
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label for="receivedDateTime" class="form-label required">
-                Received Date &amp; Time
-              </label>
-              <!-- use text input for Flatpickr -->
-              <input type="text" id="receivedDateTime" class="form-control" required />
-              <div class="form-text">
-                Select the date and time when the job was received.
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label for="jobType" class="form-label required">Job Type</label>
-              <select id="jobType" class="form-select" required>
-                <option value="">-- Select Job Type --</option>
-                <option value="Compliance">Compliance Jobs</option>
-                <option value="IPO">IPO Jobs (including side jobs)</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="taskType" class="form-label required">Task Type</label>
-              <select id="taskType" class="form-select" required>
-                <option value="">-- Select Task Type --</option>
-                <option value="New Draft">New Draft</option>
-                <option value="Chase Markups">Chase Markups</option>
-                <option value="Line-by-line Review">Line-by-line Review</option>
-                <option value="Call Obvious">Call Obvious</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="language" class="form-label required">Language</label>
-              <select id="language" class="form-select" required>
-                <option value="">-- Select Language --</option>
-                <option value="E2C">E to C</option>
-                <option value="C2E">C to E</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label for="startT" class="form-label required">Start T Number</label>
-              <div class="input-group">
-                <span class="input-group-text">T</span>
-                <input type="number" id="startT" class="form-control" min="1" step="1" required />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label for="endT" class="form-label">
-                End T Number <span class="small-note">(Optional)</span>
-              </label>
-              <div class="input-group">
-                <span class="input-group-text">T</span>
-                <input type="number" id="endT" class="form-control" min="1" step="1" />
-              </div>
-              <div class="form-text">
-                Example: Start T = 2 and End T = 5 will display as T2-T5.
-              </div>
-            </div>
-            <div class="col-md-6">
-              <label for="pages" class="form-label required">Pages</label>
-              <!-- readonly pages field (auto-generated) -->
-              <input type="number" id="pages" class="form-control" min="0" step="1" required readonly />
-            </div>
-            <div class="col-md-6">
-              <label for="fileFormat" class="form-label">File Format</label>
-              <select id="fileFormat" class="form-select">
-                <option value="Word">Word format</option>
-                <option value="PDF">PDF format</option>
-              </select>
-            </div>
-          </div>
-          <div id="previousTatSection" class="conditional-section mb-4">
-            <div class="section-title">
-              Previous TAT Setting
-            </div>
-            <div class="form-check mb-3 p-3">
-              <input class="form-check-input" type="checkbox" id="previousIsNewDraft" />
-              <label class="form-check-label fw-semibold" for="previousIsNewDraft">
-                Previous task was also a New Draft
-              </label>
-            </div>
-            <div id="previousTatInputSection" class="conditional-section">
-              <label for="previousTat" class="form-label required">
-                Previous TAT End Time
-              </label>
-              <input type="text" id="previousTat" class="form-control" />
-              <div class="form-text">
-                Required only for a non-T1 New Draft where the previous task was also a New Draft.
-              </div>
-            </div>
-          </div>
-                   <div class="section-title holidays">
-            Public Holidays
-          </div>
+<header class="navbar-custom">
+<div class="container header-content">
+<div class="d-flex align-items-center justify-content-between">
+<div class="d-flex align-items-center">
+<div class="brand-icon">
+<i class="bi bi-clock-history"></i>
+</div>
+<div>
+<h1>TAT &amp; OT Calculator</h1>
+<p>Standard Expected TAT and Overtime Assessment Tool</p>
+</div>
+</div>
+<div class="header-badge">
+<i class="bi bi-lightning-charge-fill"></i>
+Smart Calculation Tool
+</div>
+</div>
+</div>
+</header>
+<main class="container pb-5">
+<div class="card main-card">
+<div class="card-body p-4 p-md-5">
+<form id="tatForm" novalidate>
+<div class="section-title">
+Basic Job Information
+</div>
+<div class="row g-3 mb-4">
+<div class="col-md-6">
+<label for="receivedDateTime" class="form-label required">
+Received Date &amp; Time
+</label>
+<!-- use text input for Flatpickr -->
+<input type="text" id="receivedDateTime" class="form-control" required />
+<div class="form-text">
+Select the date and time when the job was received.
+</div>
+</div>
+<div class="col-md-6">
+<label for="jobType" class="form-label required">Job Type</label>
+<select id="jobType" class="form-select" required>
+<option value="">-- Select Job Type --</option>
+<option value="Compliance">Compliance Jobs</option>
+<option value="IPO">IPO Jobs (including side jobs)</option>
+</select>
+</div>
+<div class="col-md-6">
+<label for="taskType" class="form-label required">Task Type</label>
+<select id="taskType" class="form-select" required>
+<option value="">-- Select Task Type --</option>
+<option value="New Draft">New Draft</option>
+<option value="Chase Markups">Chase Markups</option>
+<option value="Line-by-line Review">Line-by-line Review</option>
+<option value="Call Obvious">Call Obvious</option>
+</select>
+</div>
+<div class="col-md-6">
+<label for="language" class="form-label required">Language</label>
+<select id="language" class="form-select" required>
+<option value="">-- Select Language --</option>
+<option value="E2C">E to C</option>
+<option value="C2E">C to E</option>
+</select>
+</div>
+<div class="col-md-6">
+<label for="startT" class="form-label required">Start T Number</label>
+<div class="input-group">
+<span class="input-group-text">T</span>
+<input type="number" id="startT" class="form-control" min="1" step="1" required />
+</div>
+</div>
+<div class="col-md-6">
+<label for="endT" class="form-label">
+End T Number <span class="small-note">(Optional)</span>
+</label>
+<div class="input-group">
+<span class="input-group-text">T</span>
+<input type="number" id="endT" class="form-control" min="1" step="1" />
+</div>
+<div class="form-text">
+Example: Start T = 2 and End T = 5 will display as T2-T5.
+</div>
+</div>
+<div class="col-md-6">
+<label for="pages" class="form-label required">Pages</label>
+<!-- readonly pages field (auto-generated) -->
+<input type="number" id="pages" class="form-control" min="0" step="1" required readonly />
+</div>
+<div class="col-md-6">
+<label for="fileFormat" class="form-label">File Format</label>
+<select id="fileFormat" class="form-select">
+<option value="Word">Word format</option>
+<option value="PDF">PDF format</option>
+</select>
+</div>
+</div>
+<div id="previousTatSection" class="conditional-section mb-4">
+<div class="section-title">
+Previous TAT Setting
+</div>
+<div class="form-check mb-3 p-3">
+<input class="form-check-input" type="checkbox" id="previousIsNewDraft" />
+<label class="form-check-label fw-semibold" for="previousIsNewDraft">
+Previous task was also a New Draft
+</label>
+</div>
+<div id="previousTatInputSection" class="conditional-section">
+<label for="previousTat" class="form-label required">
+Previous TAT End Time
+</label>
+<input type="text" id="previousTat" class="form-control" />
+<div class="form-text">
+Required only for a non-T1 New Draft where the previous task was also a New Draft.
+</div>
+</div>
+</div>
+<div class="section-title holidays">
+Public Holidays
+</div>
+<div class="row g-3 mb-4">
+<div class="col-md-8">
+<label for="holidayPicker" class="form-label">
+Hong Kong Public Holidays
+</label>
+<input
+type="text"
+id="holidayPicker"
+class="form-control"
+placeholder="Select one or more public holidays"
+/>
+<div class="form-text">
+Multiple dates and multiple years are supported.
+</div>
+</div>
+<div class="col-md-4 d-flex align-items-end">
+<div class="d-grid gap-2 w-100">
+<button type="button" id="saveHolidaysButton" class="btn btn-outline-primary">
+<i class="bi bi-cloud-arrow-up me-1"></i>
+Save Shared Holidays
+</button>
+<button type="button" id="clearHolidays" class="btn btn-outline-secondary">
+<i class="bi bi-trash3 me-1"></i>
+Clear All Holidays
+</button>
+</div>
+</div>
+<div class="col-12">
+<label class="form-label">Selected Holidays</label>
+<div id="holidayTags" class="holiday-tags">
+<span class="text-muted small">No holidays selected.</span>
+</div>
+<div id="firebaseStatus" class="firebase-status text-muted">
+<i class="bi bi-hourglass-split me-1"></i>
+Firebase status: Loading...
+</div>
+</div>
+</div>
+<div class="section-title settings">
+Buffer and OT Settings
+</div>
+<div class="row g-3">
+<div class="col-md-6">
+<label for="bufferHours" class="form-label required">Buffer Hours</label>
+<div class="input-group">
+<input
+type="number"
+id="bufferHours"
+class="form-control"
+min="0"
+step="0.5"
+value="3"
+required
+/>
+<span class="input-group-text">hours</span>
+</div>
+</div>
+<div class="col-md-6 d-flex align-items-end">
+<div class="form-check p-3 w-100">
+<input class="form-check-input" type="checkbox" id="requireOT" />
+<label class="form-check-label fw-semibold" for="requireOT">
+Client requests an earlier TAT / Require OT assessment
+</label>
+</div>
+</div>
+<div id="clientTatSection" class="conditional-section col-md-6">
+<label for="clientTat" class="form-label required">
+Client's Requested TAT
+</label>
+<input type="text" id="clientTat" class="form-control" />
+</div>
+</div>
+<hr class="section-divider" />
+<div class="d-flex flex-wrap gap-2">
+<button type="submit" class="btn btn-primary px-4 py-2">
+<i class="bi bi-calculator me-1"></i>
+Calculate TAT
+</button>
+<button type="button" id="resetButton" class="btn btn-outline-secondary px-4 py-2">
+<i class="bi bi-arrow-counterclockwise me-1"></i>
+Reset
+</button>
+</div>
+<div id="formError" class="alert alert-danger mt-3 d-none"></div>
+</form>
+</div>
+</div>
+<section id="resultCard" class="card result-card">
+<div class="result-header">
+<h2>
+<i class="bi bi-clipboard2-check me-2"></i>
+TAT Calculation Result
+</h2>
+<p>Your standard expected completion time and OT assessment.</p>
+</div>
+<div class="card-body p-4 p-md-5">
+<div class="tat-highlight mb-4">
+<div class="small text-uppercase text-muted fw-bold mb-1">
+Standard Expected TAT
+</div>
+<div id="standardTatDisplay" class="tat-main"></div>
+<div id="standardTatShortDisplay" class="small text-muted mt-2"></div>
+</div>
+<div class="mb-4">
+<div class="result-heading">
+<i class="bi bi-list-check"></i>
+Calculation Steps
+</div>
+<div id="calculationSteps" class="steps-box"></div>
+</div>
+<div class="mb-4">
+<div class="result-heading">
+<i class="bi bi-lightning-charge"></i>
+OT Assessment
+</div>
+<div id="otResult"></div>
+</div>
+<div class="mb-4">
+<div class="result-heading">
+<i class="bi bi-people"></i>
+Email Recipients
+</div>
+<div id="recipientResult" class="info-box recipient-box"></div>
+</div>
+<div class="mb-2">
+<div class="result-heading">
+<i class="bi bi-envelope-paper"></i>
+Email Draft
+</div>
+<div id="emailDraft" class="email-draft-box mb-3"></div>
+<div class="d-flex flex-wrap gap-2">
+<button type="button" id="copyEmailButton" class="btn btn-outline-primary btn-sm px-3">
+<i class="bi bi-copy me-1"></i>
+Copy Email Draft
+</button>
+<button type="button" id="saveCalculationButton" class="btn btn-success btn-sm px-3">
+<i class="bi bi-cloud-arrow-up me-1"></i>
+Save Calculation to Firebase
+</button>
+</div>
+<div id="saveStatus" class="small mt-2"></div>
+</div>
+</div>
+</section>
+<div class="footer-note">
+TAT &amp; OT Calculator · Internal Processing Tool
+</div>
+</main>
+<!-- Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- Firebase Realtime Database -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+getDatabase,
+ref,
+set,
+push,
+get
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const firebaseConfig = {
+apiKey: "AIzaSyBPzgZHbuzlFmcnJ3cZODruohfTXa-Yoy8",
+authDomain: "tat-calculate.firebaseapp.com",
+databaseURL: "https://tat-calculate-default-rtdb.firebaseio.com",
+projectId: "tat-calculate",
+storageBucket: "tat-calculate.firebasestorage.app",
+messagingSenderId: "959491242554",
+appId: "1:959491242554:web:56e48bb762389b9fda1303",
+measurementId: "G-67XS52H7MB"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+window.firebaseDb = db;
+window.firebaseRef = ref;
+window.firebaseSet = set;
+window.firebasePush = push;
+window.firebaseGet = get;
+window.dispatchEvent(new Event("firebaseReady"));
+</script>
+<script>
+let holidayPicker;
+let receivedPicker;
+let previousTatPicker;
+let clientTatPicker;
+let selectedHolidays = [];
+let latestCalculation = null;
+const WORK_START_HOUR = 9;
+const WORK_END_HOUR = 22;
 
-          <div class="holiday-card mb-4">
-            <div class="holiday-row">
-              <div class="holiday-picker-col">
-                <label for="holidayPicker" class="form-label">Hong Kong Public Holidays</label>
-                <input
-                  type="text"
-                  id="holidayPicker"
-                  class="form-control holiday-input"
-                  placeholder="Select public holidays"
-                  readonly
-                />
-                <div class="form-text">Multiple dates and multiple years are supported.</div>
-              </div>
+const form = document.getElementById("tatForm");
+const formError = document.getElementById("formError");
+const resultCard = document.getElementById("resultCard");
 
-              <div class="holiday-actions-col">
-                <div class="d-grid gap-2">
-                  <button type="button" id="saveHolidaysButton" class="btn btn-primary">
-                    <i class="bi bi-cloud-arrow-up me-1"></i>
-                    Save Shared Holidays
-                  </button>
-                  <button type="button" id="clearHolidays" class="btn btn-outline-secondary">
-                    <i class="bi bi-trash3 me-1"></i>
-                    Clear All Holidays
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="holiday-tags-wrap mt-3">
-              <label class="form-label">Selected Holidays</label>
-              <div id="holidayTags" class="holiday-tags">
-                <span class="text-muted small">
-                  <i class="bi bi-calendar-x me-1"></i>
-                  No holidays selected yet.
-                </span>
-              </div>
-            </div>
-
-            <div id="firebaseStatus" class="firebase-status mt-3 text-muted">
-              <i class="bi bi-hourglass-split me-1"></i>
-              Firebase status: Loading...
-            </div>
-          </div>
-          <div class="section-title settings">
-            Buffer and OT Settings
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="bufferHours" class="form-label required">Buffer Hours</label>
-              <div class="input-group">
-                <input
-                  type="number"
-                  id="bufferHours"
-                  class="form-control"
-                  min="0"
-                  step="0.5"
-                  value="3"
-                  required
-                />
-                <span class="input-group-text">hours</span>
-              </div>
-            </div>
-            <div class="col-md-6 d-flex align-items-end">
-              <div class="form-check p-3 w-100">
-                <input class="form-check-input" type="checkbox" id="requireOT" />
-                <label class="form-check-label fw-semibold" for="requireOT">
-                  Client requests an earlier TAT / Require OT assessment
-                </label>
-              </div>
-            </div>
-            <div id="clientTatSection" class="conditional-section col-md-6">
-              <label for="clientTat" class="form-label required">
-                Client's Requested TAT
-              </label>
-              <input type="text" id="clientTat" class="form-control" />
-            </div>
-          </div>
-          <hr class="section-divider" />
-          <div class="d-flex flex-wrap gap-2">
-            <button type="submit" class="btn btn-primary px-4 py-2">
-              <i class="bi bi-calculator me-1"></i>
-              Calculate TAT
-            </button>
-            <button type="button" id="resetButton" class="btn btn-outline-secondary px-4 py-2">
-              <i class="bi bi-arrow-counterclockwise me-1"></i>
-              Reset
-            </button>
-          </div>
-          <div id="formError" class="alert alert-danger mt-3 d-none"></div>
-        </form>
-      </div>
-    </div>
-    <section id="resultCard" class="card result-card">
-      <div class="result-header">
-        <h2>
-          <i class="bi bi-clipboard2-check me-2"></i>
-          TAT Calculation Result
-        </h2>
-        <p>Your standard expected completion time and OT assessment.</p>
-      </div>
-      <div class="card-body p-4 p-md-5">
-        <div class="tat-highlight mb-4">
-          <div class="small text-uppercase text-muted fw-bold mb-1">
-            Standard Expected TAT
-          </div>
-          <div id="standardTatDisplay" class="tat-main"></div>
-          <div id="standardTatShortDisplay" class="small text-muted mt-2"></div>
-        </div>
-        <div class="mb-4">
-          <div class="result-heading">
-            <i class="bi bi-list-check"></i>
-            Calculation Steps
-          </div>
-          <div id="calculationSteps" class="steps-box"></div>
-        </div>
-        <div class="mb-4">
-          <div class="result-heading">
-            <i class="bi bi-lightning-charge"></i>
-            OT Assessment
-          </div>
-          <div id="otResult"></div>
-        </div>
-        <div class="mb-4">
-          <div class="result-heading">
-            <i class="bi bi-people"></i>
-            Email Recipients
-          </div>
-          <div id="recipientResult" class="info-box recipient-box"></div>
-        </div>
-        <div class="mb-2">
-          <div class="result-heading">
-            <i class="bi bi-envelope-paper"></i>
-            Email Draft
-          </div>
-          <div id="emailDraft" class="email-draft-box mb-3"></div>
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" id="copyEmailButton" class="btn btn-outline-primary btn-sm px-3">
-              <i class="bi bi-copy me-1"></i>
-              Copy Email Draft
-            </button>
-            <button type="button" id="saveCalculationButton" class="btn btn-success btn-sm px-3">
-              <i class="bi bi-cloud-arrow-up me-1"></i>
-              Save Calculation to Firebase
-            </button>
-          </div>
-          <div id="saveStatus" class="small mt-2"></div>
-        </div>
-      </div>
-    </section>
-    <div class="footer-note">
-      TAT &amp; OT Calculator · Internal Processing Tool
-    </div>
-  </main>
-  <!-- Flatpickr -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <!-- Firebase Realtime Database -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      set,
-      push,
-      get
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    const firebaseConfig = {
-      apiKey: "AIzaSyBPzgZHbuzlFmcnJ3cZODruohfTXa-Yoy8",
-      authDomain: "tat-calculate.firebaseapp.com",
-      databaseURL: "https://tat-calculate-default-rtdb.firebaseio.com",
-      projectId: "tat-calculate",
-      storageBucket: "tat-calculate.firebasestorage.app",
-      messagingSenderId: "959491242554",
-      appId: "1:959491242554:web:56e48bb762389b9fda1303",
-      measurementId: "G-67XS52H7MB"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    window.firebaseDb = db;
-    window.firebaseRef = ref;
-    window.firebaseSet = set;
-    window.firebasePush = push;
-    window.firebaseGet = get;
-    window.dispatchEvent(new Event("firebaseReady"));
-  </script>
-  <script>
-    let holidayPicker;
-    let receivedPicker;
-    let previousTatPicker;
-    let clientTatPicker;
-    let selectedHolidays = [];
-    let latestCalculation = null;
-    const WORK_START_HOUR = 9;
-    const WORK_END_HOUR = 22;
-
-    const form = document.getElementById("tatForm");
-    const formError = document.getElementById("formError");
-    const resultCard = document.getElementById("resultCard");
-
-    function pad(number) {
-      return String(number).padStart(2, "0");
-    }
-    function toLocalDateString(date) {
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-    }
-    function cloneDate(date) {
-      return new Date(date.getTime());
-    }
-    // Accepts Date object or string in "Y-m-d H:i" format or ISO format
-    function parseDateTime(value) {
-      if (!value) return null;
-      if (value instanceof Date) return value;
-      if (typeof value === "string") {
-        // flatpickr format "Y-m-d H:i" -> replace space with 'T' to make ISO-like local string
-        const isoish = value.replace(" ", "T");
-        return new Date(isoish);
-      }
-      return new Date(value);
-    }
-    function formatFullDateTime(date) {
-      return new Intl.DateTimeFormat("en-GB", {
-        weekday: "long",
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false
-      }).format(date);
-    }
-    function formatShortDate(date) {
-      return new Intl.DateTimeFormat("en-GB", {
-        day: "2-digit",
-        month: "short"
-      }).format(date);
-    }
-    function formatEmailTime(date) {
-      return `${pad(date.getHours())}${pad(date.getMinutes())}`;
-    }
-    function formatInputDateTime(date) {
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    }
-    function isWeekend(date) {
-      const day = date.getDay();
-      return day === 0 || day === 6;
-    }
-    function isPublicHoliday(date) {
-      return selectedHolidays.includes(toLocalDateString(date));
-    }
-    function isWorkingDay(date) {
-      return !isWeekend(date) && !isPublicHoliday(date);
-    }
-    function setTime(date, hour, minute = 0) {
-      const output = cloneDate(date);
-      output.setHours(hour, minute, 0, 0);
-      return output;
-    }
-    function moveToNextWorkingDay(date, skippedDates) {
-      let output = cloneDate(date);
-      // Ensure we start at the start of working hour of that day for checks
-      output = setTime(output, output.getHours(), output.getMinutes());
-      while (!isWorkingDay(output)) {
-        const dateText = toLocalDateString(output);
-        if (isWeekend(output)) {
-          skippedDates.add(`Weekend: ${dateText}`);
-        }
-        if (isPublicHoliday(output)) {
-          skippedDates.add(`Public Holiday: ${dateText}`);
-        }
-        output.setDate(output.getDate() + 1);
-        output = setTime(output, WORK_START_HOUR, 0);
-      }
-      return output;
-    }
-    function normalizeStartTime(date, skippedDates) {
-      let output = cloneDate(date);
-      output = moveToNextWorkingDay(output, skippedDates);
-      const hour = output.getHours();
-      if (hour < WORK_START_HOUR) {
-        return setTime(output, WORK_START_HOUR, 0);
-      }
-      if (hour >= 19) {
-        output.setDate(output.getDate() + 1);
-        output = setTime(output, WORK_START_HOUR, 0);
-        return moveToNextWorkingDay(output, skippedDates);
-      }
-      if (hour >= WORK_END_HOUR) {
-        output.setDate(output.getDate() + 1);
-        output = setTime(output, WORK_START_HOUR, 0);
-        return moveToNextWorkingDay(output, skippedDates);
-      }
-      return output;
-    }
-    function getDailyEndTime(date, jobType) {
-      if (jobType === "IPO") {
-        return setTime(date, 23, 59);
-      }
-      return setTime(date, 22, 0);
-    }
-    function addWorkingHours(startDate, hours, jobType, skippedDates) {
-      let current = normalizeStartTime(startDate, skippedDates);
-      let remaining = hours;
-      const MS_PER_HOUR = 1000 * 60 * 60;
-      while (remaining > 0.0001) {
-        current = moveToNextWorkingDay(current, skippedDates);
-        const dailyLimit = getDailyEndTime(current, jobType);
-        if (current >= dailyLimit) {
-          current.setDate(current.getDate() + 1);
-          current = setTime(current, WORK_START_HOUR, 0);
-          continue;
-        }
-        const availableMilliseconds = dailyLimit - current;
-        const availableHours = availableMilliseconds / MS_PER_HOUR;
-        const hoursToAdd = Math.min(remaining, availableHours);
-        current = new Date(current.getTime() + hoursToAdd * MS_PER_HOUR);
-        remaining -= hoursToAdd;
-        if (remaining > 0.0001) {
-          current.setDate(current.getDate() + 1);
-          current = setTime(current, WORK_START_HOUR, 0);
-        }
-      }
-      return current;
-    }
-    function calculateRequiredHours(taskType, language, pages) {
-      if (taskType === "New Draft") {
-        return language === "E2C" ? pages : pages * 1.5;
-      }
-      if (taskType === "Chase Markups") {
-        return (pages / 80) * 13;
-      }
-      if (taskType === "Line-by-line Review") {
-        return pages;
-      }
-      if (taskType === "Call Obvious") {
-        return pages / 10;
-      }
-      return 0;
-    }
-    function getProcessingRateText(taskType, language) {
-      if (taskType === "New Draft") {
-        return language === "E2C"
-          ? "New Draft (E to C): 1 page = 1 hour"
-          : "New Draft (C to E): 1 page = 1.5 hours";
-      }
-      if (taskType === "Chase Markups") {
-        return "Chase Markups: estimated at 80 pages per 13-hour working day";
-      }
-      if (taskType === "Line-by-line Review") {
-        return "Line-by-line Review: 1 page = 1 hour";
-      }
-      return "Call Obvious: 10 pages = 1 hour";
-    }
-    function getTNumber() {
-      const startT = Number(document.getElementById("startT").value);
-      const endTValue = document.getElementById("endT").value;
-      const endT = endTValue ? Number(endTValue) : null;
-      if (endT && endT < startT) {
-        throw new Error("End T Number cannot be smaller than Start T Number.");
-      }
-      return endT ? `T${startT}-T${endT}` : `T${startT}`;
-    }
-    function updateConditionalFields() {
-      const taskType = document.getElementById("taskType").value;
-      const startT = Number(document.getElementById("startT").value || 0);
-      const isNonT1NewDraft = taskType === "New Draft" && startT > 1;
-      document.getElementById("previousTatSection").style.display =
-        isNonT1NewDraft ? "block" : "none";
-      if (!isNonT1NewDraft) {
-        document.getElementById("previousIsNewDraft").checked = false;
-        document.getElementById("previousTatInputSection").style.display = "none";
-        if (previousTatPicker) previousTatPicker.clear();
-      }
-      document.getElementById("previousTatInputSection").style.display =
-        isNonT1NewDraft &&
-        document.getElementById("previousIsNewDraft").checked
-          ? "block"
-          : "none";
-      document.getElementById("clientTatSection").style.display =
-        document.getElementById("requireOT").checked ? "block" : "none";
-    }
-      // --- Public Holidays UI: Flatpickr + tags + Firebase sync ---
-    (function setupHolidaysUI() {
-      const holidayInput = document.getElementById("holidayPicker");
-      const holidayTagsContainer = document.getElementById("holidayTags");
-      const saveBtn = document.getElementById("saveHolidaysButton");
-      const clearBtn = document.getElementById("clearHolidays");
-      const firebaseStatusEl = document.getElementById("firebaseStatus");
-
-      // helper to update firebase status text & class
-      function setFirebaseStatus(text, state) {
-        firebaseStatusEl.textContent = "";
-        const icon = document.createElement("i");
-        icon.className = "bi me-1";
-        if (state === "loading") {
-          icon.classList.add("bi-hourglass-split");
-          firebaseStatusEl.classList.remove("success", "error");
-          firebaseStatusEl.classList.add("loading");
-        } else if (state === "success") {
-          icon.classList.add("bi-check-circle-fill");
-          firebaseStatusEl.classList.remove("loading", "error");
-          firebaseStatusEl.classList.add("success");
-        } else if (state === "error") {
-          icon.classList.add("bi-exclamation-triangle-fill");
-          firebaseStatusEl.classList.remove("loading", "success");
-          firebaseStatusEl.classList.add("error");
-        } else {
-          icon.classList.add("bi-info-circle");
-          firebaseStatusEl.classList.remove("loading", "success", "error");
-        }
-        firebaseStatusEl.appendChild(icon);
-        firebaseStatusEl.appendChild(document.createTextNode(text));
-      }
-
-      // update the input summary text (do NOT show full date list)
-      function updateHolidayInputSummary() {
-        const count = selectedHolidays.length;
-        if (count === 0) {
-          holidayInput.value = "";
-          holidayInput.placeholder = "Select public holidays";
-        } else if (count === 1) {
-          holidayInput.value = "1 holiday selected";
-        } else {
-          holidayInput.value = `${count} holidays selected`;
-        }
-      }
-
-      // render tags from selectedHolidays (YYYY-MM-DD strings)
-      function renderHolidayTags() {
-        const container = holidayTagsContainer;
-        container.innerHTML = "";
-        if (!selectedHolidays || selectedHolidays.length === 0) {
-          container.innerHTML = `
-            <span class="text-muted small">
-              <i class="bi bi-calendar-x me-1"></i>
-              No holidays selected yet.
-            </span>
-          `;
-          return;
-        }
-
-        const sorted = [...selectedHolidays].sort();
-        for (const date of sorted) {
-          const span = document.createElement("span");
-          span.className = "holiday-badge";
-          span.setAttribute("data-date", date);
-
-          const dateSpan = document.createElement("span");
-          dateSpan.className = "badge-date";
-          dateSpan.textContent = date; // YYYY-MM-DD
-
-          const removeBtn = document.createElement("button");
-          removeBtn.type = "button";
-          removeBtn.className = "btn-remove-holiday";
-          removeBtn.title = "Remove";
-          removeBtn.innerHTML = `<i class="bi bi-x-lg"></i>`;
-          removeBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            removeHoliday(date);
-          });
-
-          span.appendChild(dateSpan);
-          span.appendChild(removeBtn);
-          container.appendChild(span);
-        }
-      }
-
-      function removeHoliday(dateStr) {
-        const idx = selectedHolidays.indexOf(dateStr);
-        if (idx === -1) return;
-        selectedHolidays.splice(idx, 1);
-        // sync to flatpickr and UI
-        if (holidayPicker) {
-          // flatpickr expects Date objects or date strings; we use date strings (Y-m-d)
-          holidayPicker.setDate(selectedHolidays, true);
-        }
-        updateHolidayInputSummary();
-        renderHolidayTags();
-      }
-
-      // initialize flatpickr (mode: multiple) — keep dateFormat Y-m-d so we can use YYYY-MM-DD values
-      holidayPicker = flatpickr(holidayInput, {
-        mode: "multiple",
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        clickOpens: true,
-        onChange: function(selectedDates, dateStr, instance) {
-          // map Date objects to YYYY-MM-DD using toLocalDateString helper
-          selectedHolidays = selectedDates.map(d => toLocalDateString(d));
-          updateHolidayInputSummary();
-          renderHolidayTags();
-        }
-      });
-
-      // Save to Firebase
-      async function saveSharedHolidays() {
-        if (!window.firebaseDb || !window.firebaseRef || !window.firebaseSet) {
-          setFirebaseStatus("Firebase not ready", "error");
-          return;
-        }
-        try {
-          setFirebaseStatus("Saving shared holidays...", "loading");
-          const dbRef = window.firebaseRef(window.firebaseDb, "sharedHolidays");
-          // store array (even if empty)
-          await window.firebaseSet(dbRef, selectedHolidays.length ? selectedHolidays : null);
-          setFirebaseStatus("Shared holidays saved", "success");
-          setTimeout(() => {
-            // revert to neutral after short delay
-            setFirebaseStatus("Firebase status: OK", ""); 
-          }, 1500);
-        } catch (err) {
-          console.error("saveSharedHolidays error", err);
-          setFirebaseStatus("Failed to save shared holidays", "error");
-        }
-      }
-
-      // Clear all (both local and remote)
-      async function clearAllHolidays() {
-        // local clear
-        selectedHolidays = [];
-        updateHolidayInputSummary();
-        renderHolidayTags();
-        if (holidayPicker) holidayPicker.clear();
-
-        // remote clear
-        if (window.firebaseDb && window.firebaseRef && window.firebaseSet) {
-          try {
-            setFirebaseStatus("Clearing shared holidays...", "loading");
-            const dbRef = window.firebaseRef(window.firebaseDb, "sharedHolidays");
-            await window.firebaseSet(dbRef, null);
-            setFirebaseStatus("Shared holidays cleared", "success");
-            setTimeout(() => {
-              setFirebaseStatus("Firebase status: OK", "");
-            }, 1200);
-          } catch (err) {
-            console.error("clearAllHolidays error", err);
-            setFirebaseStatus("Failed to clear shared holidays", "error");
-          }
-        } else {
-          setFirebaseStatus("Firebase not ready", "error");
-        }
-      }
-
-      // load from Firebase (if exists) and sync to UI
-      async function loadSharedHolidaysFromFirebase() {
-        if (!window.firebaseDb || !window.firebaseRef || !window.firebaseGet) {
-          setFirebaseStatus("Firebase not ready", "loading");
-          return;
-        }
-        try {
-          setFirebaseStatus("Loading shared holidays...", "loading");
-          const dbRef = window.firebaseRef(window.firebaseDb, "sharedHolidays");
-          const snap = await window.firebaseGet(dbRef);
-          if (snap && typeof snap.val === "function" && snap.exists()) {
-            const val = snap.val();
-            if (Array.isArray(val)) {
-              selectedHolidays = val.slice();
-            } else if (val === null) {
-              selectedHolidays = [];
-            } else {
-              // If stored as object or other, try to normalize into array of keys or values
-              if (typeof val === "object") {
-                selectedHolidays = Object.values(val).flat().filter(Boolean);
-              } else {
-                selectedHolidays = [];
-              }
-            }
-          } else {
-            selectedHolidays = [];
-          }
-          // sync to flatpickr (setDate accepts array of Y-m-d strings)
-          if (holidayPicker) {
-            holidayPicker.setDate(selectedHolidays, true);
-          }
-          updateHolidayInputSummary();
-          renderHolidayTags();
-          setFirebaseStatus("Shared holidays loaded", "success");
-          setTimeout(() => {
-            setFirebaseStatus("Firebase status: OK", "");
-          }, 800);
-        } catch (err) {
-          console.error("loadSharedHolidaysFromFirebase error", err);
-          setFirebaseStatus("Failed to load shared holidays", "error");
-        }
-      }
-
-      // wire buttons
-      saveBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        saveSharedHolidays();
-      });
-
-      clearBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (!confirm("Clear all shared holidays? This will remove the shared list in Firebase.")) return;
-        clearAllHolidays();
-      });
-
-      // expose small helper to other code if needed
-      window.getSelectedHolidays = () => selectedHolidays.slice();
-
-      // ensure Firebase-related elements initialize once firebase is ready
-      if (window.firebaseDb && window.firebaseGet) {
-        loadSharedHolidaysFromFirebase();
-      } else {
-        // wait for firebaseReady event dispatched by the module script
-        window.addEventListener("firebaseReady", () => {
-          loadSharedHolidaysFromFirebase();
-        }, { once: true });
-      }
-
-      // initial render
-      updateHolidayInputSummary();
-      renderHolidayTags();
-    })();
-    function showError(message) {
-      formError.innerHTML = `
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        ${message}
-      `;
-      formError.classList.remove("d-none");
-      window.scrollTo({
-        top: formError.offsetTop - 120,
-        behavior: "smooth"
-      });
-    }
-    function hideError() {
-      formError.classList.add("d-none");
-      formError.textContent = "";
-    }
+function pad(number) {
+return String(number).padStart(2, "0");
+}
+function toLocalDateString(date) {
+return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+function cloneDate(date) {
+return new Date(date.getTime());
+}
+// Accepts Date object or string in "Y-m-d H:i" format or ISO format
+function parseDateTime(value) {
+if (!value) return null;
+if (value instanceof Date) return value;
+if (typeof value === "string") {
+// flatpickr format "Y-m-d H:i" -> replace space with 'T' to make ISO-like local string
+const isoish = value.replace(" ", "T");
+return new Date(isoish);
+}
+return new Date(value);
+}
+function formatFullDateTime(date) {
+return new Intl.DateTimeFormat("en-GB", {
+weekday: "long",
+day: "2-digit",
+month: "long",
+year: "numeric",
+hour: "2-digit",
+minute: "2-digit",
+hour12: false
+}).format(date);
+}
+function formatShortDate(date) {
+return new Intl.DateTimeFormat("en-GB", {
+day: "2-digit",
+month: "short"
+}).format(date);
+}
+function formatEmailTime(date) {
+return `${pad(date.getHours())}${pad(date.getMinutes())}`;
+}
+function formatInputDateTime(date) {
+return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+function isWeekend(date) {
+const day = date.getDay();
+return day === 0 || day === 6;
+}
+function isPublicHoliday(date) {
+return selectedHolidays.includes(toLocalDateString(date));
+}
+function isWorkingDay(date) {
+return !isWeekend(date) && !isPublicHoliday(date);
+}
+function setTime(date, hour, minute = 0) {
+const output = cloneDate(date);
+output.setHours(hour, minute, 0, 0);
+return output;
+}
+function moveToNextWorkingDay(date, skippedDates) {
+let output = cloneDate(date);
+// Ensure we start at the start of working hour of that day for checks
+output = setTime(output, output.getHours(), output.getMinutes());
+while (!isWorkingDay(output)) {
+const dateText = toLocalDateString(output);
+if (isWeekend(output)) {
+skippedDates.add(`Weekend: ${dateText}`);
+}
+if (isPublicHoliday(output)) {
+skippedDates.add(`Public Holiday: ${dateText}`);
+}
+output.setDate(output.getDate() + 1);
+output = setTime(output, WORK_START_HOUR, 0);
+}
+return output;
+}
+function normalizeStartTime(date, skippedDates) {
+let output = cloneDate(date);
+output = moveToNextWorkingDay(output, skippedDates);
+const hour = output.getHours();
+if (hour < WORK_START_HOUR) {
+return setTime(output, WORK_START_HOUR, 0);
+}
+if (hour >= 19) {
+output.setDate(output.getDate() + 1);
+output = setTime(output, WORK_START_HOUR, 0);
+return moveToNextWorkingDay(output, skippedDates);
+}
+if (hour >= WORK_END_HOUR) {
+output.setDate(output.getDate() + 1);
+output = setTime(output, WORK_START_HOUR, 0);
+return moveToNextWorkingDay(output, skippedDates);
+}
+return output;
+}
+function getDailyEndTime(date, jobType) {
+if (jobType === "IPO") {
+return setTime(date, 23, 59);
+}
+return setTime(date, 22, 0);
+}
+function addWorkingHours(startDate, hours, jobType, skippedDates) {
+let current = normalizeStartTime(startDate, skippedDates);
+let remaining = hours;
+const MS_PER_HOUR = 1000 * 60 * 60;
+while (remaining > 0.0001) {
+current = moveToNextWorkingDay(current, skippedDates);
+const dailyLimit = getDailyEndTime(current, jobType);
+if (current >= dailyLimit) {
+current.setDate(current.getDate() + 1);
+current = setTime(current, WORK_START_HOUR, 0);
+continue;
+}
+const availableMilliseconds = dailyLimit - current;
+const availableHours = availableMilliseconds / MS_PER_HOUR;
+const hoursToAdd = Math.min(remaining, availableHours);
+current = new Date(current.getTime() + hoursToAdd * MS_PER_HOUR);
+remaining -= hoursToAdd;
+if (remaining > 0.0001) {
+current.setDate(current.getDate() + 1);
+current = setTime(current, WORK_START_HOUR, 0);
+}
+}
+return current;
+}
+function calculateRequiredHours(taskType, language, pages) {
+if (taskType === "New Draft") {
+return language === "E2C" ? pages : pages * 1.5;
+}
+if (taskType === "Chase Markups") {
+return (pages / 80) * 13;
+}
+if (taskType === "Line-by-line Review") {
+return pages;
+}
+if (taskType === "Call Obvious") {
+return pages / 10;
+}
+return 0;
+}
+function getProcessingRateText(taskType, language) {
+if (taskType === "New Draft") {
+return language === "E2C"
+? "New Draft (E to C): 1 page = 1 hour"
+: "New Draft (C to E): 1 page = 1.5 hours";
+}
+if (taskType === "Chase Markups") {
+return "Chase Markups: estimated at 80 pages per 13-hour working day";
+}
+if (taskType === "Line-by-line Review") {
+return "Line-by-line Review: 1 page = 1 hour";
+}
+return "Call Obvious: 10 pages = 1 hour";
+}
+function getTNumber() {
+const startT = Number(document.getElementById("startT").value);
+const endTValue = document.getElementById("endT").value;
+const endT = endTValue ? Number(endTValue) : null;
+if (endT && endT < startT) {
+throw new Error("End T Number cannot be smaller than Start T Number.");
+}
+return endT ? `T${startT}-T${endT}` : `T${startT}`;
+}
+function updateConditionalFields() {
+const taskType = document.getElementById("taskType").value;
+const startT = Number(document.getElementById("startT").value || 0);
+const isNonT1NewDraft = taskType === "New Draft" && startT > 1;
+document.getElementById("previousTatSection").style.display =
+isNonT1NewDraft ? "block" : "none";
+if (!isNonT1NewDraft) {
+document.getElementById("previousIsNewDraft").checked = false;
+document.getElementById("previousTatInputSection").style.display = "none";
+if (previousTatPicker) previousTatPicker.clear();
+}
+document.getElementById("previousTatInputSection").style.display =
+isNonT1NewDraft &&
+document.getElementById("previousIsNewDraft").checked
+? "block"
+: "none";
+document.getElementById("clientTatSection").style.display =
+document.getElementById("requireOT").checked ? "block" : "none";
+}
+function renderHolidayTags() {
+const container = document.getElementById("holidayTags");
+if (!selectedHolidays.length) {
+container.innerHTML = `
+         <span class="text-muted small">
+           <i class="bi bi-calendar-x me-1"></i>
+           No holidays selected.
+         </span>
+       `;
+return;
+}
+container.innerHTML = selectedHolidays
+.sort()
+.map(date => `
+         <span class="holiday-badge">
+           <i class="bi bi-calendar-event"></i>
+           ${date}
+           <button
+             type="button"
+             class="remove-holiday"
+             data-date="${date}"
+             title="Remove"
+           >×</button>
+         </span>
+       `)
+.join("");
+document.querySelectorAll(".remove-holiday").forEach(button => {
+button.addEventListener("click", () => {
+const date = button.dataset.date;
+selectedHolidays = selectedHolidays.filter(
+item => item !== date
+);
+if (holidayPicker) holidayPicker.setDate(selectedHolidays, false);
+renderHolidayTags();
+});
+});
+}
+function showError(message) {
+formError.innerHTML = `
+       <i class="bi bi-exclamation-triangle-fill me-2"></i>
+       ${message}
+     `;
+formError.classList.remove("d-none");
+window.scrollTo({
+top: formError.offsetTop - 120,
+behavior: "smooth"
+});
+}
+function hideError() {
+formError.classList.add("d-none");
+formError.textContent = "";
+}
 
     // compute available working hours between start and end (used when client provides TAT)
     function computeAvailableWorkingHours(startDate, endDate, jobType, skippedDates) {
@@ -1323,47 +1057,53 @@
     }
 
     // existing OT calculation rule: compare standardTAT vs clientTAT to derive OT hours using full-day rule
-    function calculateOT(standardTat, clientTat) {
-      const MS_PER_HOUR = 1000 * 60 * 60;
+function calculateOT(standardTat, clientTat) {
+const MS_PER_HOUR = 1000 * 60 * 60;
+      const differenceHours =
+        (standardTat - clientTat) / MS_PER_HOUR;
       const differenceHours = (standardTat - clientTat) / MS_PER_HOUR;
-      if (differenceHours <= 0) {
-        return {
-          required: false,
-          differenceHours: 0,
-          fullDays: 0,
-          remainingHours: 0,
-          otHours: 0
-        };
-      }
-      const fullDays = Math.floor(differenceHours / 24);
-      const remainingHours = differenceHours - fullDays * 24;
-      let otHours = fullDays * 10;
-      if (remainingHours >= 5) {
-        otHours += 5;
-      }
-      return {
-        required: true,
-        differenceHours,
-        fullDays,
-        remainingHours,
-        otHours
-      };
-    }
+if (differenceHours <= 0) {
+return {
+required: false,
+differenceHours: 0,
+fullDays: 0,
+remainingHours: 0,
+otHours: 0
+};
+}
+const fullDays = Math.floor(differenceHours / 24);
+const remainingHours = differenceHours - fullDays * 24;
+let otHours = fullDays * 10;
+if (remainingHours >= 5) {
+otHours += 5;
+}
+return {
+required: true,
+differenceHours,
+fullDays,
+remainingHours,
+otHours
+};
+}
+    function displayOTResult(ot, jobType, receivedDateTime, clientTat) {
 
     // display OT result - modified to handle cases where client did not provide TAT but requested OT (use buffer)
     function displayOTResult(ot, jobType, receivedDateTime, clientTat, requireOT) {
-      const container = document.getElementById("otResult");
+const container = document.getElementById("otResult");
+      if (!clientTat) {
       if (!requireOT) {
-        container.innerHTML = `
+container.innerHTML = `
+          <div class="info-box border bg-light">
           <div class="info-box">
-            <strong><i class="bi bi-dash-circle me-1"></i>OT: N/A</strong><br>
-            <span class="small text-muted">
-              Client did not request an earlier TAT.
-            </span>
-          </div>
-        `;
-        return;
-      }
+           <strong><i class="bi bi-dash-circle me-1"></i>OT: N/A</strong><br>
+           <span class="small text-muted">
+             Client did not request an earlier TAT.
+           </span>
+         </div>
+       `;
+return;
+}
+      if (!ot.required) {
 
       // If client provided TAT we expect ot to be result from calculateOT
       if (clientTat) {
@@ -1408,7 +1148,15 @@
             </div>
           `;
         }
-        container.innerHTML = `
+container.innerHTML = `
+          <div class="info-box border" style="background: var(--success-bg); border-color: #a9e6be !important;">
+            <strong class="text-success">
+              <i class="bi bi-check-circle-fill me-1"></i>
+              OT Required: No
+            </strong><br>
+            <span class="small text-muted">
+              The Client's Requested TAT is not earlier than the Standard Expected TAT.
+            </span>
           <div class="info-box" style="background: var(--danger-bg); border: 1px solid #fecaca;">
             <div><strong>Effective Time Gap:</strong> ${totalText} hours</div>
             <div><strong>Full 24-hour periods:</strong> ${ot.fullDays}</div>
@@ -1422,11 +1170,35 @@
               Rule: Each full 24-hour period = 10h OT. Remaining time of 5 hours
               or above = 5h OT. Remaining time below 5 hours = no OT charge.
             </div>
-          </div>
+         </div>
           ${warning}
+       `;
+return;
+}
+      const remainingText = ot.remainingHours.toFixed(1).replace(".0", "");
+      const totalText = ot.differenceHours.toFixed(1).replace(".0", "");
+      let warning = "";
+      if (jobType === "Compliance") {
+        warning += `
+          <div class="alert alert-warning mt-3 mb-0">
+            <i class="bi bi-exclamation-circle-fill me-1"></i>
+            <strong>Note:</strong> Please avoid charging OT for Compliance jobs where possible.
+          </div>
         `;
-        return;
+      } else {
+        warning += `
+          <div class="alert alert-info mt-3 mb-0">
+            <i class="bi bi-info-circle-fill me-1"></i>
+            <strong>Note:</strong> OT charges are generally more acceptable for IPO jobs.
+          </div>
+        `;
       }
+      if (clientTat < receivedDateTime || ot.fullDays >= 2) {
+        warning += `
+          <div class="alert alert-danger mt-3 mb-0">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            <strong>Significant or highly urgent OT requirement.</strong>
+            Please report to Jeff/Nieves immediately.
 
       // Client requested OT but did NOT provide TAT -> we use buffer-based OT suggestion (ot.otHours holds buffer-based suggestion)
       if (ot && ot.required) {
@@ -1453,326 +1225,354 @@
             <div class="small mt-2 text-muted">
               OT hours here are based on the selected buffer hours.
             </div>
-          </div>
+         </div>
           ${warning}
-        `;
+       `;
         return;
-      }
+}
 
       // fallback
-      container.innerHTML = `
+container.innerHTML = `
+        <div class="info-box" style="background: var(--danger-bg); border: 1px solid #fecaca;">
+          <div><strong>Effective Time Gap:</strong> ${totalText} hours</div>
+          <div><strong>Full 24-hour periods:</strong> ${ot.fullDays}</div>
+          <div><strong>Remaining hours:</strong> ${remainingText}</div>
+          <hr>
+          <div class="ot-value">
+            <i class="bi bi-lightning-charge-fill"></i>
+            Recommended OT Charge: ${ot.otHours}h OT
+          </div>
+          <div class="small mt-2 text-muted">
+            Rule: Each full 24-hour period = 10h OT. Remaining time of 5 hours
+            or above = 5h OT. Remaining time below 5 hours = no OT charge.
+          </div>
         <div class="info-box">
           <span class="small text-muted">No OT assessment available.</span>
-        </div>
-      `;
-    }
+       </div>
+        ${warning}
+     `;
+}
 
-    function generateEmailDraft(language, tNumber, tat, fileFormat) {
-      const languageText =
-        language === "E2C" ? "CHI translation" : "ENG translation";
-      return `${languageText} ${tNumber} will be ready by ${formatEmailTime(
-        tat
-      )} ${formatShortDate(tat)}, in ${fileFormat}.`;
-    }
-    async function saveSharedHolidays() {
-      const status = document.getElementById("firebaseStatus");
-      try {
-        if (!window.firebaseDb) {
-          throw new Error("Firebase is not ready yet.");
-        }
-        await window.firebaseSet(
-          window.firebaseRef(window.firebaseDb, "settings/publicHolidays"),
-          {
-            holidays: selectedHolidays,
-            updatedAt: new Date().toISOString()
-          }
-        );
-        status.className = "firebase-status text-success";
-        status.innerHTML = `
-          <i class="bi bi-check-circle-fill me-1"></i>
-          Shared holidays saved successfully to Firebase.
-        `;
-      } catch (error) {
-        console.error(error);
-        status.className = "firebase-status text-danger";
-        status.innerHTML = `
-          <i class="bi bi-x-circle-fill me-1"></i>
-          Unable to save holidays: ${error.message}
-        `;
-      }
-    }
-    async function autoResetHolidaysIfNewYear(snapshot) {
-      const status = document.getElementById("firebaseStatus");
-      try {
-        const now = new Date();
-        const todayIsJan1 = now.getMonth() === 0 && now.getDate() === 1;
-        let lastSavedYear = null;
-        if (snapshot && snapshot.exists() && snapshot.val().updatedAt) {
-          lastSavedYear = new Date(snapshot.val().updatedAt).getFullYear();
-        }
-        const currentYear = now.getFullYear();
-        // If current year is greater than lastSavedYear (cross-year) OR today is Jan 1 -> reset
-        if ((lastSavedYear !== null && currentYear > lastSavedYear) || todayIsJan1) {
-          // Clear local selection
-          selectedHolidays = [];
-          if (holidayPicker) holidayPicker.clear();
-          renderHolidayTags();
-          // Clear firebase stored holidays (force re-enter)
-          if (window.firebaseDb) {
-            await window.firebaseSet(
-              window.firebaseRef(window.firebaseDb, "settings/publicHolidays"),
-              {
-                holidays: [],
-                updatedAt: new Date().toISOString()
-              }
-            );
-          }
-          status.className = "firebase-status text-warning";
-          status.innerHTML = `
-            <i class="bi bi-exclamation-triangle-fill me-1"></i>
-            Holidays were reset for the new year. Please re-enter the public holidays for ${currentYear}.
-          `;
-          return true;
-        }
-        return false;
-      } catch (error) {
-        console.error("Holiday reset check error:", error);
-        status.className = "firebase-status text-danger";
-        status.innerHTML = `
-          <i class="bi bi-x-circle-fill me-1"></i>
-          Unable to verify holiday reset: ${error.message}
-        `;
-        return false;
-      }
-    }
-    async function loadSharedHolidays() {
-      const status = document.getElementById("firebaseStatus");
-      try {
-        if (!window.firebaseDb) {
-          status.className = "firebase-status text-muted";
-          status.innerHTML = `
-            <i class="bi bi-info-circle me-1"></i>
-            Firebase not available in this environment.
-          `;
-          return;
-        }
-        const snapshot = await window.firebaseGet(
-          window.firebaseRef(window.firebaseDb, "settings/publicHolidays")
-        );
-        // If reset is needed, autoResetHolidaysIfNewYear will clear them both locally and in Firebase
-        const didReset = await autoResetHolidaysIfNewYear(snapshot);
-        if (didReset) {
-          // Nothing else to load
-          return;
-        }
-        if (snapshot.exists() && snapshot.val().holidays && snapshot.val().holidays.length) {
-          selectedHolidays = [...new Set(snapshot.val().holidays)].sort();
-          if (holidayPicker) holidayPicker.setDate(selectedHolidays, false);
-          renderHolidayTags();
-          status.className = "firebase-status text-success";
-          status.innerHTML = `
-            <i class="bi bi-cloud-check-fill me-1"></i>
-            Shared holidays loaded from Firebase.
-          `;
-        } else {
-          status.className = "firebase-status text-muted";
-          status.innerHTML = `
-            <i class="bi bi-info-circle me-1"></i>
-            No shared holiday list found in Firebase yet.
-          `;
-        }
-      } catch (error) {
-        console.error(error);
-        status.className = "firebase-status text-danger";
-        status.innerHTML = `
-          <i class="bi bi-x-circle-fill me-1"></i>
-          Unable to load holidays: ${error.message}
-        `;
-      }
-    }
-    async function saveCalculationToFirebase() {
-      const saveStatus = document.getElementById("saveStatus");
-      try {
-        if (!latestCalculation) {
-          throw new Error("Please calculate the TAT before saving.");
-        }
-        if (!window.firebaseDb) {
-          throw new Error("Firebase is not ready yet.");
-        }
-        const calculationReference = window.firebasePush(
-          window.firebaseRef(window.firebaseDb, "tatCalculations")
-        );
-        await window.firebaseSet(calculationReference, {
-          ...latestCalculation,
-          createdAt: new Date().toISOString()
-        });
-        saveStatus.className = "small mt-2 text-success";
-        saveStatus.innerHTML = `
-          <i class="bi bi-check-circle-fill me-1"></i>
-          Calculation saved successfully to Firebase.
-        `;
-      } catch (error) {
-        console.error(error);
-        saveStatus.className = "small mt-2 text-danger";
-        saveStatus.innerHTML = `
-          <i class="bi bi-x-circle-fill me-1"></i>
-          Unable to save calculation: ${error.message}
-        `;
-      }
-    }
+function generateEmailDraft(language, tNumber, tat, fileFormat) {
+const languageText =
+language === "E2C" ? "CHI translation" : "ENG translation";
+return `${languageText} ${tNumber} will be ready by ${formatEmailTime(
+       tat
+     )} ${formatShortDate(tat)}, in ${fileFormat}.`;
+}
+async function saveSharedHolidays() {
+const status = document.getElementById("firebaseStatus");
+try {
+if (!window.firebaseDb) {
+throw new Error("Firebase is not ready yet.");
+}
+await window.firebaseSet(
+window.firebaseRef(window.firebaseDb, "settings/publicHolidays"),
+{
+holidays: selectedHolidays,
+updatedAt: new Date().toISOString()
+}
+);
+status.className = "firebase-status text-success";
+status.innerHTML = `
+         <i class="bi bi-check-circle-fill me-1"></i>
+         Shared holidays saved successfully to Firebase.
+       `;
+} catch (error) {
+console.error(error);
+status.className = "firebase-status text-danger";
+status.innerHTML = `
+         <i class="bi bi-x-circle-fill me-1"></i>
+         Unable to save holidays: ${error.message}
+       `;
+}
+}
+async function autoResetHolidaysIfNewYear(snapshot) {
+const status = document.getElementById("firebaseStatus");
+try {
+const now = new Date();
+const todayIsJan1 = now.getMonth() === 0 && now.getDate() === 1;
+let lastSavedYear = null;
+if (snapshot && snapshot.exists() && snapshot.val().updatedAt) {
+lastSavedYear = new Date(snapshot.val().updatedAt).getFullYear();
+}
+const currentYear = now.getFullYear();
+// If current year is greater than lastSavedYear (cross-year) OR today is Jan 1 -> reset
+if ((lastSavedYear !== null && currentYear > lastSavedYear) || todayIsJan1) {
+// Clear local selection
+selectedHolidays = [];
+if (holidayPicker) holidayPicker.clear();
+renderHolidayTags();
+// Clear firebase stored holidays (force re-enter)
+if (window.firebaseDb) {
+await window.firebaseSet(
+window.firebaseRef(window.firebaseDb, "settings/publicHolidays"),
+{
+holidays: [],
+updatedAt: new Date().toISOString()
+}
+);
+}
+status.className = "firebase-status text-warning";
+status.innerHTML = `
+           <i class="bi bi-exclamation-triangle-fill me-1"></i>
+           Holidays were reset for the new year. Please re-enter the public holidays for ${currentYear}.
+         `;
+return true;
+}
+return false;
+} catch (error) {
+console.error("Holiday reset check error:", error);
+status.className = "firebase-status text-danger";
+status.innerHTML = `
+         <i class="bi bi-x-circle-fill me-1"></i>
+         Unable to verify holiday reset: ${error.message}
+       `;
+return false;
+}
+}
+async function loadSharedHolidays() {
+const status = document.getElementById("firebaseStatus");
+try {
+if (!window.firebaseDb) {
+status.className = "firebase-status text-muted";
+status.innerHTML = `
+           <i class="bi bi-info-circle me-1"></i>
+           Firebase not available in this environment.
+         `;
+return;
+}
+const snapshot = await window.firebaseGet(
+window.firebaseRef(window.firebaseDb, "settings/publicHolidays")
+);
+// If reset is needed, autoResetHolidaysIfNewYear will clear them both locally and in Firebase
+const didReset = await autoResetHolidaysIfNewYear(snapshot);
+if (didReset) {
+// Nothing else to load
+return;
+}
+if (snapshot.exists() && snapshot.val().holidays && snapshot.val().holidays.length) {
+selectedHolidays = [...new Set(snapshot.val().holidays)].sort();
+if (holidayPicker) holidayPicker.setDate(selectedHolidays, false);
+renderHolidayTags();
+status.className = "firebase-status text-success";
+status.innerHTML = `
+           <i class="bi bi-cloud-check-fill me-1"></i>
+           Shared holidays loaded from Firebase.
+         `;
+} else {
+status.className = "firebase-status text-muted";
+status.innerHTML = `
+           <i class="bi bi-info-circle me-1"></i>
+           No shared holiday list found in Firebase yet.
+         `;
+}
+} catch (error) {
+console.error(error);
+status.className = "firebase-status text-danger";
+status.innerHTML = `
+         <i class="bi bi-x-circle-fill me-1"></i>
+         Unable to load holidays: ${error.message}
+       `;
+}
+}
+async function saveCalculationToFirebase() {
+const saveStatus = document.getElementById("saveStatus");
+try {
+if (!latestCalculation) {
+throw new Error("Please calculate the TAT before saving.");
+}
+if (!window.firebaseDb) {
+throw new Error("Firebase is not ready yet.");
+}
+const calculationReference = window.firebasePush(
+window.firebaseRef(window.firebaseDb, "tatCalculations")
+);
+await window.firebaseSet(calculationReference, {
+...latestCalculation,
+createdAt: new Date().toISOString()
+});
+saveStatus.className = "small mt-2 text-success";
+saveStatus.innerHTML = `
+         <i class="bi bi-check-circle-fill me-1"></i>
+         Calculation saved successfully to Firebase.
+       `;
+} catch (error) {
+console.error(error);
+saveStatus.className = "small mt-2 text-danger";
+saveStatus.innerHTML = `
+         <i class="bi bi-x-circle-fill me-1"></i>
+         Unable to save calculation: ${error.message}
+       `;
+}
+}
 
-    function setDefaultReceivedTime() {
-      const now = new Date();
-      // Round minutes to nearest 5 maybe not necessary; keep current time
-      const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      if (receivedPicker) {
-        receivedPicker.setDate(now, false);
-      } else {
-        document.getElementById("receivedDateTime").value = formatted;
-      }
-    }
+function setDefaultReceivedTime() {
+const now = new Date();
+// Round minutes to nearest 5 maybe not necessary; keep current time
+const formatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+if (receivedPicker) {
+receivedPicker.setDate(now, false);
+} else {
+document.getElementById("receivedDateTime").value = formatted;
+}
+}
 
-    function initializeHolidayPicker() {
-      holidayPicker = flatpickr("#holidayPicker", {
-        mode: "multiple",
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        onChange: function(selectedDates) {
-          selectedHolidays = selectedDates
-            .map(date => toLocalDateString(date))
-            .sort();
-          renderHolidayTags();
-        }
-      });
-    }
+function initializeHolidayPicker() {
+holidayPicker = flatpickr("#holidayPicker", {
+mode: "multiple",
+dateFormat: "Y-m-d",
+allowInput: false,
+onChange: function(selectedDates) {
+selectedHolidays = selectedDates
+.map(date => toLocalDateString(date))
+.sort();
+renderHolidayTags();
+}
+});
+}
 
-    function initializeDateTimePickers() {
-      const commonOpts = {
-        enableTime: true,
-        dateFormat: "Y-m-d H:i",
-        allowInput: false,
-        time_24hr: true
-      };
-      receivedPicker = flatpickr("#receivedDateTime", {
-        ...commonOpts,
-        onChange: function(selectedDates, dateStr) {
-          // keep input in the same format; no extra handling required here
-        }
-      });
-      previousTatPicker = flatpickr("#previousTat", {
-        ...commonOpts
-      });
-      clientTatPicker = flatpickr("#clientTat", {
-        ...commonOpts
-      });
-    }
+function initializeDateTimePickers() {
+const commonOpts = {
+enableTime: true,
+dateFormat: "Y-m-d H:i",
+allowInput: false,
+time_24hr: true
+};
+receivedPicker = flatpickr("#receivedDateTime", {
+...commonOpts,
+onChange: function(selectedDates, dateStr) {
+// keep input in the same format; no extra handling required here
+}
+});
+previousTatPicker = flatpickr("#previousTat", {
+...commonOpts
+});
+clientTatPicker = flatpickr("#clientTat", {
+...commonOpts
+});
+}
 
-    // Pages auto-calc logic
-    function updatePagesField() {
-      const startVal = document.getElementById("startT").value;
-      const endVal = document.getElementById("endT").value;
-      const pagesInput = document.getElementById("pages");
-      hideError();
-      if (!startVal) {
-        pagesInput.value = "";
-        return;
-      }
-      const start = Number(startVal);
-      if (!endVal) {
-        // default 1 page
-        pagesInput.value = 1;
-        return;
-      }
-      const end = Number(endVal);
-      if (end < start) {
-        pagesInput.value = "";
-        showError("End T Number cannot be smaller than Start T Number.");
-        return;
-      }
-      const pages = end - start + 1;
-      pagesInput.value = pages;
-    }
+// Pages auto-calc logic
+function updatePagesField() {
+const startVal = document.getElementById("startT").value;
+const endVal = document.getElementById("endT").value;
+const pagesInput = document.getElementById("pages");
+hideError();
+if (!startVal) {
+pagesInput.value = "";
+return;
+}
+const start = Number(startVal);
+if (!endVal) {
+// default 1 page
+pagesInput.value = 1;
+return;
+}
+const end = Number(endVal);
+if (end < start) {
+pagesInput.value = "";
+showError("End T Number cannot be smaller than Start T Number.");
+return;
+}
+const pages = end - start + 1;
+pagesInput.value = pages;
+}
 
-    form.addEventListener("submit", function(event) {
-      event.preventDefault();
-      hideError();
-      try {
-        const receivedValue = document.getElementById("receivedDateTime").value;
-        const jobType = document.getElementById("jobType").value;
-        const taskType = document.getElementById("taskType").value;
-        const language = document.getElementById("language").value;
-        const pages = Number(document.getElementById("pages").value);
-        const bufferHours = Number(document.getElementById("bufferHours").value);
-        const fileFormat = document.getElementById("fileFormat").value;
-        const requireOT = document.getElementById("requireOT").checked;
-        const clientTatValue = document.getElementById("clientTat").value;
-        const previousIsNewDraft =
-          document.getElementById("previousIsNewDraft").checked;
-        const previousTatValue = document.getElementById("previousTat").value;
-        const startT = Number(document.getElementById("startT").value);
-        if (
-          !receivedValue ||
-          !jobType ||
-          !taskType ||
-          !language ||
-          !pages ||
-          pages <= 0
-        ) {
-          throw new Error("Please complete all required fields.");
-        }
-        if (bufferHours < 0 || Number.isNaN(bufferHours)) {
-          throw new Error("Buffer Hours must be 0 or above.");
-        }
-        if (
-          taskType === "New Draft" &&
-          startT > 1 &&
-          previousIsNewDraft &&
-          !previousTatValue
-        ) {
+form.addEventListener("submit", function(event) {
+event.preventDefault();
+hideError();
+try {
+const receivedValue = document.getElementById("receivedDateTime").value;
+const jobType = document.getElementById("jobType").value;
+const taskType = document.getElementById("taskType").value;
+const language = document.getElementById("language").value;
+const pages = Number(document.getElementById("pages").value);
+const bufferHours = Number(document.getElementById("bufferHours").value);
+const fileFormat = document.getElementById("fileFormat").value;
+const requireOT = document.getElementById("requireOT").checked;
+const clientTatValue = document.getElementById("clientTat").value;
+const previousIsNewDraft =
+document.getElementById("previousIsNewDraft").checked;
+const previousTatValue = document.getElementById("previousTat").value;
+const startT = Number(document.getElementById("startT").value);
+if (
+!receivedValue ||
+!jobType ||
+!taskType ||
+!language ||
+!pages ||
+pages <= 0
+) {
+throw new Error("Please complete all required fields.");
+}
+if (bufferHours < 0 || Number.isNaN(bufferHours)) {
+throw new Error("Buffer Hours must be 0 or above.");
+}
+        if (requireOT && !clientTatValue) {
           throw new Error(
-            "Please provide Previous TAT because this is a non-T1 New Draft following another New Draft."
+            "Please provide Client's Requested TAT for OT assessment."
           );
         }
-        const tNumber = getTNumber();
-        const receivedDateTime = parseDateTime(receivedValue);
-        const skippedDates = new Set();
-        let startDateTime = receivedDateTime;
-        let startReason =
-          "Received Date & Time — this task can be processed independently.";
-        if (taskType === "New Draft") {
-          if (startT === 1) {
-            startReason = "Received Date & Time — this is a T1 New Draft.";
-          } else if (previousIsNewDraft) {
-            startDateTime = parseDateTime(previousTatValue);
-            startReason =
-              "Previous TAT End Time — this is a non-T1 New Draft following another New Draft.";
-          } else {
-            startReason =
-              "Received Date & Time — this non-T1 New Draft does not follow another New Draft.";
-          }
-        }
-        const adjustedStart = normalizeStartTime(startDateTime, skippedDates);
-        const requiredHours = calculateRequiredHours(
-          taskType,
-          language,
-          pages
-        );
+if (
+taskType === "New Draft" &&
+startT > 1 &&
+previousIsNewDraft &&
+!previousTatValue
+) {
+throw new Error(
+"Please provide Previous TAT because this is a non-T1 New Draft following another New Draft."
+);
+}
+const tNumber = getTNumber();
+const receivedDateTime = parseDateTime(receivedValue);
+const skippedDates = new Set();
+let startDateTime = receivedDateTime;
+let startReason =
+"Received Date & Time — this task can be processed independently.";
+if (taskType === "New Draft") {
+if (startT === 1) {
+startReason = "Received Date & Time — this is a T1 New Draft.";
+} else if (previousIsNewDraft) {
+startDateTime = parseDateTime(previousTatValue);
+startReason =
+"Previous TAT End Time — this is a non-T1 New Draft following another New Draft.";
+} else {
+startReason =
+"Received Date & Time — this non-T1 New Draft does not follow another New Draft.";
+}
+}
+const adjustedStart = normalizeStartTime(startDateTime, skippedDates);
+const requiredHours = calculateRequiredHours(
+taskType,
+language,
+pages
+);
 
         // standard TAT WITHOUT buffer (base)
-        const baseTat = addWorkingHours(
-          adjustedStart,
-          requiredHours,
-          jobType,
-          skippedDates
-        );
+const baseTat = addWorkingHours(
+adjustedStart,
+requiredHours,
+jobType,
+skippedDates
+);
+        const standardTat = addWorkingHours(
+          baseTat,
+          bufferHours,
 
         // standard TAT WITH buffer
         const standardTatWithBuffer = addWorkingHours(
           adjustedStart,
           requiredHours + bufferHours,
-          jobType,
-          skippedDates
-        );
+jobType,
+skippedDates
+);
+        const clientTat = clientTatValue
+          ? parseDateTime(clientTatValue)
+          : null;
+        const ot = clientTat
+          ? calculateOT(standardTat, clientTat)
+          : null;
 
         // Prepare steps
         const stepsArr = [];
@@ -1788,12 +1588,38 @@
         stepsArr.push(`Start Reason: ${startReason}`);
         stepsArr.push(`Adjusted Working Start: ${formatFullDateTime(adjustedStart)}`);
         stepsArr.push("");
-        const skippedText = skippedDates.size
-          ? Array.from(skippedDates)
-              .sort()
-              .map(item => `- ${item}`)
-              .join("\n")
-          : "- No weekend or public holiday was crossed during this calculation.";
+const skippedText = skippedDates.size
+? Array.from(skippedDates)
+.sort()
+.map(item => `- ${item}`)
+.join("\n")
+: "- No weekend or public holiday was crossed during this calculation.";
+        const calculationSteps = [
+          `Job Type: ${
+            jobType === "Compliance"
+              ? "Compliance Jobs"
+              : "IPO Jobs (including side jobs)"
+          }`,
+          `Task Type: ${taskType}`,
+          `Language: ${language === "E2C" ? "E to C" : "C to E"}`,
+          `T Number: ${tNumber}`,
+          `Pages: ${pages}`,
+          `Processing Rate: ${getProcessingRateText(taskType, language)}`,
+          `Required Base Working Hours: ${requiredHours
+            .toFixed(1)
+            .replace(".0", "")} hours`,
+          ``,
+          `Start Point: ${formatFullDateTime(startDateTime)}`,
+          `Start Reason: ${startReason}`,
+          `Adjusted Working Start: ${formatFullDateTime(adjustedStart)}`,
+          ``,
+          `Skipped Non-working Dates:`,
+          skippedText,
+          ``,
+          `Base TAT (before Buffer): ${formatFullDateTime(baseTat)}`,
+          `Buffer Added: ${bufferHours} hours`,
+          `Final Standard Expected TAT: ${formatFullDateTime(standardTat)}`
+        ].join("\n");
         stepsArr.push("Skipped Non-working Dates:");
         stepsArr.push(skippedText);
         stepsArr.push("");
@@ -1850,173 +1676,181 @@
         }
 
         // Prepare recipients & email draft (preserve original logic)
-        const recipients =
-          jobType === "Compliance"
-            ? { to: "ARCS; SZCS", cc: "LS-IS" }
-            : { to: "HKCS; SZCS", cc: "LS-IS" };
-        const emailDraft = generateEmailDraft(
-          language,
-          tNumber,
+const recipients =
+jobType === "Compliance"
+? { to: "ARCS; SZCS", cc: "LS-IS" }
+: { to: "HKCS; SZCS", cc: "LS-IS" };
+const emailDraft = generateEmailDraft(
+language,
+tNumber,
+          standardTat,
           finalTat,
-          fileFormat
-        );
+fileFormat
+);
 
         // Render to UI
-        document.getElementById("standardTatDisplay").textContent =
+document.getElementById("standardTatDisplay").textContent =
+          formatFullDateTime(standardTat);
           formatFullDateTime(finalTat);
-        document.getElementById("standardTatShortDisplay").textContent =
+document.getElementById("standardTatShortDisplay").textContent =
+          `${formatShortDate(standardTat)} ${formatEmailTime(standardTat)}`;
           `${formatShortDate(finalTat)} ${formatEmailTime(finalTat)}`;
-        document.getElementById("calculationSteps").textContent =
+document.getElementById("calculationSteps").textContent =
+          calculationSteps;
           stepsArr.join("\n");
-        document.getElementById("recipientResult").innerHTML = `
-          <div><strong><i class="bi bi-send me-1"></i>To:</strong> ${recipients.to}</div>
-          <div class="mt-1"><strong><i class="bi bi-copy me-1"></i>CC:</strong> ${recipients.cc}</div>
-        `;
-        document.getElementById("emailDraft").textContent = emailDraft;
+document.getElementById("recipientResult").innerHTML = `
+         <div><strong><i class="bi bi-send me-1"></i>To:</strong> ${recipients.to}</div>
+         <div class="mt-1"><strong><i class="bi bi-copy me-1"></i>CC:</strong> ${recipients.cc}</div>
+       `;
+document.getElementById("emailDraft").textContent = emailDraft;
+        displayOTResult(ot, jobType, receivedDateTime, clientTat);
 
         // OT display (pass requireOT so displayOTResult can show buffer-based suggestion)
         displayOTResult(otResultObj, jobType, receivedDateTime, clientTat, requireOT);
 
-        latestCalculation = {
-          receivedDateTime: receivedValue,
-          jobType,
-          taskType,
-          language,
-          tNumber,
-          pages,
-          previousIsNewDraft,
-          previousTat: previousTatValue || null,
-          publicHolidays: selectedHolidays,
-          bufferHours,
-          clientRequestedTat: clientTatValue || null,
+latestCalculation = {
+receivedDateTime: receivedValue,
+jobType,
+taskType,
+language,
+tNumber,
+pages,
+previousIsNewDraft,
+previousTat: previousTatValue || null,
+publicHolidays: selectedHolidays,
+bufferHours,
+clientRequestedTat: clientTatValue || null,
+          standardExpectedTat: formatInputDateTime(standardTat),
+          otHours: ot ? ot.otHours : 0,
           standardExpectedTat: formatInputDateTime(finalTat),
           otHours: otResultObj ? otResultObj.otHours : 0,
-          emailDraft,
+emailDraft,
+          calculationSteps
           calculationSteps: stepsArr.join("\n")
-        };
+};
 
-        resultCard.style.display = "block";
-        document.getElementById("saveStatus").textContent = "";
-        window.scrollTo({
-          top: resultCard.offsetTop - 25,
-          behavior: "smooth"
-        });
-      } catch (error) {
-        showError(error.message);
-      }
-    });
+resultCard.style.display = "block";
+document.getElementById("saveStatus").textContent = "";
+window.scrollTo({
+top: resultCard.offsetTop - 25,
+behavior: "smooth"
+});
+} catch (error) {
+showError(error.message);
+}
+});
 
-    // wire up conditional listeners
-    document
-      .getElementById("taskType")
-      .addEventListener("change", updateConditionalFields);
-    document
-      .getElementById("startT")
-      .addEventListener("input", function() {
-        updateConditionalFields();
-        updatePagesField();
-      });
-    document
-      .getElementById("endT")
-      .addEventListener("input", updatePagesField);
-    document
-      .getElementById("previousIsNewDraft")
-      .addEventListener("change", updateConditionalFields);
-    document
-      .getElementById("requireOT")
-      .addEventListener("change", updateConditionalFields);
+// wire up conditional listeners
+document
+.getElementById("taskType")
+.addEventListener("change", updateConditionalFields);
+document
+.getElementById("startT")
+.addEventListener("input", function() {
+updateConditionalFields();
+updatePagesField();
+});
+document
+.getElementById("endT")
+.addEventListener("input", updatePagesField);
+document
+.getElementById("previousIsNewDraft")
+.addEventListener("change", updateConditionalFields);
+document
+.getElementById("requireOT")
+.addEventListener("change", updateConditionalFields);
 
-    document
-      .getElementById("clearHolidays")
-      .addEventListener("click", function() {
-        selectedHolidays = [];
-        if (holidayPicker) holidayPicker.clear();
-        renderHolidayTags();
-        document.getElementById("firebaseStatus").className =
-          "firebase-status text-muted";
-        document.getElementById("firebaseStatus").innerHTML = `
-          <i class="bi bi-arrow-counterclockwise me-1"></i>
-          Holiday settings reset locally.
-        `;
-      });
+document
+.getElementById("clearHolidays")
+.addEventListener("click", function() {
+selectedHolidays = [];
+if (holidayPicker) holidayPicker.clear();
+renderHolidayTags();
+document.getElementById("firebaseStatus").className =
+"firebase-status text-muted";
+document.getElementById("firebaseStatus").innerHTML = `
+         <i class="bi bi-arrow-counterclockwise me-1"></i>
+         Holiday settings reset locally.
+       `;
+});
 
-    document
-      .getElementById("saveHolidaysButton")
-      .addEventListener("click", saveSharedHolidays);
+document
+.getElementById("saveHolidaysButton")
+.addEventListener("click", saveSharedHolidays);
 
-    document
-      .getElementById("saveCalculationButton")
-      .addEventListener("click", saveCalculationToFirebase);
+document
+.getElementById("saveCalculationButton")
+.addEventListener("click", saveCalculationToFirebase);
 
-    document
-      .getElementById("copyEmailButton")
-      .addEventListener("click", async function() {
-        const emailDraft = document.getElementById("emailDraft").textContent;
-        const button = this;
-        const originalHTML = button.innerHTML;
-        try {
-          await navigator.clipboard.writeText(emailDraft);
-          button.innerHTML = `
-            <i class="bi bi-check2 me-1"></i>
-            Copied!
-          `;
-          button.classList.remove("btn-outline-primary");
-          button.classList.add("btn-success");
-          setTimeout(() => {
-            button.innerHTML = originalHTML;
-            button.classList.remove("btn-success");
-            button.classList.add("btn-outline-primary");
-          }, 1500);
-        } catch (error) {
-          alert(
-            "Unable to copy automatically. Please copy the email draft manually."
-          );
-        }
-      });
+document
+.getElementById("copyEmailButton")
+.addEventListener("click", async function() {
+const emailDraft = document.getElementById("emailDraft").textContent;
+const button = this;
+const originalHTML = button.innerHTML;
+try {
+await navigator.clipboard.writeText(emailDraft);
+button.innerHTML = `
+           <i class="bi bi-check2 me-1"></i>
+           Copied!
+         `;
+button.classList.remove("btn-outline-primary");
+button.classList.add("btn-success");
+setTimeout(() => {
+button.innerHTML = originalHTML;
+button.classList.remove("btn-success");
+button.classList.add("btn-outline-primary");
+}, 1500);
+} catch (error) {
+alert(
+"Unable to copy automatically. Please copy the email draft manually."
+);
+}
+});
 
-    document
-      .getElementById("resetButton")
-      .addEventListener("click", function() {
-        form.reset();
-        selectedHolidays = [];
-        if (holidayPicker) holidayPicker.clear();
-        renderHolidayTags();
-        hideError();
-        resultCard.style.display = "none";
-        latestCalculation = null;
-        updateConditionalFields();
-        setDefaultReceivedTime();
-        document.getElementById("firebaseStatus").className =
-          "firebase-status text-muted";
-        document.getElementById("firebaseStatus").innerHTML = `
-          <i class="bi bi-arrow-counterclockwise me-1"></i>
-          Holiday settings reset locally.
-        `;
-        // reset pages field
-        document.getElementById("pages").value = "";
-      });
+document
+.getElementById("resetButton")
+.addEventListener("click", function() {
+form.reset();
+selectedHolidays = [];
+if (holidayPicker) holidayPicker.clear();
+renderHolidayTags();
+hideError();
+resultCard.style.display = "none";
+latestCalculation = null;
+updateConditionalFields();
+setDefaultReceivedTime();
+document.getElementById("firebaseStatus").className =
+"firebase-status text-muted";
+document.getElementById("firebaseStatus").innerHTML = `
+         <i class="bi bi-arrow-counterclockwise me-1"></i>
+         Holiday settings reset locally.
+       `;
+// reset pages field
+document.getElementById("pages").value = "";
+});
 
-    window.addEventListener("firebaseReady", function() {
-      document.getElementById("firebaseStatus").innerHTML = `
-        <i class="bi bi-cloud-arrow-down me-1"></i>
-        Firebase connected. Loading shared holidays...
-      `;
-      loadSharedHolidays();
-    });
+window.addEventListener("firebaseReady", function() {
+document.getElementById("firebaseStatus").innerHTML = `
+       <i class="bi bi-cloud-arrow-down me-1"></i>
+       Firebase connected. Loading shared holidays...
+     `;
+loadSharedHolidays();
+});
 
-    // init pickers and defaults
-    initializeHolidayPicker();
-    initializeDateTimePickers();
-    renderHolidayTags();
-    setDefaultReceivedTime();
-    updateConditionalFields();
+// init pickers and defaults
+initializeHolidayPicker();
+initializeDateTimePickers();
+renderHolidayTags();
+setDefaultReceivedTime();
+updateConditionalFields();
 
-    // initialize pages field to 1 if start exists on first load
-    updatePagesField();
+// initialize pages field to 1 if start exists on first load
+updatePagesField();
 
-    // Optional: quick HK holiday suggestions (commented out). You can integrate this array for quick-fill if desired.
-    // const hkStandardHolidaysQuick = ["2026-01-01","2026-01-02","2026-04-05","2026-05-01","2026-12-25"];
+// Optional: quick HK holiday suggestions (commented out). You can integrate this array for quick-fill if desired.
+// const hkStandardHolidaysQuick = ["2026-01-01","2026-01-02","2026-04-05","2026-05-01","2026-12-25"];
 
-  </script>
+</script>
 </body>
 </html>
