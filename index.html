@@ -2836,19 +2836,11 @@ const requiredWorkingDays =
     skippedDates
   );
 
+/*
+ * Standard TAT:
+ * Required working hours plus selected buffer.
+ */
 const standardTatWithBuffer =
-  addWorkingHours(
-    baseTat,
-    bufferHours,
-    jobType,
-    skippedDates
-  );
-
-          /*
-           * Standard TAT:
-           * Required working hours plus selected buffer.
-           */
-          const standardTatWithBuffer =
   addWorkingHours(
     baseTat,
     bufferHours,
@@ -3066,21 +3058,10 @@ steps.push(
    * When OT is not requested, use the normal
    * Standard TAT including buffer.
    */
-  finalTat =
-    standardTatWithBuffer;
+  finalTat = standardTatWithBuffer;
 }
-            steps.push("");
 
-            steps.push(
-              "OT not requested. Standard expected " +
-                "completion with buffer is used."
-            );
-
-            finalTat =
-              standardTatWithBuffer;
-          }
-
-          const recipients =
+const recipients =
             jobType === "Compliance"
               ? {
                   to: "ARCS; SZCS",
