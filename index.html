@@ -986,9 +986,9 @@
                 </div>
 
                 <div class="col-12">
-                  <label class="form-label">
+                  <div class="form-label">
                     Selected Holidays
-                  </label>
+                  </div>
 
                   <div id="holidayTags" class="holiday-tags">
                     <span class="text-muted small">
@@ -3458,6 +3458,64 @@ const recipients =
       }
     );
 
+    function addFlatpickrFieldAttributes() {
+  const fields = document.querySelectorAll(
+    [
+      ".flatpickr-monthDropdown-months",
+      ".flatpickr-calendar .cur-year",
+      ".flatpickr-calendar .flatpickr-hour",
+      ".flatpickr-calendar .flatpickr-minute"
+    ].join(",")
+  );
+
+  fields.forEach(function (field, index) {
+    const fieldId =
+      "flatpickr-field-" + (index + 1);
+
+    if (!field.id) {
+      field.id = fieldId;
+    }
+
+    if (!field.name) {
+      field.name = fieldId;
+    }
+
+    if (!field.getAttribute("aria-label")) {
+      if (
+        field.classList.contains(
+          "flatpickr-monthDropdown-months"
+        )
+      ) {
+        field.setAttribute(
+          "aria-label",
+          "Select month"
+        );
+      } else if (
+        field.classList.contains("cur-year")
+      ) {
+        field.setAttribute(
+          "aria-label",
+          "Enter year"
+        );
+      } else if (
+        field.classList.contains("flatpickr-hour")
+      ) {
+        field.setAttribute(
+          "aria-label",
+          "Enter hour"
+        );
+      } else if (
+        field.classList.contains("flatpickr-minute")
+      ) {
+        field.setAttribute(
+          "aria-label",
+          "Enter minute"
+        );
+      }
+    }
+  });
+}
+    
     /* -------------------------------------------------------
        Application initialization
     ------------------------------------------------------- */
@@ -3520,6 +3578,7 @@ const recipients =
 
         initializeHolidayPicker();
         initializeDateTimePickers();
+        addFlatpickrFieldAttributes();
         renderHolidayTags();
         setDefaultReceivedTime();
         updateConditionalFields();
