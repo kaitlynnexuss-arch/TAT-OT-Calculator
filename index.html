@@ -2303,7 +2303,7 @@ return {
 
     function firebaseReadWithTimeout(
       reference,
-      timeoutMilliseconds = 12000
+      timeoutMilliseconds = 30000
     ) {
       return Promise.race([
         reference.once("value"),
@@ -3538,17 +3538,28 @@ const recipients =
           );
         }
 
-        if (
-          !firebase.apps.length
-        ) {
-          firebase.initializeApp(
-            firebaseConfig
-          );
-        }
+       if (
+  !firebase.apps.length
+) {
+  firebase.initializeApp(
+    firebaseConfig
+  );
+}
 
-        db = firebase.database();
+/*
+ * Some company networks block Firebase WebSocket connections.
+ * Force Firebase to use HTTP long polling instead.
+ */
+if (
+  firebase.database.INTERNAL &&
+  typeof firebase.database.INTERNAL.forceLongPolling ===
+    "function"
+) {
+  firebase.database.INTERNAL.forceLongPolling();
+}
 
-        await loadSharedHolidays();
+db = firebase.database();
+await loadSharedHolidays();
       } catch (error) {
         console.error(
           "Firebase initialization error:",
