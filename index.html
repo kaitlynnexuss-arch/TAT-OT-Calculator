@@ -286,6 +286,56 @@
       font-weight: 800;
     }
 
+/*
+ * Input group with a suffix, for example:
+ * Manpower [person(s)] and Buffer [hours].
+ */
+.input-group > .form-control:first-child {
+  border-radius: 10px 0 0 10px !important;
+}
+
+.input-group > .input-group-text:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+/*
+ * Input group with a prefix, for example:
+ * calendar icon and T number.
+ */
+.input-group > .input-group-text:first-child {
+  border-radius: 10px 0 0 10px;
+}
+
+.input-group > .input-group-text:first-child +
+.form-control {
+  border-radius: 0 10px 10px 0 !important;
+}
+
+.date-picker-icon {
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.date-picker-icon:hover {
+  color: #fff;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--secondary)
+    );
+}
+
+.date-picker-icon:focus {
+  outline: 0;
+  box-shadow:
+    0 0 0 0.22rem
+    rgba(80, 98, 211, 0.16);
+}
+
     .form-control:focus,
     .form-select:focus {
       border-color: #8b9df0;
@@ -767,22 +817,106 @@
           </div>
 
           <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label for="receivedDateTime" class="form-label required">
-                Received Date &amp; Time
-              </label>
+  <!-- Received Date & Time -->
+  <div class="col-md-6">
+    <label
+      for="receivedDateTime"
+      class="form-label required"
+    >
+      Received Date &amp; Time
+    </label>
 
-              <input
-                type="text"
-                id="receivedDateTime"
-                class="form-control"
-                required
-              >
+    <div class="input-group">
+      <span
+        class="input-group-text date-picker-icon"
+        data-picker="received"
+        role="button"
+        tabindex="0"
+        title="Open received date and time calendar"
+        aria-label="Open received date and time calendar"
+      >
+        <i class="bi bi-calendar3"></i>
+      </span>
 
-              <div class="form-text">
-                Select the date and time when the job was received.
-              </div>
-            </div>
+      <input
+        type="text"
+        id="receivedDateTime"
+        class="form-control"
+        placeholder="Select received date and time"
+        required
+      >
+    </div>
+
+    <div class="form-text">
+      Select the date and time when the job was received.
+    </div>
+  </div>
+
+  <!-- Manpower -->
+  <div class="col-md-6">
+    <label
+      for="manpower"
+      class="form-label required"
+    >
+      Manpower
+    </label>
+
+    <div class="input-group">
+      <input
+        type="number"
+        id="manpower"
+        class="form-control"
+        min="1"
+        step="1"
+        value="1"
+        required
+      >
+
+      <span class="input-group-text">
+        person(s)
+      </span>
+    </div>
+
+    <div class="form-text">
+      The total workload will be divided by the number of staff.
+    </div>
+  </div>
+
+  <!-- Available Start Time -->
+  <div class="col-md-6">
+    <label
+      for="availableStartTime"
+      class="form-label required"
+    >
+      Available Start Time
+    </label>
+
+    <div class="input-group">
+      <span
+        class="input-group-text date-picker-icon"
+        data-picker="available"
+        role="button"
+        tabindex="0"
+        title="Open available start time calendar"
+        aria-label="Open available start time calendar"
+      >
+        <i class="bi bi-calendar3"></i>
+      </span>
+
+      <input
+        type="text"
+        id="availableStartTime"
+        class="form-control"
+        placeholder="Select available start date and time"
+        required
+      >
+    </div>
+
+    <div class="form-text">
+      Normal TAT starts from this time. Rush OT always starts
+      from the Received Date &amp; Time.
+    </div>
+  </div>
 
             <div class="col-md-6">
               <label for="jobType" class="form-label required">
@@ -914,25 +1048,42 @@
               </label>
             </div>
 
-            <div
-              id="previousTatInputSection"
-              class="conditional-section"
-            >
-              <label for="previousTat" class="form-label required">
-                Previous TAT End Time
-              </label>
+<div
+  id="previousTatInputSection"
+  class="conditional-section"
+>
+  <label
+    for="previousTat"
+    class="form-label required"
+  >
+    Previous TAT End Time
+  </label>
 
-              <input
-                type="text"
-                id="previousTat"
-                class="form-control"
-              >
+  <div class="input-group">
+<span
+  class="input-group-text date-picker-icon"
+  data-picker="previous"
+  role="button"
+  tabindex="0"
+  title="Open previous TAT calendar"
+  aria-label="Open previous TAT calendar"
+>
+  <i class="bi bi-calendar3"></i>
+</span>
 
-              <div class="form-text">
-                Required only for a non-T1 New Draft where the previous
-                task was also a New Draft.
-              </div>
-            </div>
+    <input
+      type="text"
+      id="previousTat"
+      class="form-control"
+      placeholder="Select previous TAT end time"
+    >
+  </div>
+
+  <div class="form-text">
+    Required only for a non-T1 New Draft where the previous
+    task was also a New Draft.
+  </div>
+</div>
           </div>
 
           <div class="section-title holidays">
@@ -1033,40 +1184,92 @@
               </div>
             </div>
 
-            <div class="col-md-6 d-flex align-items-end">
-              <div class="form-check p-3 w-100">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="requireOT"
-                >
+<div class="col-md-6">
+  <div class="form-check p-3 w-100 h-100">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      id="clientRequestsTat"
+    >
 
-                <label
-                  class="form-check-label fw-semibold"
-                  for="requireOT"
-                >
-                  Client requests an earlier TAT / Require OT assessment
-                </label>
-              </div>
-            </div>
+    <label
+      class="form-check-label fw-semibold"
+      for="clientRequestsTat"
+    >
+      Client requests a specific TAT
+    </label>
 
-            <div
-              id="clientTatSection"
-              class="conditional-section col-md-6"
-            >
-              <label for="clientTat" class="form-label required">
-                Client's Requested TAT
-              </label>
+    <div class="form-text mt-1">
+      Enter the exact TAT requested by the client.
+      OT will continue to compare Base TAT without Buffer
+      against the Client Requested TAT.
+    </div>
+  </div>
+</div>
 
-              <input
-                type="text"
-                id="clientTat"
-                class="form-control"
-              >
-            </div>
-          </div>
+<div class="col-md-6">
+  <div class="form-check p-3 w-100 h-100">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      id="clientRequestsRushOT"
+    >
 
-          <hr class="section-divider">
+    <label
+      class="form-check-label fw-semibold"
+      for="clientRequestsRushOT"
+    >
+      Client requests OT / Rush TAT
+    </label>
+
+    <div class="form-text mt-1">
+      Rush calculation starts from the Received Date &amp; Time
+      and includes weekends and public holidays.
+    </div>
+  </div>
+</div>
+
+<div
+  id="clientTatSection"
+  class="conditional-section col-md-6"
+>
+  <label
+    for="clientTat"
+    class="form-label required"
+  >
+    Client's Requested TAT
+  </label>
+
+<div class="input-group">
+  <span
+    class="input-group-text date-picker-icon"
+    data-picker="client"
+    role="button"
+    tabindex="0"
+    title="Open client requested TAT calendar"
+    aria-label="Open client requested TAT calendar"
+  >
+    <i class="bi bi-calendar3"></i>
+  </span>
+
+  <input
+    type="text"
+    id="clientTat"
+    class="form-control"
+    placeholder="Select the client's requested TAT"
+  >
+</div>
+
+  <div class="form-text">
+    This field is required only when the client requests
+    a specific TAT.
+  </div>
+</div>
+
+<!-- 關閉 Buffer and OT Settings 的 row -->
+</div>
+
+<hr class="section-divider">
 
           <div class="d-flex flex-wrap gap-2">
             <button
@@ -1224,9 +1427,10 @@
 
     let db = null;
     let holidayPicker = null;
-    let receivedPicker = null;
-    let previousTatPicker = null;
-    let clientTatPicker = null;
+let receivedPicker = null;
+let availableStartPicker = null;
+let previousTatPicker = null;
+let clientTatPicker = null;
 
     let selectedHolidays = [];
     let latestCalculation = null;
@@ -1715,73 +1919,85 @@
         : "T" + startT;
     }
 
-    function updateConditionalFields() {
-      const taskType =
-        document.getElementById("taskType").value;
+function updateConditionalFields() {
+  const taskType =
+    document.getElementById("taskType").value;
 
-      const startT = Number(
-        document.getElementById("startT").value || 0
-      );
+  const startT = Number(
+    document.getElementById("startT").value || 0
+  );
 
-      const previousIsNewDraft =
-        document.getElementById(
-          "previousIsNewDraft"
-        ).checked;
+  const previousIsNewDraft =
+    document.getElementById(
+      "previousIsNewDraft"
+    ).checked;
 
-      const requireOT =
-        document.getElementById("requireOT").checked;
+  const clientRequestsTat =
+    document.getElementById(
+      "clientRequestsTat"
+    ).checked;
 
-      const isNonT1NewDraft =
-        taskType === "New Draft" &&
-        startT > 1;
+  const isNonT1NewDraft =
+    taskType === "New Draft" &&
+    startT > 1;
 
-      const previousTatSection =
-        document.getElementById(
-          "previousTatSection"
-        );
+  const previousTatSection =
+    document.getElementById(
+      "previousTatSection"
+    );
 
-      const previousTatInputSection =
-        document.getElementById(
-          "previousTatInputSection"
-        );
+  const previousTatInputSection =
+    document.getElementById(
+      "previousTatInputSection"
+    );
 
-      const clientTatSection =
-        document.getElementById(
-          "clientTatSection"
-        );
+  const clientTatSection =
+    document.getElementById(
+      "clientTatSection"
+    );
 
-      previousTatSection.style.display =
-        isNonT1NewDraft
-          ? "block"
-          : "none";
+  /*
+   * 保留原本 Previous TAT 邏輯。
+   */
+  previousTatSection.style.display =
+    isNonT1NewDraft
+      ? "block"
+      : "none";
 
-      if (!isNonT1NewDraft) {
-        document.getElementById(
-          "previousIsNewDraft"
-        ).checked = false;
+  if (!isNonT1NewDraft) {
+    document.getElementById(
+      "previousIsNewDraft"
+    ).checked = false;
 
-        previousTatInputSection.style.display =
-          "none";
+    previousTatInputSection.style.display =
+      "none";
 
-        if (previousTatPicker) {
-          previousTatPicker.clear();
-        }
-      } else {
-        previousTatInputSection.style.display =
-          previousIsNewDraft
-            ? "block"
-            : "none";
-      }
-
-      clientTatSection.style.display =
-        requireOT
-          ? "block"
-          : "none";
-
-      if (!requireOT && clientTatPicker) {
-        clientTatPicker.clear();
-      }
+    if (previousTatPicker) {
+      previousTatPicker.clear();
     }
+  } else {
+    previousTatInputSection.style.display =
+      previousIsNewDraft
+        ? "block"
+        : "none";
+  }
+
+  /*
+   * 只有「Client requests a specific TAT」
+   * 才顯示 Client Requested TAT。
+   */
+  clientTatSection.style.display =
+    clientRequestsTat
+      ? "block"
+      : "none";
+
+  if (
+    !clientRequestsTat &&
+    clientTatPicker
+  ) {
+    clientTatPicker.clear();
+  }
+}
 
     function updatePagesField() {
       const startValue =
@@ -1920,11 +2136,151 @@
       formError.textContent = "";
     }
 
-    /* -------------------------------------------------------
-       OT calculation
-    ------------------------------------------------------- */
+/* -------------------------------------------------------
+   OT calculation
+------------------------------------------------------- */
 
-    function calculateOT(
+/*
+ * Calculate the fastest Rush TAT.
+ *
+ * Rush starts directly from Received Date & Time.
+ * It uses continuous calendar hours, so weekends and
+ * public holidays are included.
+ *
+ * requiredHours should already be divided by manpower.
+ */
+function calculateRushTat(
+  receivedDateTime,
+  requiredHours
+) {
+  if (
+    !receivedDateTime ||
+    Number.isNaN(requiredHours) ||
+    requiredHours < 0
+  ) {
+    return null;
+  }
+
+  return new Date(
+    receivedDateTime.getTime() +
+    requiredHours * MS_PER_HOUR
+  );
+}
+
+function calculateRushOT(
+  standardTatNoBuffer,
+  rushTat
+) {
+  if (
+    !standardTatNoBuffer ||
+    !rushTat ||
+    standardTatNoBuffer <= rushTat
+  ) {
+    return {
+      required: false,
+      calendarDays: 0,
+      actualGapHours: 0,
+      remainingHours: 0,
+      otHours: 0
+    };
+  }
+
+  const actualGapHours =
+    (
+      standardTatNoBuffer.getTime() -
+      rushTat.getTime()
+    ) / MS_PER_HOUR;
+
+/*
+ * Regardless of whether the time gap crosses midnight,
+ * a total difference of less than 5 hours is not charged.
+ */
+if (actualGapHours < 5) {
+  return {
+    required: false,
+    calendarDays: 0,
+    actualGapHours:
+      Math.round(
+        actualGapHours * 100
+      ) / 100,
+    remainingHours:
+      actualGapHours,
+    otHours: 0
+  };
+}
+
+  /*
+   * 如果兩個時間在同一日：
+   * 少於 5 小時 = 0h OT
+   * 5 小時或以上 = 10h OT
+   * 每日最多 10h OT
+   */
+const rushDateUtc =
+  Date.UTC(
+    rushTat.getFullYear(),
+    rushTat.getMonth(),
+    rushTat.getDate()
+  );
+
+const standardDateUtc =
+  Date.UTC(
+    standardTatNoBuffer.getFullYear(),
+    standardTatNoBuffer.getMonth(),
+    standardTatNoBuffer.getDate()
+  );
+
+const calendarDateDifference =
+  Math.round(
+    (
+      standardDateUtc -
+      rushDateUtc
+    ) /
+    (24 * MS_PER_HOUR)
+  );
+
+  let calendarDays = 0;
+  let otHours = 0;
+
+  if (calendarDateDifference === 0) {
+    calendarDays =
+      actualGapHours >= 5
+        ? 1
+        : 0;
+
+    otHours =
+      actualGapHours >= 5
+        ? 10
+        : 0;
+  } else {
+    /*
+     * 首尾日期都計算。
+     *
+     * 21 Sep 至 26 Sep：
+     * 26 - 21 = 5
+     * 加上起始日 = 6 日
+     */
+    calendarDays =
+      calendarDateDifference + 1;
+
+    otHours =
+      calendarDays * 10;
+  }
+
+  return {
+    required: otHours > 0,
+    calendarDays: calendarDays,
+    actualGapHours:
+      Math.round(actualGapHours * 100) / 100,
+    remainingHours:
+      actualGapHours % 24,
+    otHours: otHours
+  };
+}
+
+/*
+ * Keep the original Client Requested TAT OT calculation.
+ */
+function calculateOT(
   standardTatNoBuffer,
   clientTat
 ) {
@@ -2070,20 +2426,24 @@ return {
       `;
     }
 
-    function displayOTResult(
+function displayOTResult(
   ot,
   jobType,
   receivedDateTime,
   clientTat,
-  requireOT
+  assessmentMode,
+  rushTat
 ) {
   const container =
     document.getElementById("otResult");
 
   /*
-   * The client did not request an earlier TAT.
+   * Mode 1: Normal TAT.
+   *
+   * The client did not request a specific TAT
+   * and did not request Rush OT.
    */
-  if (!requireOT) {
+  if (assessmentMode === "normal") {
     container.innerHTML = `
       <div class="info-box border bg-light">
         <strong>
@@ -2094,7 +2454,8 @@ return {
         <br>
 
         <span class="small text-muted">
-          Client did not request an earlier TAT.
+          The client did not request a specific TAT
+          or Rush OT.
         </span>
       </div>
     `;
@@ -2103,10 +2464,18 @@ return {
   }
 
   /*
-   * A Client Requested TAT is required
-   * when OT assessment is selected.
+   * Defensive validation:
+   *
+   * A Client Requested TAT must be provided when
+   * the assessment mode is clientTat.
+   *
+   * This should normally be caught by the form
+   * validation before this function is called.
    */
-  if (!clientTat) {
+  if (
+    assessmentMode === "clientTat" &&
+    !clientTat
+  ) {
     container.innerHTML = `
       <div
         class="info-box"
@@ -2126,10 +2495,57 @@ return {
   }
 
   /*
-   * Client Requested TAT is not earlier than
-   * the Standard TAT without buffer.
+   * Defensive validation:
+   *
+   * A Rush TAT must exist when the assessment
+   * mode is rush.
+   */
+  if (
+    assessmentMode === "rush" &&
+    !rushTat
+  ) {
+    container.innerHTML = `
+      <div
+        class="info-box"
+        style="
+          background: var(--warning-bg);
+          border: 1px solid #fed7aa;
+        "
+      >
+        <strong class="text-warning-emphasis">
+          <i class="bi bi-exclamation-circle-fill me-1"></i>
+          Rush TAT could not be calculated.
+        </strong>
+      </div>
+    `;
+
+    return;
+  }
+
+  /*
+   * No chargeable OT is required.
+   *
+   * Display a different explanation for:
+   * 1. Client Requested TAT
+   * 2. Rush OT
    */
   if (!ot || !ot.required) {
+    let noOtMessage = "";
+
+    if (assessmentMode === "clientTat") {
+      noOtMessage =
+        "The Client Requested TAT is not earlier " +
+        "than the Base TAT without Buffer, or the " +
+        "difference does not result in a chargeable OT amount.";
+    } else if (assessmentMode === "rush") {
+      noOtMessage =
+        "The Rush TAT does not create a chargeable " +
+        "difference from the Base TAT without Buffer.";
+    } else {
+      noOtMessage =
+        "No chargeable OT is required.";
+    }
+
     container.innerHTML = `
       <div
         class="info-box"
@@ -2146,8 +2562,7 @@ return {
         <br>
 
         <span class="small text-muted">
-          The Client Requested TAT is not earlier
-          than the Standard TAT without buffer.
+          ${noOtMessage}
         </span>
       </div>
     `;
@@ -2156,18 +2571,35 @@ return {
   }
 
   /*
-   * Add different reminders for Compliance and IPO jobs.
+   * Preserve the original job-type reminders:
+   *
+   * Compliance:
+   * Please avoid charging OT where possible.
+   *
+   * IPO:
+   * OT charges are generally more acceptable.
    */
-  let warnings = getJobTypeWarning(jobType);
+  let warnings =
+    getJobTypeWarning(jobType);
 
   /*
-   * Display an urgent reminder when the Client Requested TAT
-   * is earlier than the received time, or the OT calculation
-   * contains two or more day differences.
+   * Preserve the original Jeff/Nieves warning
+   * for the Client Requested TAT mode.
+   *
+   * Display the urgent reminder when:
+   *
+   * 1. Client Requested TAT is earlier than
+   *    Received Date & Time; OR
+   *
+   * 2. The original OT result contains two or
+   *    more complete working-day differences.
    */
   if (
-    clientTat < receivedDateTime ||
-    ot.fullDays >= 2
+    assessmentMode === "clientTat" &&
+    (
+      clientTat < receivedDateTime ||
+      ot.fullDays >= 2
+    )
   ) {
     warnings += `
       <div class="alert alert-danger mt-3 mb-0">
@@ -2183,11 +2615,66 @@ return {
   }
 
   /*
-   * OT is required.
+   * Add the same Jeff/Nieves reporting reminder
+   * for Rush OT.
    *
-   * Effective Time Gap, Full 24-hour periods,
-   * Remaining Hours and Available Working Hours
-   * are intentionally not displayed.
+   * calculateRushOT() returns calendarDays instead
+   * of fullDays, so Rush uses calendarDays >= 2.
+   */
+  if (
+    assessmentMode === "rush" &&
+    ot.calendarDays >= 2
+  ) {
+    warnings += `
+      <div class="alert alert-danger mt-3 mb-0">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+
+        <strong>
+          Significant or highly urgent Rush OT requirement.
+        </strong>
+
+        Please report to Jeff/Nieves immediately.
+      </div>
+    `;
+  }
+
+  /*
+   * Prepare the explanation shown underneath
+   * the recommended OT charge.
+   */
+  let assessmentDetail = "";
+
+  if (assessmentMode === "clientTat") {
+    /*
+     * Keep the original Client Requested TAT
+     * explanation.
+     */
+    assessmentDetail = `
+      OT is assessed by comparing the Base TAT
+      without Buffer against the Client Requested TAT.
+      Buffer does not participate in the OT assessment.
+    `;
+  } else if (assessmentMode === "rush") {
+    /*
+     * Rush explanation.
+     */
+    assessmentDetail = `
+      Rush TAT:
+      ${formatFullDateTime(rushTat)}
+      <br>
+
+      Chargeable calendar days:
+      ${ot.calendarDays} day(s)
+      × 10h OT.
+      <br>
+
+      Weekends and public holidays are included
+      in the Rush OT assessment.
+    `;
+  }
+
+  /*
+   * OT is required.
    */
   container.innerHTML = `
     <div
@@ -2208,12 +2695,12 @@ return {
 
       <div class="ot-value">
         <i class="bi bi-lightning-charge-fill"></i>
-        Recommended OT Charge: ${ot.otHours}h OT
+        Recommended OT Charge:
+        ${ot.otHours}h OT
       </div>
 
       <div class="small mt-2 text-muted">
-        OT is assessed by comparing the Standard TAT
-        without buffer against the Client Requested TAT.
+        ${assessmentDetail}
       </div>
     </div>
 
@@ -2447,19 +2934,15 @@ return {
         const reference =
           db.ref("settings/publicHolidays");
 
-        const snapshot =
-          await firebaseReadWithTimeout(reference);
 
-        const wasReset =
-          await autoResetHolidaysIfNewYear(
-            snapshot
-          );
+const snapshot =
+  await firebaseReadWithTimeout(reference);
 
-        if (wasReset) {
-          return;
-        }
-
-        if (snapshot.exists()) {
+/*
+ * Do not automatically clear holidays at New Year.
+ * Multiple dates and multiple years are supported.
+ */
+if (snapshot.exists()) {
           const data = snapshot.val();
           const holidays =
             data &&
@@ -2577,81 +3060,213 @@ return {
        Flatpickr initialization
     ------------------------------------------------------- */
 
-    function initializeHolidayPicker() {
-      holidayPicker = flatpickr(
-        "#holidayPicker",
-        {
-          mode: "multiple",
-          dateFormat: "Y-m-d",
-          allowInput: false,
+function initializeHolidayPicker() {
+  holidayPicker = flatpickr(
+    "#holidayPicker",
+    {
+      mode: "multiple",
+      dateFormat: "Y-m-d",
+      allowInput: false,
 
-          onChange: function (selectedDates) {
-            selectedHolidays = selectedDates
-              .map(function (date) {
-                return toLocalDateString(date);
-              })
-              .sort();
+      onChange: function (selectedDates) {
+        selectedHolidays = selectedDates
+          .map(function (date) {
+            return toLocalDateString(date);
+          })
+          .sort();
 
-            renderHolidayTags();
+        renderHolidayTags();
+      }
+    }
+  );
+}
+
+function initializeDateTimePickers() {
+  const commonOptions = {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+    allowInput: false,
+    time_24hr: true,
+    minuteIncrement: 1
+  };
+
+  receivedPicker = flatpickr(
+    "#receivedDateTime",
+    {
+      ...commonOptions,
+
+      onChange: function (selectedDates) {
+        if (
+          selectedDates.length &&
+          availableStartPicker
+        ) {
+          const receivedDate =
+            selectedDates[0];
+
+          const availableValue =
+            document.getElementById(
+              "availableStartTime"
+            ).value;
+
+          const currentAvailable =
+            parseDateTime(
+              availableValue
+            );
+
+          /*
+           * Available Start 沒有設定，
+           * 或早於新的 Received Time 時，
+           * 自動更新為 Received Time。
+           */
+          if (
+            !currentAvailable ||
+            currentAvailable < receivedDate
+          ) {
+            availableStartPicker.setDate(
+              receivedDate,
+              false
+            );
+          }
+        }
+      }
+    }
+  );
+
+  availableStartPicker = flatpickr(
+    "#availableStartTime",
+    {
+      ...commonOptions
+    }
+  );
+
+  previousTatPicker = flatpickr(
+    "#previousTat",
+    {
+      ...commonOptions
+    }
+  );
+
+  clientTatPicker = flatpickr(
+    "#clientTat",
+    {
+      ...commonOptions
+    }
+  );
+}
+
+function initializeDatePickerIconButtons() {
+  document
+    .querySelectorAll(
+      ".date-picker-icon"
+    )
+    .forEach(function (icon) {
+      /*
+       * 避免初始化函式被重複呼叫時，
+       * 對同一個圖示重複綁定事件。
+       */
+      if (
+        icon.dataset.listenerAttached ===
+        "true"
+      ) {
+        return;
+      }
+
+      icon.dataset.listenerAttached =
+        "true";
+
+      function openRelatedPicker() {
+        const pickerName =
+          icon.dataset.picker;
+
+        if (
+          pickerName === "received" &&
+          receivedPicker
+        ) {
+          receivedPicker.open();
+        } else if (
+          pickerName === "available" &&
+          availableStartPicker
+        ) {
+          availableStartPicker.open();
+        } else if (
+          pickerName === "previous" &&
+          previousTatPicker
+        ) {
+          previousTatPicker.open();
+        } else if (
+          pickerName === "client" &&
+          clientTatPicker
+        ) {
+          clientTatPicker.open();
+        }
+      }
+
+      /*
+       * 滑鼠點擊圖示。
+       */
+      icon.addEventListener(
+        "click",
+        openRelatedPicker
+      );
+
+      /*
+       * 鍵盤 Enter 或 Space 也可開啟日曆。
+       */
+      icon.addEventListener(
+        "keydown",
+        function (event) {
+          if (
+            event.key === "Enter" ||
+            event.key === " "
+          ) {
+            event.preventDefault();
+            openRelatedPicker();
           }
         }
       );
-    }
+    });
+}
 
-    function initializeDateTimePickers() {
-      const commonOptions = {
-        enableTime: true,
-        dateFormat: "Y-m-d H:i",
-        allowInput: false,
-        time_24hr: true,
-        minuteIncrement: 1
-      };
+function setDefaultReceivedTime() {
+  const now = new Date();
 
-      receivedPicker = flatpickr(
-        "#receivedDateTime",
-        {
-          ...commonOptions
-        }
-      );
+  if (receivedPicker) {
+    receivedPicker.setDate(now, false);
+  } else {
+    document.getElementById(
+      "receivedDateTime"
+    ).value =
+      now.getFullYear() +
+      "-" +
+      pad(now.getMonth() + 1) +
+      "-" +
+      pad(now.getDate()) +
+      " " +
+      pad(now.getHours()) +
+      ":" +
+      pad(now.getMinutes());
+  }
 
-      previousTatPicker = flatpickr(
-        "#previousTat",
-        {
-          ...commonOptions
-        }
-      );
-
-      clientTatPicker = flatpickr(
-        "#clientTat",
-        {
-          ...commonOptions
-        }
-      );
-    }
-
-    function setDefaultReceivedTime() {
-      const now = new Date();
-
-      if (receivedPicker) {
-        receivedPicker.setDate(
-          now,
-          false
-        );
-      } else {
-        document.getElementById(
-          "receivedDateTime"
-        ).value =
-          now.getFullYear() +
-          "-" +
-          pad(now.getMonth() + 1) +
-          "-" +
-          pad(now.getDate()) +
-          " " +
-          pad(now.getHours()) +
-          ":" +
-          pad(now.getMinutes());
-      }
-    }
+  /*
+   * Available Start Time 預設等於入稿時間。
+   */
+  if (availableStartPicker) {
+    availableStartPicker.setDate(now, false);
+  } else {
+    document.getElementById(
+      "availableStartTime"
+    ).value =
+      now.getFullYear() +
+      "-" +
+      pad(now.getMonth() + 1) +
+      "-" +
+      pad(now.getDate()) +
+      " " +
+      pad(now.getHours()) +
+      ":" +
+      pad(now.getMinutes());
+  }
+}
 
     /* -------------------------------------------------------
        Main calculation
@@ -2690,6 +3305,17 @@ return {
             ).value
           );
 
+const manpower = Number(
+  document.getElementById(
+    "manpower"
+  ).value
+);
+
+const availableStartValue =
+  document.getElementById(
+    "availableStartTime"
+  ).value;
+
           const bufferHours = Number(
             document.getElementById(
               "bufferHours"
@@ -2701,10 +3327,15 @@ return {
               "fileFormat"
             ).value;
 
-          const requireOT =
-            document.getElementById(
-              "requireOT"
-            ).checked;
+const clientRequestsTat =
+  document.getElementById(
+    "clientRequestsTat"
+  ).checked;
+
+const clientRequestsRushOT =
+  document.getElementById(
+    "clientRequestsRushOT"
+  ).checked;
 
           const clientTatValue =
             document.getElementById(
@@ -2750,15 +3381,38 @@ return {
             );
           }
 
-          if (
-            requireOT &&
-            !clientTatValue
-          ) {
-            throw new Error(
-              "Please provide Client's Requested TAT for OT assessment."
-            );
-          }
+if (
+  !Number.isInteger(manpower) ||
+  manpower < 1
+) {
+  throw new Error(
+    "Manpower must be a whole number of 1 or above."
+  );
+}
 
+if (!availableStartValue) {
+  throw new Error(
+    "Please provide the Available Start Time."
+  );
+}
+
+if (
+  clientRequestsTat &&
+  clientRequestsRushOT
+) {
+  throw new Error(
+    "Please select only one client request option."
+  );
+}
+
+if (
+  clientRequestsTat &&
+  !clientTatValue
+) {
+  throw new Error(
+    "Please provide Client's Requested TAT."
+  );
+}
           if (
             taskType === "New Draft" &&
             startT > 1 &&
@@ -2780,6 +3434,29 @@ return {
             );
           }
 
+const availableStartTime =
+  parseDateTime(
+    availableStartValue
+  );
+
+if (!availableStartTime) {
+  throw new Error(
+    "Available Start Time is invalid."
+  );
+}
+
+/*
+ * 不允許正常工作開始時間早於入稿時間。
+ */
+if (
+  availableStartTime <
+  receivedDateTime
+) {
+  throw new Error(
+    "Available Start Time cannot be earlier than Received Date & Time."
+  );
+}
+
           const clientTat =
             clientTatValue
               ? parseDateTime(clientTatValue)
@@ -2798,54 +3475,91 @@ return {
           const skippedDates = new Set();
 
           let startDateTime =
-            cloneDate(receivedDateTime);
+  cloneDate(receivedDateTime);
 
-          let startReason =
-            "Received Date & Time — this task can be processed independently.";
+let startReason =
+  "Received Date & Time — this task can be processed independently.";
 
-          if (taskType === "New Draft") {
-            if (startT === 1) {
-              startReason =
-                "Received Date & Time — this is a T1 New Draft.";
-            } else if (
-              previousIsNewDraft
-            ) {
-              const parsedPreviousTat =
-                parseDateTime(
-                  previousTatValue
-                );
+/*
+ * 保留原本 Previous TAT 邏輯。
+ */
+if (taskType === "New Draft") {
+  if (startT === 1) {
+    startReason =
+      "Received Date & Time — this is a T1 New Draft.";
+  } else if (
+    previousIsNewDraft
+  ) {
+    const parsedPreviousTat =
+      parseDateTime(
+        previousTatValue
+      );
 
-              if (!parsedPreviousTat) {
-                throw new Error(
-                  "Previous TAT End Time is invalid."
-                );
-              }
+    if (!parsedPreviousTat) {
+      throw new Error(
+        "Previous TAT End Time is invalid."
+      );
+    }
 
-              startDateTime =
-                parsedPreviousTat;
+    startDateTime =
+      parsedPreviousTat;
 
-              startReason =
-                "Previous TAT End Time — this is a non-T1 " +
-                "New Draft following another New Draft.";
-            } else {
-              startReason =
-                "Received Date & Time — this non-T1 New Draft " +
-                "does not follow another New Draft.";
-            }
-          }
+    startReason =
+      "Previous TAT End Time — this is a non-T1 " +
+      "New Draft following another New Draft.";
+  } else {
+    startReason =
+      "Received Date & Time — this non-T1 New Draft " +
+      "does not follow another New Draft.";
+  }
+}
 
-          const adjustedStart =
-            normalizeStartTime(
-              startDateTime,
-              skippedDates
-            );
+/*
+ * 正常 TAT 使用：
+ * 原本邏輯開始時間與 Available Start Time
+ * 兩者之中較遲的一個。
+ */
+if (
+  availableStartTime >
+  startDateTime
+) {
+  startDateTime =
+    cloneDate(availableStartTime);
 
-          const requiredHours =
-            calculateRequiredHours(
-              taskType,
-              language,
-              pages
-            );
+  startReason +=
+    " Processing starts from the selected Available " +
+    "Start Time because manpower is not available earlier.";
+} else {
+  startReason +=
+    " The Available Start Time does not delay " +
+    "the original start condition.";
+}
+
+/*
+ * 再使用原本的工作日、09:00、19:00 等正規化規則。
+ */
+const adjustedStart =
+  normalizeStartTime(
+    startDateTime,
+    skippedDates
+  );
+
+          /*
+ * 原本 calculateRequiredHours() 計算的是
+ * 一個人所需的總工時。
+ */
+const originalRequiredHours =
+  calculateRequiredHours(
+    taskType,
+    language,
+    pages
+  );
+
+/*
+ * 多人平均分配工作量。
+ */
+const requiredHours =
+  originalRequiredHours / manpower;
 
           const hoursPerWorkingDay =
   WORK_END_HOUR - WORK_START_HOUR;
@@ -2878,12 +3592,14 @@ const standardTatWithBuffer =
     skippedDates
   );
 
-          let finalTat =
-            standardTatWithBuffer;
+let finalTat =
+  standardTatWithBuffer;
 
-          let otResult = null;
+let otResult = null;
+let rushTat = null;
+let assessmentMode = "normal";
 
-          const steps = [];
+const steps = [];
 
           steps.push(
             "Job Type: " +
@@ -2926,15 +3642,40 @@ const standardTatWithBuffer =
               )
           );
 
-          steps.push(
-            "Required Base Working Hours: " +
-              formatNumber(
-                requiredHours,
-                2
-              ) +
-              " hours"
-          );
+steps.push(
+  "Original Workload for 1 Person: " +
+    formatNumber(
+      originalRequiredHours,
+      2
+    ) +
+    " hours"
+);
 
+steps.push(
+  "Manpower: " +
+    manpower +
+    (
+      manpower === 1
+        ? " person"
+        : " persons"
+    )
+);
+
+steps.push(
+  "Adjusted Required Working Hours: " +
+    formatNumber(
+      originalRequiredHours,
+      2
+    ) +
+    " / " +
+    manpower +
+    " = " +
+    formatNumber(
+      requiredHours,
+      2
+    ) +
+    " hours"
+);
           steps.push(
   "Working Hours per Day: " +
     hoursPerWorkingDay +
@@ -2951,27 +3692,40 @@ steps.push(
     " working days"
 );
           
-          steps.push("");
+steps.push("");
 
-          steps.push(
-            "Start Point: " +
-              formatFullDateTime(
-                startDateTime
-              )
-          );
+steps.push(
+  "Received Date & Time: " +
+    formatFullDateTime(
+      receivedDateTime
+    )
+);
 
-          steps.push(
-            "Start Reason: " +
-              startReason
-          );
+steps.push(
+  "Selected Available Start Time: " +
+    formatFullDateTime(
+      availableStartTime
+    )
+);
 
-          steps.push(
-            "Adjusted Working Start: " +
-              formatFullDateTime(
-                adjustedStart
-              )
-          );
+steps.push(
+  "Start Point: " +
+    formatFullDateTime(
+      startDateTime
+    )
+);
 
+steps.push(
+  "Start Reason: " +
+    startReason
+);
+
+steps.push(
+  "Adjusted Working Start: " +
+    formatFullDateTime(
+      adjustedStart
+    )
+);
           steps.push("");
 
           const skippedText =
@@ -3024,17 +3778,29 @@ steps.push(
            * The original OT rule compares the base TAT,
            * without buffer, against the client's requested TAT.
            */
-          if (requireOT && clientTat) {
-  /*
-   * OT is calculated using the Standard TAT
-   * without buffer.
-   */
+/*
+ * 模式一：
+ * Client requests a specific TAT。
+ *
+ * 保留原本 OT 邏輯：
+ * Base TAT（不含 Buffer）對比 Client Requested TAT。
+ */
+if (
+  clientRequestsTat &&
+  clientTat
+) {
+  assessmentMode = "clientTat";
+
   otResult = calculateOT(
     baseTat,
     clientTat
   );
 
   steps.push("");
+
+  steps.push(
+    "Assessment Mode: Client Requested Specific TAT"
+  );
 
   steps.push(
     "Client Requested TAT: " +
@@ -3044,10 +3810,14 @@ steps.push(
   );
 
   steps.push(
-    "OT Assessment Standard TAT (no buffer): " +
+    "OT Assessment Base TAT (without Buffer): " +
       formatFullDateTime(
         baseTat
       )
+  );
+
+  steps.push(
+    "Buffer is excluded from the OT assessment."
   );
 
   if (otResult.required) {
@@ -3066,31 +3836,154 @@ steps.push(
     );
 
     steps.push(
-      "The Client Requested TAT is not earlier " +
-        "than the Standard TAT without buffer."
+      "The Client Requested TAT is not earlier than " +
+      "the Base TAT without Buffer, or there is no " +
+      "chargeable difference."
     );
   }
 
   /*
-   * When OT is requested, the Client Requested TAT
-   * becomes the final displayed and email TAT.
+   * 結果與 Email 使用客人指定的 TAT。
    */
-  finalTat = clientTat;
-} else {
+  finalTat =
+    clientTat;
+
+/*
+ * 模式二：
+ * Client requests OT / Rush TAT。
+ */
+} else if (
+  clientRequestsRushOT
+) {
+  assessmentMode = "rush";
+
+  /*
+   * Rush 從 Received Date & Time 開始。
+   * requiredHours 已經除以 Manpower。
+   * 連續計算，包括週末及公眾假期。
+   */
+  rushTat =
+    calculateRushTat(
+      receivedDateTime,
+      requiredHours
+    );
+
+  if (!rushTat) {
+    throw new Error(
+      "Unable to calculate Rush TAT."
+    );
+  }
+
+  /*
+   * Rush OT 使用：
+   * Base TAT（不含 Buffer）對比 Rush TAT。
+   */
+  otResult =
+    calculateRushOT(
+      baseTat,
+      rushTat
+    );
+
   steps.push("");
 
   steps.push(
-    "OT not requested. Standard expected " +
-      "completion with buffer is used."
+    "Assessment Mode: Client Requested OT / Rush"
   );
 
-  /*
-   * When OT is not requested, use the normal
-   * Standard TAT including buffer.
-   */
-  finalTat = standardTatWithBuffer;
-}
+  steps.push(
+    "Rush Start Time: " +
+      formatFullDateTime(
+        receivedDateTime
+      )
+  );
 
+  steps.push(
+    "Rush Start Reason: Rush starts directly from " +
+      "the Received Date & Time."
+  );
+
+  steps.push(
+    "Rush Working Hours after Manpower Adjustment: " +
+      formatNumber(
+        requiredHours,
+        2
+      ) +
+      " hours"
+  );
+
+  steps.push(
+    "Rush TAT: " +
+      formatFullDateTime(
+        rushTat
+      )
+  );
+
+  steps.push(
+    "Rush calculation includes weekends and public holidays."
+  );
+
+  steps.push(
+    "OT Comparison Base TAT (without Buffer): " +
+      formatFullDateTime(
+        baseTat
+      )
+  );
+
+  if (otResult.required) {
+    steps.push(
+      "Calendar Days Charged: " +
+        otResult.calendarDays
+    );
+
+    steps.push(
+      "OT Required: Yes"
+    );
+
+    steps.push(
+      "Recommended OT Charge: " +
+        otResult.otHours +
+        "h OT"
+    );
+  } else {
+    steps.push(
+      "OT Required: No"
+    );
+
+    steps.push(
+      "The Rush TAT does not create a chargeable " +
+      "difference from the Base TAT."
+    );
+  }
+
+  /*
+   * Rush 模式顯示 Rush TAT。
+   */
+  finalTat =
+    rushTat;
+
+/*
+ * 模式三：正常 TAT。
+ */
+} else {
+  assessmentMode = "normal";
+
+  steps.push("");
+
+  steps.push(
+    "Assessment Mode: Normal TAT"
+  );
+
+  steps.push(
+    "No Client Requested TAT or Rush OT was selected."
+  );
+
+  steps.push(
+    "The Standard Expected TAT including Buffer is used."
+  );
+
+  finalTat =
+    standardTatWithBuffer;
+}
 const recipients =
             jobType === "Compliance"
               ? {
@@ -3152,56 +4045,106 @@ const recipients =
           ).textContent =
             emailDraft;
 
-          displayOTResult(
-            otResult,
-            jobType,
-            receivedDateTime,
-            clientTat,
-            requireOT
-          );
+displayOTResult(
+  otResult,
+  jobType,
+  receivedDateTime,
+  clientTat,
+  assessmentMode,
+  rushTat
+);
 
-          latestCalculation = {
-            receivedDateTime:
-              receivedValue,
-            jobType: jobType,
-            taskType: taskType,
-            language: language,
-            tNumber: tNumber,
-            pages: pages,
-            previousIsNewDraft:
-              previousIsNewDraft,
-            previousTat:
-              previousTatValue || null,
-            publicHolidays:
-              selectedHolidays.slice(),
-            bufferHours:
-              bufferHours,
-            clientRequestedTat:
-              clientTatValue || null,
-            baseTat:
-              formatInputDateTime(baseTat),
-            standardTatWithBuffer:
-              formatInputDateTime(
-                standardTatWithBuffer
-              ),
-            standardExpectedTat:
-              formatInputDateTime(finalTat),
-            otRequired:
-              Boolean(
-                otResult &&
-                otResult.required
-              ),
-            otHours:
-              otResult
-                ? otResult.otHours
-                : 0,
-            emailRecipients:
-              recipients,
-            emailDraft:
-              emailDraft,
-            calculationSteps:
-              steps.join("\n")
-          };
+latestCalculation = {
+  receivedDateTime:
+    receivedValue,
+
+  availableStartTime:
+    availableStartValue,
+
+  manpower:
+    manpower,
+
+  jobType:
+    jobType,
+
+  taskType:
+    taskType,
+
+  language:
+    language,
+
+  tNumber:
+    tNumber,
+
+  pages:
+    pages,
+
+  originalRequiredHours:
+    originalRequiredHours,
+
+  adjustedRequiredHours:
+    requiredHours,
+
+  previousIsNewDraft:
+    previousIsNewDraft,
+
+  previousTat:
+    previousTatValue || null,
+
+  publicHolidays:
+    selectedHolidays.slice(),
+
+  bufferHours:
+    bufferHours,
+
+  assessmentMode:
+    assessmentMode,
+
+  clientRequestsTat:
+    clientRequestsTat,
+
+  clientRequestsRushOT:
+    clientRequestsRushOT,
+
+  clientRequestedTat:
+    clientTatValue || null,
+
+  rushTat:
+    rushTat
+      ? formatInputDateTime(rushTat)
+      : null,
+
+  baseTat:
+    formatInputDateTime(baseTat),
+
+  standardTatWithBuffer:
+    formatInputDateTime(
+      standardTatWithBuffer
+    ),
+
+  standardExpectedTat:
+    formatInputDateTime(finalTat),
+
+  otRequired:
+    Boolean(
+      otResult &&
+      otResult.required
+    ),
+
+  otHours:
+    otResult
+      ? otResult.otHours
+      : 0,
+
+  emailRecipients:
+    recipients,
+
+  emailDraft:
+    emailDraft,
+
+  calculationSteps:
+    steps.join("\n")
+};
 
           resultCard.style.display =
             "block";
@@ -3231,232 +4174,283 @@ const recipients =
       }
     );
 
-    /* -------------------------------------------------------
-       Form event listeners
-    ------------------------------------------------------- */
+/* -------------------------------------------------------
+   Form event listeners
+------------------------------------------------------- */
 
-    document.getElementById(
-      "taskType"
-    ).addEventListener(
-      "change",
-      updateConditionalFields
-    );
+document.getElementById(
+  "taskType"
+).addEventListener(
+  "change",
+  updateConditionalFields
+);
 
-    document.getElementById(
-      "startT"
-    ).addEventListener(
-      "input",
-      function () {
-        updateConditionalFields();
-        updatePagesField();
+document.getElementById(
+  "clientRequestsTat"
+).addEventListener(
+  "change",
+  function () {
+    /*
+     * 兩種客人要求互斥。
+     */
+    if (this.checked) {
+      document.getElementById(
+        "clientRequestsRushOT"
+      ).checked = false;
+    }
+
+    updateConditionalFields();
+  }
+);
+
+document.getElementById(
+  "clientRequestsRushOT"
+).addEventListener(
+  "change",
+  function () {
+    /*
+     * 兩種客人要求互斥。
+     */
+    if (this.checked) {
+      document.getElementById(
+        "clientRequestsTat"
+      ).checked = false;
+
+      if (clientTatPicker) {
+        clientTatPicker.clear();
       }
+    }
+
+    updateConditionalFields();
+  }
+);
+
+document.getElementById(
+  "startT"
+).addEventListener(
+  "input",
+  function () {
+    updateConditionalFields();
+    updatePagesField();
+  }
+);
+
+document.getElementById(
+  "endT"
+).addEventListener(
+  "input",
+  updatePagesField
+);
+
+document.getElementById(
+  "previousIsNewDraft"
+).addEventListener(
+  "change",
+  updateConditionalFields
+);
+
+/*
+ * Clear All Holidays。
+ *
+ * 只在本機畫面清除。
+ * 必須按 Save Online 才會同步到 Firebase。
+ */
+document.getElementById(
+  "clearHolidays"
+).addEventListener(
+  "click",
+  function () {
+    selectedHolidays = [];
+
+    if (holidayPicker) {
+      holidayPicker.clear();
+    }
+
+    renderHolidayTags();
+
+    setFirebaseStatus(
+      "text-muted",
+      "bi-arrow-counterclockwise",
+      "Holiday settings cleared locally. " +
+        "Click Save Online to update Firebase."
     );
+  }
+);
 
-    document.getElementById(
-      "endT"
-    ).addEventListener(
-      "input",
-      updatePagesField
-    );
+document.getElementById(
+  "saveHolidaysButton"
+).addEventListener(
+  "click",
+  saveSharedHolidays
+);
 
-    document.getElementById(
-      "previousIsNewDraft"
-    ).addEventListener(
-      "change",
-      updateConditionalFields
-    );
+document.getElementById(
+  "saveCalculationButton"
+).addEventListener(
+  "click",
+  saveCalculationToFirebase
+);
 
-    document.getElementById(
-      "requireOT"
-    ).addEventListener(
-      "change",
-      updateConditionalFields
-    );
+document.getElementById(
+  "copyEmailButton"
+).addEventListener(
+  "click",
+  async function () {
+    const emailDraft =
+      document.getElementById(
+        "emailDraft"
+      ).textContent;
 
-    document.getElementById(
-      "clearHolidays"
-    ).addEventListener(
-      "click",
-      function () {
-        selectedHolidays = [];
+    const button = this;
+    const originalHTML =
+      button.innerHTML;
 
-        if (holidayPicker) {
-          holidayPicker.clear();
-        }
-
-        renderHolidayTags();
-
-        setFirebaseStatus(
-          "text-muted",
-          "bi-arrow-counterclockwise",
-          "Holiday settings cleared locally. " +
-            "Click Save Online to update Firebase."
+    try {
+      if (
+        navigator.clipboard &&
+        window.isSecureContext
+      ) {
+        await navigator.clipboard.writeText(
+          emailDraft
         );
-      }
-    );
-
-    document.getElementById(
-      "saveHolidaysButton"
-    ).addEventListener(
-      "click",
-      saveSharedHolidays
-    );
-
-    document.getElementById(
-      "saveCalculationButton"
-    ).addEventListener(
-      "click",
-      saveCalculationToFirebase
-    );
-
-    document.getElementById(
-      "copyEmailButton"
-    ).addEventListener(
-      "click",
-      async function () {
-        const emailDraft =
-          document.getElementById(
-            "emailDraft"
-          ).textContent;
-
-        const button = this;
-        const originalHTML =
-          button.innerHTML;
-
-        try {
-          if (
-            navigator.clipboard &&
-            window.isSecureContext
-          ) {
-            await navigator.clipboard.writeText(
-              emailDraft
-            );
-          } else {
-            const temporaryTextarea =
-              document.createElement(
-                "textarea"
-              );
-
-            temporaryTextarea.value =
-              emailDraft;
-
-            temporaryTextarea.style.position =
-              "fixed";
-
-            temporaryTextarea.style.opacity =
-              "0";
-
-            temporaryTextarea.style.pointerEvents =
-              "none";
-
-            document.body.appendChild(
-              temporaryTextarea
-            );
-
-            temporaryTextarea.focus();
-            temporaryTextarea.select();
-
-            const copied =
-              document.execCommand("copy");
-
-            temporaryTextarea.remove();
-
-            if (!copied) {
-              throw new Error(
-                "Copy command was not successful."
-              );
-            }
-          }
-
-          button.innerHTML = `
-            <i class="bi bi-check2 me-1"></i>
-            Copied!
-          `;
-
-          button.classList.remove(
-            "btn-outline-primary"
+      } else {
+        const temporaryTextarea =
+          document.createElement(
+            "textarea"
           );
 
-          button.classList.add(
+        temporaryTextarea.value =
+          emailDraft;
+
+        temporaryTextarea.style.position =
+          "fixed";
+
+        temporaryTextarea.style.opacity =
+          "0";
+
+        temporaryTextarea.style.pointerEvents =
+          "none";
+
+        document.body.appendChild(
+          temporaryTextarea
+        );
+
+        temporaryTextarea.focus();
+        temporaryTextarea.select();
+
+        const copied =
+          document.execCommand("copy");
+
+        temporaryTextarea.remove();
+
+        if (!copied) {
+          throw new Error(
+            "Copy command was not successful."
+          );
+        }
+      }
+
+      button.innerHTML = `
+        <i class="bi bi-check2 me-1"></i>
+        Copied!
+      `;
+
+      button.classList.remove(
+        "btn-outline-primary"
+      );
+
+      button.classList.add(
+        "btn-success"
+      );
+
+      window.setTimeout(
+        function () {
+          button.innerHTML =
+            originalHTML;
+
+          button.classList.remove(
             "btn-success"
           );
 
-          window.setTimeout(
-            function () {
-              button.innerHTML =
-                originalHTML;
-
-              button.classList.remove(
-                "btn-success"
-              );
-
-              button.classList.add(
-                "btn-outline-primary"
-              );
-            },
-            1500
+          button.classList.add(
+            "btn-outline-primary"
           );
-        } catch (error) {
-          console.error(
-            "Copy error:",
-            error
-          );
+        },
+        1500
+      );
+    } catch (error) {
+      console.error(
+        "Copy error:",
+        error
+      );
 
-          window.alert(
-            "Unable to copy automatically. " +
-              "Please copy the email draft manually."
-          );
-        }
-      }
-    );
+      window.alert(
+        "Unable to copy automatically. " +
+          "Please copy the email draft manually."
+      );
+    }
+  }
+);
+
+/*
+ * Reset 工作資料，但保留 Public Holidays。
+ */
+document.getElementById(
+  "resetButton"
+).addEventListener(
+  "click",
+  function () {
+    form.reset();
+
+    /*
+     * Public Holidays 不會在這裡清除。
+     */
+    if (previousTatPicker) {
+      previousTatPicker.clear();
+    }
+
+    if (clientTatPicker) {
+      clientTatPicker.clear();
+    }
+
+    if (availableStartPicker) {
+      availableStartPicker.clear();
+    }
+
+    hideError();
+
+    resultCard.style.display =
+      "none";
+
+    latestCalculation = null;
 
     document.getElementById(
-      "resetButton"
-    ).addEventListener(
-      "click",
-      function () {
-        form.reset();
+      "pages"
+    ).value = "";
 
-        selectedHolidays = [];
+    document.getElementById(
+      "saveStatus"
+    ).textContent = "";
 
-        if (holidayPicker) {
-          holidayPicker.clear();
-        }
+updateConditionalFields();
+setDefaultReceivedTime();
 
-        if (previousTatPicker) {
-          previousTatPicker.clear();
-        }
+if (holidayPicker) {
+  holidayPicker.setDate(
+    selectedHolidays,
+    false
+  );
+}
 
-        if (clientTatPicker) {
-          clientTatPicker.clear();
-        }
+renderHolidayTags();
 
-        renderHolidayTags();
-        hideError();
-
-        resultCard.style.display =
-          "none";
-
-        latestCalculation = null;
-
-        document.getElementById(
-          "pages"
-        ).value = "";
-
-        document.getElementById(
-          "saveStatus"
-        ).textContent = "";
-
-        updateConditionalFields();
-        setDefaultReceivedTime();
-
-        setFirebaseStatus(
-          "text-muted",
-          "bi-arrow-counterclockwise",
-          "Form and holiday settings reset locally."
-        );
-      }
-    );
+setFirebaseStatus(
+  "text-muted",
+  "bi-arrow-counterclockwise",
+  "Form reset completed. Public holidays were retained."
+);
+  }
+);
 
     function addFlatpickrFieldAttributes() {
   const fields = document.querySelectorAll(
@@ -3587,9 +4581,10 @@ await loadSharedHolidays();
           );
         }
 
-        initializeHolidayPicker();
-        initializeDateTimePickers();
-        addFlatpickrFieldAttributes();
+initializeHolidayPicker();
+initializeDateTimePickers();
+initializeDatePickerIconButtons();
+addFlatpickrFieldAttributes();
         renderHolidayTags();
         setDefaultReceivedTime();
         updateConditionalFields();
