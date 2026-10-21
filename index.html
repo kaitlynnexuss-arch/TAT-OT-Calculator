@@ -1569,21 +1569,26 @@ function recordNonWorkingDatesBetween(
   /*
    * Date and time pickers
    */
-  const receivedPicker = flatpickr("#receivedDateTime", {
-    enableTime: true,
-    time_24hr: true,
-    dateFormat: "Y-m-d H:i",
-    allowInput: true,
-    minuteIncrement: 1
-  });
+const currentDateTime = new Date();
+currentDateTime.setSeconds(0, 0);
 
-  const availablePicker = flatpickr("#availableStartTime", {
-    enableTime: true,
-    time_24hr: true,
-    dateFormat: "Y-m-d H:i",
-    allowInput: true,
-    minuteIncrement: 1
-  });
+const receivedPicker = flatpickr("#receivedDateTime", {
+  enableTime: true,
+  time_24hr: true,
+  dateFormat: "Y-m-d H:i",
+  allowInput: true,
+  minuteIncrement: 1,
+  defaultDate: currentDateTime
+});
+
+const availablePicker = flatpickr("#availableStartTime", {
+  enableTime: true,
+  time_24hr: true,
+  dateFormat: "Y-m-d H:i",
+  allowInput: true,
+  minuteIncrement: 1,
+  defaultDate: currentDateTime
+});
 
   const clientTatPicker = flatpickr("#clientTat", {
     enableTime: true,
