@@ -1245,7 +1245,7 @@
 
 <!-- Firebase JavaScript -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 
 <script>
 const WORK_START_HOUR = 9;
@@ -1619,6 +1619,198 @@ function recordNonWorkingDatesBetween(
       }).format(date);
     }
 
+  /*
+ * Convert the time difference into chargeable OT hours.
+ *
+ * Charging rules:
+ * - Less than 5 hours: no OT charge
+ * - 5 to less than 10 hours: charge 5 OT hours
+ * - Each complete 10-hour block: charge 10 OT hours
+ * - An additional complete 5-hour block: charge another 5 OT hours
+ *
+ * Examples:
+ * 4.99 hours  -> 0 OT hours
+ * 5 hours     -> 5 OT hours
+ * 9.99 hours  -> 5 OT hours
+ * 10 hours    -> 10 OT hours
+ * 14.99 hours -> 10 OT hours
+ * 15 hours    -> 15 OT hours
+ * 34 hours    -> 30 OT hours
+ */
+
+  /*
+ * Convert an actual time difference into chargeable OT hours.
+ *
+ * Charging rules:
+ * - Less than 5 hours: no OT charge
+ * - 5 to less than 10 hours: charge 5 OT hours
+ * - Every complete 10-hour block: charge 10 OT hours
+ * - An additional complete 5-hour block: charge another 5 OT hours
+ *
+ * Examples:
+ * 4.99 hours  -> 0 OT hours
+ * 5 hours     -> 5 OT hours
+ * 9.99 hours  -> 5 OT hours
+ * 10 hours    -> 10 OT hours
+ * 14.99 hours -> 10 OT hours
+ * 15 hours    -> 15 OT hours
+ * 34 hours    -> 30 OT hours
+ * 82 hours    -> 80 OT hours
+ */
+function calculateChargeableOtHours(timeDifferenceHours) {
+  const hours = Number(timeDifferenceHours);
+
+  if (!Number.isFinite(hours) || hours < 5) {
+    return 0;
+  }
+
+  const completeTenHourBlocks =
+    Math.floor(hours / 10) * 10;
+
+  const remainingHours =
+    hours % 10;
+
+  const additionalFiveHours =
+    remainingHours >= 5 ? 5 : 0;
+
+  return (
+    completeTenHourBlocks +
+    additionalFiveHours
+  );
+}
+
+/*
+ * Add production hours continuously for Rush OT.
+ *
+ * Rush production includes:
+ * - Normal working hours
+ * - Overnight hours from 22:00 to 09:00
+ * - Weekends
+ * - Public holidays
+ *
+ * Buffer is not added.
+ */
+function addContinuousHours(startDate, hours) {
+  const totalHours = Number(hours);
+
+  if (
+    !Number.isFinite(totalHours) ||
+    totalHours < 0
+  ) {
+    throw new Error(
+      "Rush production hours must be a valid non-negative number."
+    );
+  }
+
+  return new Date(
+    startDate.getTime() +
+      totalHours * MS_PER_HOUR
+  );
+}
+
+/*
+ * Calculate the comparison TAT used for Rush OT.
+ *
+ * Buffer is not included.
+ *
+ * If the normal Base TAT falls at or after 19:00,
+ * move the comparison point to 09:00 on the next
+ * working day.
+ *
+ * Weekends and public holidays are skipped when
+ * finding the next working day.
+ */
+function getRushOtComparisonTat(baseTat) {
+  let comparisonTat = cloneDate(baseTat);
+
+  const eveningCutoff = setTime(
+    comparisonTat,
+    19,
+    0
+  );
+
+  /*
+   * If Base TAT is before 19:00,
+   * use Base TAT directly.
+   */
+  if (comparisonTat < eveningCutoff) {
+    return comparisonTat;
+  }
+
+  /*
+   * If Base TAT is at or after 19:00,
+   * move to 09:00 on the next day.
+   */
+  comparisonTat.setDate(
+    comparisonTat.getDate() + 1
+  );
+
+  comparisonTat = setTime(
+    comparisonTat,
+    WORK_START_HOUR,
+    0
+  );
+
+  /*
+   * Skip weekends and public holidays.
+   */
+  while (!isWorkingDay(comparisonTat)) {
+    comparisonTat.setDate(
+      comparisonTat.getDate() + 1
+    );
+
+    comparisonTat = setTime(
+      comparisonTat,
+      WORK_START_HOUR,
+      0
+    );
+  }
+
+  return comparisonTat;
+}
+
+/*
+ * Return a readable OT charge breakdown.
+ *
+ * Examples:
+ * 30 chargeable hours -> 3 OT days
+ * 35 chargeable hours -> 3 OT days + 5 OT hours
+ * 80 chargeable hours -> 8 OT days
+ */
+function getOtChargeBreakdown(chargeableOtHours) {
+  const hours = Number(chargeableOtHours);
+
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return "No OT charge";
+  }
+
+  const completeOtDays =
+    Math.floor(hours / 10);
+
+  const remainingOtHours =
+    hours % 10;
+
+  const breakdown = [];
+
+  if (completeOtDays > 0) {
+    breakdown.push(
+      completeOtDays +
+        (completeOtDays === 1
+          ? " OT day"
+          : " OT days")
+    );
+  }
+
+  if (remainingOtHours > 0) {
+    breakdown.push(
+      remainingOtHours +
+        " OT hours"
+    );
+  }
+
+  return breakdown.join(" + ");
+}
+  
 let selectedHolidays = [];
 
 try {
@@ -2392,60 +2584,307 @@ const standardTatWithBuffer = addNormalWorkingHours(
           steps.push("Base TAT (before Buffer): " + formatFullDateTime(baseTat));
           steps.push("Buffer Added: " + formatNumber(bufferHours, 2) + " hours");
           steps.push("Standard Expected TAT (with buffer): " + formatFullDateTime(standardTatWithBuffer));
-          if (clientRequestsTat.checked) {
+if (clientRequestsTat.checked) {
+  /*
+   * Client Requested Specific TAT
+   *
+   * OT comparison:
+   * Base TAT without Buffer
+   * minus Client Requested TAT.
+   */
   assessmentMode = "client-requested";
+  finalTat = standardTatWithBuffer;
 
-  steps.push("Assessment Mode: Client Requested TAT");
+  steps.push(
+    "Assessment Mode: Client Requested TAT"
+  );
+
   steps.push(
     "Client Requested TAT: " +
       formatFullDateTime(clientTat)
   );
 
-  if (clientTat < baseTat) {
-    const advanceMilliseconds =
-      baseTat.getTime() - clientTat.getTime();
+  steps.push(
+    "OT Comparison TAT without Buffer: " +
+      formatFullDateTime(baseTat)
+  );
 
-    const advanceHours =
-      advanceMilliseconds / MS_PER_HOUR;
+  if (clientTat < baseTat) {
+    const timeDifferenceMilliseconds =
+      baseTat.getTime() -
+      clientTat.getTime();
+
+    const timeDifferenceHours =
+      timeDifferenceMilliseconds /
+      MS_PER_HOUR;
+
+    const chargeableOtHours =
+      calculateChargeableOtHours(
+        timeDifferenceHours
+      );
 
     steps.push(
-      "OT Assessment: The Client Requested TAT is earlier than the Base TAT."
+      "OT Assessment: The Client Requested TAT is earlier than the Base TAT without Buffer."
     );
 
     steps.push(
-      "Calendar Time Advancement Required: " +
-        formatNumber(advanceHours, 2) +
+      "OT Calculation Guideline: Base TAT without Buffer - Client Requested TAT = Time Difference."
+    );
+
+    steps.push(
+      "OT Time Difference: " +
+        formatFullDateTime(baseTat) +
+        " - " +
+        formatFullDateTime(clientTat) +
+        " = " +
+        formatNumber(
+          timeDifferenceHours,
+          2
+        ) +
         " hours"
     );
 
     steps.push(
-      "OT assessment is required because the requested deadline is earlier than the Base TAT before Buffer."
+      "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
     );
+
+    steps.push(
+      "Chargeable OT Hours: " +
+        formatNumber(
+          chargeableOtHours,
+          2
+        ) +
+        " hours"
+    );
+
+    steps.push(
+      "OT Charge Breakdown: " +
+        getOtChargeBreakdown(
+          chargeableOtHours
+        )
+    );
+
+    if (chargeableOtHours > 0) {
+      steps.push(
+        "OT Charge Result: Charge " +
+          formatNumber(
+            chargeableOtHours,
+            2
+          ) +
+          " OT hours."
+      );
+    } else {
+      steps.push(
+        "OT Charge Result: No OT charge because the time difference is less than 5 hours."
+      );
+    }
   } else {
     steps.push(
-      "OT Assessment: No OT is required because the Client Requested TAT is not earlier than the Base TAT."
+      "OT Assessment: No OT is required because the Client Requested TAT is not earlier than the Base TAT without Buffer."
+    );
+
+    steps.push(
+      "OT Time Difference: 0.00 hours"
+    );
+
+    steps.push(
+      "Chargeable OT Hours: 0.00 hours"
+    );
+
+    steps.push(
+      "OT Charge Result: No OT charge."
     );
   }
 } else if (clientRequestsRushOT.checked) {
+  /*
+   * Rush OT
+   *
+   * Rush production:
+   * - Starts from Received Date & Time
+   * - Uses continuous calendar hours
+   * - Includes 22:00-09:00
+   * - Includes weekends
+   * - Includes public holidays
+   * - Does not include Buffer
+   */
   assessmentMode = "rush";
 
-  steps.push("Assessment Mode: Rush OT");
-  steps.push(
-    "Rush OT starts from the Received Date & Time."
-  );
-} else {
-  assessmentMode = "normal";
+  const rushStart =
+    cloneDate(receivedDateTime);
 
-  steps.push("Assessment Mode: Normal TAT");
+  const rushCompletion =
+    addContinuousHours(
+      rushStart,
+      requiredHours
+    );
+
+  /*
+   * Calculate the normal comparison TAT without Buffer.
+   * The Rush comparison adjustment is handled by
+   * getRushOtComparisonTat().
+   */
+  const rushOtComparisonTat =
+    getRushOtComparisonTat(baseTat);
+
+  const rushTimeDifferenceMilliseconds =
+    Math.max(
+      0,
+      rushOtComparisonTat.getTime() -
+        rushCompletion.getTime()
+    );
+
+  const rushTimeDifferenceHours =
+    rushTimeDifferenceMilliseconds /
+    MS_PER_HOUR;
+
+  const chargeableRushOtHours =
+    calculateChargeableOtHours(
+      rushTimeDifferenceHours
+    );
+
+  /*
+   * In Rush mode, the delivery time shown to the user
+   * is the continuous Rush completion time.
+   */
+  finalTat = rushCompletion;
+
+  steps.push(
+    "Assessment Mode: Rush OT"
+  );
+
+  steps.push(
+    "Rush Start: " +
+      formatFullDateTime(rushStart)
+  );
+
+  steps.push(
+    "Rush Required Production Hours: " +
+      formatNumber(requiredHours, 2) +
+      " hours"
+  );
+
+  steps.push(
+    "Rush Production Rule: Production runs continuously from the Received Date & Time. Overnight hours from 22:00 to 09:00, weekends and public holidays are included."
+  );
+
+  steps.push(
+    "Rush Buffer Added: 0.00 hours"
+  );
+
+  steps.push(
+    "Rush Completion: " +
+      formatFullDateTime(rushCompletion)
+  );
+
+  steps.push(
+    "Rush OT Comparison TAT without Buffer: " +
+      formatFullDateTime(
+        rushOtComparisonTat
+      )
+  );
+
+  if (rushCompletion < rushOtComparisonTat) {
+    steps.push(
+      "Rush OT Assessment: The Rush Completion is earlier than the Rush OT Comparison TAT without Buffer."
+    );
+
+    steps.push(
+      "Rush OT Calculation Guideline: Rush OT Comparison TAT without Buffer - Rush Completion = Time Difference."
+    );
+
+    steps.push(
+      "Rush OT Time Difference: " +
+        formatFullDateTime(
+          rushOtComparisonTat
+        ) +
+        " - " +
+        formatFullDateTime(
+          rushCompletion
+        ) +
+        " = " +
+        formatNumber(
+          rushTimeDifferenceHours,
+          2
+        ) +
+        " hours"
+    );
+
+    steps.push(
+      "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
+    );
+
+    steps.push(
+      "Chargeable Rush OT Hours: " +
+        formatNumber(
+          chargeableRushOtHours,
+          2
+        ) +
+        " hours"
+    );
+
+    steps.push(
+      "Rush OT Charge Breakdown: " +
+        getOtChargeBreakdown(
+          chargeableRushOtHours
+        )
+    );
+
+    if (chargeableRushOtHours > 0) {
+      steps.push(
+        "Rush OT Charge Result: Charge " +
+          formatNumber(
+            chargeableRushOtHours,
+            2
+          ) +
+          " OT hours."
+      );
+    } else {
+      steps.push(
+        "Rush OT Charge Result: No OT charge because the time difference is less than 5 hours."
+      );
+    }
+  } else {
+    steps.push(
+      "Rush OT Assessment: No OT is required because the Rush Completion is not earlier than the Rush OT Comparison TAT."
+    );
+
+    steps.push(
+      "Rush OT Time Difference: 0.00 hours"
+    );
+
+    steps.push(
+      "Chargeable Rush OT Hours: 0.00 hours"
+    );
+
+    steps.push(
+      "Rush OT Charge Result: No OT charge."
+    );
+  }
+} else {
+  /*
+   * Normal TAT
+   */
+  assessmentMode = "normal";
+  finalTat = standardTatWithBuffer;
+
+  steps.push(
+    "Assessment Mode: Normal TAT"
+  );
+
   steps.push(
     "No Client Requested TAT or Rush OT was selected."
   );
+
+  steps.push(
+    "Normal TAT only counts working days from 09:00 to 22:00, excludes weekends and public holidays, and includes Buffer."
+  );
+
   steps.push(
     "The Standard Expected TAT including Buffer is used."
   );
 }
 
-          const emailDraft = `
+const emailDraft = `
 Subject: TAT Confirmation - ${taskType} - ${language}
 
 Dear Team,
