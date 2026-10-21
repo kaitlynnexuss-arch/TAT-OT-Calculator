@@ -997,14 +997,19 @@
                 Pages
               </label>
 
-              <input
-                type="number"
-                id="pages"
-                class="form-control"
-                min="1"
-                step="1"
-                required
-              >
+<input
+  type="number"
+  id="pages"
+  class="form-control"
+  min="1"
+  step="1"
+  readonly
+  required
+>
+
+<div class="form-text">
+  Automatically calculated from the Start T and End T numbers.
+</div>
             </div>
 
             <div class="col-md-6">
@@ -1559,16 +1564,70 @@ function recordNonWorkingDatesBetween(
   const formError = document.getElementById("formError");
   const holidayDateInput = document.getElementById("holidayDate");
   const holidayTags = document.getElementById("holidayTags");
-  const addHolidayBtn = document.getElementById("addHolidayBtn");
-  const clientTatSection = document.getElementById("clientTatSection");
-  const clientRequestsTat = document.getElementById("clientRequestsTat");
-  const clientRequestsRushOT = document.getElementById(
-    "clientRequestsRushOT"
-  );
+const addHolidayBtn = document.getElementById("addHolidayBtn");
+const startTInput = document.getElementById("startT");
+const endTInput = document.getElementById("endT");
+const pagesInput = document.getElementById("pages");
+const clientTatSection = document.getElementById("clientTatSection");
+const clientRequestsTat = document.getElementById("clientRequestsTat");
+const clientRequestsRushOT = document.getElementById(
+  "clientRequestsRushOT"
+);
 
-  /*
-   * Date and time pickers
-   */
+function updatePagesFromTRange() {
+  const startValue = startTInput.value.trim();
+  const endValue = endTInput.value.trim();
+
+  if (!startValue) {
+    pagesInput.value = "";
+    endTInput.setCustomValidity("");
+    return;
+  }
+
+  const startT = Number(startValue);
+
+  if (!Number.isInteger(startT) || startT < 1) {
+    pagesInput.value = "";
+    endTInput.setCustomValidity("");
+    return;
+  }
+
+  if (!endValue) {
+    pagesInput.value = 1;
+    endTInput.setCustomValidity("");
+    return;
+  }
+
+  const endT = Number(endValue);
+
+  if (!Number.isInteger(endT) || endT < 1) {
+    pagesInput.value = "";
+    endTInput.setCustomValidity(
+      "End T Number must be a positive whole number."
+    );
+    return;
+  }
+
+  if (endT < startT) {
+    pagesInput.value = "";
+    endTInput.setCustomValidity(
+      "End T Number cannot be smaller than Start T Number."
+    );
+    return;
+  }
+
+  endTInput.setCustomValidity("");
+  pagesInput.value = endT - startT + 1;
+}
+
+startTInput.addEventListener("input", updatePagesFromTRange);
+endTInput.addEventListener("input", updatePagesFromTRange);
+
+updatePagesFromTRange();
+
+/*
+ * Date and time pickers
+ */
 const currentDateTime = new Date();
 currentDateTime.setSeconds(0, 0);
 
@@ -1707,10 +1766,12 @@ addHolidayBtn.addEventListener("click", function () {
       });
 
       form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        hideError();
+  event.preventDefault();
+  hideError();
 
-        try {
+  updatePagesFromTRange();
+
+  try {
           const receivedValue = document.getElementById("receivedDateTime").value;
           const jobType = document.getElementById("jobType").value;
           const taskType = document.getElementById("taskType").value;
