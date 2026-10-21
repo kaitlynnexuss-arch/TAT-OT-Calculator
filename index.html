@@ -1253,19 +1253,51 @@ const WORK_END_HOUR = 22;
 const MS_PER_HOUR = 1000 * 60 * 60;
 
 const firebaseConfig = {
-  apiKey: "請填入你原本的 apiKey",
-  authDomain: "請填入你原本的 authDomain",
-  projectId: "請填入你原本的 projectId",
-  storageBucket: "請填入你原本的 storageBucket",
-  messagingSenderId: "請填入你原本的 messagingSenderId",
-  appId: "請填入你原本的 appId"
+  apiKey: "AIzaSyBPzgZHbuzlFmcnJ3cZODruohfTXa-Yoy8",
+  authDomain: "tat-calculate.firebaseapp.com",
+  databaseURL: "https://tat-calculate-default-rtdb.firebaseio.com",
+  projectId: "tat-calculate",
+  storageBucket: "tat-calculate.firebasestorage.app",
+  messagingSenderId: "959491242554",
+  appId: "1:959491242554:web:56e48bb762389b9fda1303",
+  measurementId: "G-67XS52H7MB"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
+/*
+ * These values must match the actual Firestore collection
+ * and document names used by the original application.
+ */
 const HOLIDAY_COLLECTION = "settings";
 const HOLIDAY_DOCUMENT = "publicHolidays";
+
+let db = null;
+let firebaseReady = false;
+
+try {
+  if (typeof firebase === "undefined") {
+    throw new Error("The Firebase SDK failed to load.");
+  }
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  db = firebase.firestore();
+  firebaseReady = true;
+
+  console.log(
+    "Firebase connected successfully:",
+    firebaseConfig.projectId
+  );
+} catch (error) {
+  firebaseReady = false;
+  db = null;
+
+  console.error(
+    "Firebase initialization failed:",
+    error
+  );
+}
 
 function pad(number) {
   return String(number).padStart(2, "0");
@@ -1575,8 +1607,31 @@ function recordNonWorkingDatesBetween(
       }).format(date);
     }
 
-    let selectedHolidays = [];
+let selectedHolidays = [];
 
+try {
+  const cachedHolidays = JSON.parse(
+    localStorage.getItem("tatSelectedHolidays") || "[]"
+  );
+
+  if (Array.isArray(cachedHolidays)) {
+    selectedHolidays = cachedHolidays
+      .map(function (item) {
+        return String(item).trim();
+      })
+      .filter(function (item) {
+        return /^\d{4}-\d{2}-\d{2}$/.test(item);
+      })
+      .filter(function (item, index, array) {
+        return array.indexOf(item) === index;
+      })
+      .sort();
+  }
+} catch (error) {
+  console.warn("Unable to load cached holidays:", error);
+  selectedHolidays = [];
+}
+  
     document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("tatForm");
   const resultCard = document.getElementById("resultCard");
@@ -1738,6 +1793,20 @@ function renderHolidayTags() {
   });
 }
 
+function saveHolidaysToLocalStorage() {
+  try {
+    localStorage.setItem(
+      "tatSelectedHolidays",
+      JSON.stringify(selectedHolidays)
+    );
+  } catch (error) {
+    console.warn(
+      "Unable to save holidays to local storage:",
+      error
+    );
+  }
+}
+
 function showFirebaseStatus(message, type = "muted") {
   const statusText = firebaseStatus.querySelector("span");
   const statusIcon = firebaseStatus.querySelector("i");
@@ -1758,20 +1827,54 @@ function showFirebaseStatus(message, type = "muted") {
   } else if (type === "danger") {
     statusIcon.className = "bi bi-exclamation-circle-fill";
   } else if (type === "warning") {
-    statusIcon.className = "bi bi-exclamation-triangle-fill";
+    statusIcon.className =
+      "bi bi-exclamation-triangle-fill";
   } else {
     statusIcon.className = "bi bi-info-circle";
   }
 }
 
 function isValidHolidayDate(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const parts = value.split("-");
+  const year = Number(parts[0]);
+  const month = Number(parts[1]) - 1;
+  const day = Number(parts[2]);
+
+  const date = new Date(
+    year,
+    month,
+    day,
+    0,
+    0,
+    0,
+    0
+  );
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month &&
+    date.getDate() === day
+  );
 }
 
-/*
- * Load holidays from Firebase.
- */
 async function loadHolidaysOnline() {
+  /*
+   * Show locally cached holidays immediately.
+   */
+  renderHolidayTags();
+
+  if (!firebaseReady || !db) {
+    showFirebaseStatus(
+      "Firebase is not configured. Local cached holidays are being used.",
+      "warning"
+    );
+    return;
+  }
+
   showFirebaseStatus(
     "Loading holidays from Firebase...",
     "muted"
@@ -1784,17 +1887,14 @@ async function loadHolidaysOnline() {
       .get();
 
     if (!holidayDocument.exists) {
-      renderHolidayTags();
-
       showFirebaseStatus(
-        "No online holiday record was found.",
+        "No online holiday document was found. Local cached holidays are being used.",
         "warning"
       );
-
       return;
     }
 
-    const data = holidayDocument.data();
+    const data = holidayDocument.data() || {};
 
     const onlineDates = Array.isArray(data.dates)
       ? data.dates
@@ -1810,13 +1910,8 @@ async function loadHolidaysOnline() {
       )
     ].sort();
 
-    localStorage.setItem(
-      "tatSelectedHolidays",
-      JSON.stringify(selectedHolidays)
-    );
-
+    saveHolidaysToLocalStorage();
     renderHolidayTags();
-    });
 
     showFirebaseStatus(
       selectedHolidays.length +
@@ -1824,11 +1919,11 @@ async function loadHolidaysOnline() {
       "success"
     );
   } catch (error) {
-    console.error("Unable to load holidays:", error);
+    console.error(
+      "Unable to load holidays from Firebase:",
+      error
+    );
 
-    /*
-     * If Firebase cannot be reached, keep the locally cached holidays.
-     */
     renderHolidayTags();
 
     showFirebaseStatus(
@@ -1839,10 +1934,15 @@ async function loadHolidaysOnline() {
   }
 }
 
-/*
- * Save the current holiday list to Firebase.
- */
 async function saveHolidaysOnline() {
+  if (!firebaseReady || !db) {
+    showFirebaseStatus(
+      "Firebase is not configured. Please add the real Firebase configuration before saving online.",
+      "danger"
+    );
+    return;
+  }
+
   saveHolidaysBtn.disabled = true;
 
   showFirebaseStatus(
@@ -1871,11 +1971,7 @@ async function saveHolidaysOnline() {
         }
       );
 
-    localStorage.setItem(
-      "tatSelectedHolidays",
-      JSON.stringify(selectedHolidays)
-    );
-
+    saveHolidaysToLocalStorage();
     renderHolidayTags();
 
     showFirebaseStatus(
@@ -1884,10 +1980,14 @@ async function saveHolidaysOnline() {
       "success"
     );
   } catch (error) {
-    console.error("Unable to save holidays:", error);
+    console.error(
+      "Unable to save holidays online:",
+      error
+    );
 
     showFirebaseStatus(
-      "Unable to save holidays online: " + error.message,
+      "Unable to save holidays online: " +
+        error.message,
       "danger"
     );
   } finally {
@@ -1895,24 +1995,34 @@ async function saveHolidaysOnline() {
   }
 }
 
-saveHolidaysBtn.addEventListener("click", function () {
-  saveHolidaysOnline();
-});
+saveHolidaysBtn.addEventListener(
+  "click",
+  function () {
+    saveHolidaysOnline();
+  }
+);
 
 /*
- * Automatically load online holidays when the page opens.
+ * Show local holidays first, then try to load Firebase data.
  */
+renderHolidayTags();
 loadHolidaysOnline();
 
 function addSelectedHoliday() {
-  const selectedDate = holidayDateInput.value.trim();
+  const selectedDate =
+    holidayDateInput.value.trim();
 
   if (!selectedDate) {
+    showError(
+      "Please select a public holiday date."
+    );
     return;
   }
 
   if (!isValidHolidayDate(selectedDate)) {
-    showError("Please select a valid public holiday date.");
+    showError(
+      "Please select a valid public holiday date."
+    );
     return;
   }
 
@@ -1922,93 +2032,133 @@ function addSelectedHoliday() {
     selectedHolidays.push(selectedDate);
     selectedHolidays.sort();
 
-    localStorage.setItem(
-      "tatSelectedHolidays",
-      JSON.stringify(selectedHolidays)
-    );
-
+    saveHolidaysToLocalStorage();
     renderHolidayTags();
   }
 
   holidayPicker.clear();
 }
 
-holidayDateInput.addEventListener("change", function () {
-  addSelectedHoliday();
-});
-
-addHolidayBtn.addEventListener("click", function () {
-  addSelectedHoliday();
-});
-
-holidayTags.addEventListener("click", function (event) {
-  const button = event.target.closest(".remove-holiday");
-
-  if (!button) {
-    return;
+holidayDateInput.addEventListener(
+  "change",
+  function () {
+    addSelectedHoliday();
   }
+);
 
-  const date = button.dataset.date;
+addHolidayBtn.addEventListener(
+  "click",
+  function () {
+    addSelectedHoliday();
+  }
+);
 
-  selectedHolidays = selectedHolidays.filter(function (item) {
-    return item !== date;
-  });
+holidayTags.addEventListener(
+  "click",
+  function (event) {
+    const button = event.target.closest(
+      ".remove-holiday"
+    );
 
-  localStorage.setItem(
-    "tatSelectedHolidays",
-    JSON.stringify(selectedHolidays)
-  );
-
-  renderHolidayTags();
-});
-
-      /*
- * Client Requested TAT:
- * Show the requested TAT field and automatically open the picker.
- */
-clientTatSection.style.display = "none";
-  
-  clientRequestsTat.addEventListener("change", function () {
-  if (this.checked) {
-    // The two assessment modes cannot be selected together.
-    clientRequestsRushOT.checked = false;
-
-    // Show the Client Requested TAT section.
-    clientTatSection.style.display = "flex";
-
-    // Set the earliest selectable time to the received time.
-    const receivedDate =
-      receivedPicker.selectedDates.length > 0
-        ? receivedPicker.selectedDates[0]
-        : null;
-
-    if (receivedDate) {
-      clientTatPicker.set("minDate", receivedDate);
+    if (!button) {
+      return;
     }
 
-    // Automatically open the date and time picker.
-    setTimeout(function () {
+    const date = button.dataset.date;
+
+    selectedHolidays =
+      selectedHolidays.filter(function (item) {
+        return item !== date;
+      });
+
+    saveHolidaysToLocalStorage();
+    renderHolidayTags();
+  }
+);
+
+function hideClientTatSection(clearValue = true) {
+  clientTatSection.style.display = "none";
+
+  if (clearValue) {
+    clientTatPicker.clear();
+  }
+}
+
+function showClientTatSection() {
+  /*
+   * Client Requested TAT and Rush OT
+   * cannot be selected together.
+   */
+  clientRequestsRushOT.checked = false;
+
+  /*
+   * Show the Client Requested TAT section.
+   */
+  clientTatSection.style.display = "flex";
+
+  const receivedValue =
+    document.getElementById(
+      "receivedDateTime"
+    ).value;
+
+  const receivedDate =
+    receivedPicker.selectedDates.length > 0
+      ? receivedPicker.selectedDates[0]
+      : parseDateTime(receivedValue);
+
+  if (receivedDate) {
+    clientTatPicker.set(
+      "minDate",
+      receivedDate
+    );
+
+    clientTatPicker.jumpToDate(
+      receivedDate
+    );
+  } else {
+    clientTatPicker.set(
+      "minDate",
+      null
+    );
+  }
+
+  /*
+   * Wait until the previously hidden field is visible.
+   */
+  window.requestAnimationFrame(function () {
+    window.setTimeout(function () {
       clientTatPicker.open();
     }, 100);
-  } else {
-    clientTatSection.style.display = "none";
-    clientTatPicker.clear();
-  }
-});
+  });
+}
 
 /*
- * Rush OT:
- * Hide and clear Client Requested TAT when Rush OT is selected.
+ * Keep Client Requested TAT hidden on initial page load.
  */
-clientRequestsRushOT.addEventListener("change", function () {
-  if (this.checked) {
-    clientRequestsTat.checked = false;
-    clientTatSection.style.display = "none";
-    clientTatPicker.clear();
-  }
-});
+hideClientTatSection(false);
 
-      form.addEventListener("submit", function (event) {
+clientRequestsTat.addEventListener(
+  "change",
+  function () {
+    if (this.checked) {
+      showClientTatSection();
+    } else {
+      hideClientTatSection(true);
+    }
+  }
+);
+
+clientRequestsRushOT.addEventListener(
+  "change",
+  function () {
+    if (this.checked) {
+      clientRequestsTat.checked = false;
+      hideClientTatSection(true);
+    }
+  }
+);
+
+  form.addEventListener("submit", function (event) {
   event.preventDefault();
   hideError();
 
