@@ -903,10 +903,11 @@
       >
     </div>
 
-    <div class="form-text">
-      Normal TAT starts from this time. Rush OT always starts
-      from the Received Date &amp; Time.
-    </div>
+<div class="form-text">
+  Normal TAT starts from this time and only counts working hours
+  from 09:00 to 22:00, excluding weekends and public holidays.
+  Rush OT starts from the Received Date &amp; Time.
+</div>
   </div>
 
             <div class="col-md-6">
@@ -1294,106 +1295,140 @@
       return output;
     }
 
-    function normalizeStartTime(date, skippedDates) {
-      let output = cloneDate(date);
+/**
+ * Converts a date/time into a valid normal working start time.
+ *
+ * Normal working time:
+ * - Monday to Friday
+ * - Excludes selected public holidays
+ * - 09:00 to 22:00
+ *
+ * Important:
+ * Times between 19:00 and 22:00 are still valid working times.
+ */
+function normalizeStartTime(date, skippedDates) {
+  let output = cloneDate(date);
 
-      output = moveToNextWorkingDay(output, skippedDates);
+  // Move weekends/public holidays to the next valid working day.
+  output = moveToNextWorkingDay(output, skippedDates);
 
-      const hour = output.getHours();
+  const workStart = setTime(output, WORK_START_HOUR, 0);
+  const workEnd = setTime(output, WORK_END_HOUR, 0);
 
-      if (hour < WORK_START_HOUR) {
-        return setTime(output, WORK_START_HOUR, 0);
-      }
+  // Before 09:00: begin at 09:00 on the same working day.
+  if (output < workStart) {
+    return workStart;
+  }
 
-      if (hour >= 19) {
-        output.setDate(output.getDate() + 1);
-        output = setTime(output, WORK_START_HOUR, 0);
-        return moveToNextWorkingDay(output, skippedDates);
-      }
+  // At or after 22:00: begin at 09:00 on the next working day.
+  if (output >= workEnd) {
+    output.setDate(output.getDate() + 1);
+    output = setTime(output, WORK_START_HOUR, 0);
 
-      if (hour >= WORK_END_HOUR) {
-        output.setDate(output.getDate() + 1);
-        output = setTime(output, WORK_START_HOUR, 0);
-        return moveToNextWorkingDay(output, skippedDates);
-      }
+    return moveToNextWorkingDay(output, skippedDates);
+  }
 
-      return output;
+  // Between 09:00 and 22:00: use the selected time directly.
+  return output;
+}
+
+/**
+ * Adds working hours using the normal TAT working schedule.
+ *
+ * Only the following periods are counted:
+ * - Monday to Friday
+ * - Excluding selected public holidays
+ * - 09:00 to 22:00
+ *
+ * Overnight hours, weekends and public holidays are not counted.
+ */
+function addNormalWorkingHours(startDate, hours, skippedDates) {
+  const totalHours = Number(hours);
+
+  if (!Number.isFinite(totalHours) || totalHours < 0) {
+    throw new Error("Working hours must be a valid non-negative number.");
+  }
+
+  // If no hours need to be added, preserve the original date/time.
+  if (totalHours === 0) {
+    return cloneDate(startDate);
+  }
+
+  let current = normalizeStartTime(startDate, skippedDates);
+  let remaining = totalHours;
+
+  while (remaining > 0.0001) {
+    // Ensure that the current date is a valid working day.
+    current = moveToNextWorkingDay(current, skippedDates);
+
+    const workStart = setTime(current, WORK_START_HOUR, 0);
+    const workEnd = setTime(current, WORK_END_HOUR, 0);
+
+    // If earlier than 09:00, begin at 09:00.
+    if (current < workStart) {
+      current = workStart;
     }
 
-    function getDailyEndTime(date, jobType) {
-      return setTime(date, WORK_END_HOUR, 0);
+    // If at or after 22:00, continue from the next working day.
+    if (current >= workEnd) {
+      current.setDate(current.getDate() + 1);
+      current = setTime(current, WORK_START_HOUR, 0);
+      current = moveToNextWorkingDay(current, skippedDates);
+      continue;
     }
 
-    function addWorkingHours(startDate, hours, jobType, skippedDates) {
-      let current = normalizeStartTime(startDate, skippedDates);
-      let remaining = Number(hours);
+    const availableHours =
+      (workEnd.getTime() - current.getTime()) / MS_PER_HOUR;
 
-      while (remaining > 0.0001) {
-        current = moveToNextWorkingDay(current, skippedDates);
+    const hoursToAdd = Math.min(remaining, availableHours);
 
-        const dailyLimit = getDailyEndTime(current, jobType);
+    current = new Date(
+      current.getTime() + hoursToAdd * MS_PER_HOUR
+    );
 
-        if (current >= dailyLimit) {
-          current.setDate(current.getDate() + 1);
-          current = setTime(current, WORK_START_HOUR, 0);
-          continue;
-        }
+    remaining -= hoursToAdd;
 
-        const availableMilliseconds = dailyLimit.getTime() - current.getTime();
-        const availableHours = availableMilliseconds / MS_PER_HOUR;
-        const hoursToAdd = Math.min(remaining, availableHours);
+    // If work remains, continue from 09:00 on the next working day.
+    if (remaining > 0.0001) {
+      current.setDate(current.getDate() + 1);
+      current = setTime(current, WORK_START_HOUR, 0);
+      current = moveToNextWorkingDay(current, skippedDates);
+    }
+  }
 
-        current = new Date(current.getTime() + hoursToAdd * MS_PER_HOUR);
-        remaining -= hoursToAdd;
+  return current;
+}
 
-        if (remaining > 0.0001) {
-          current.setDate(current.getDate() + 1);
-          current = setTime(current, WORK_START_HOUR, 0);
-        }
-      }
+/**
+ * Records weekends and public holidays between the Received Date
+ * and the Adjusted Working Start.
+ *
+ * This is for the calculation explanation only. These dates are not
+ * counted as normal working time.
+ */
+function recordNonWorkingDatesBetween(
+  receivedDate,
+  adjustedStart,
+  skippedDates
+) {
+  let current = setTime(receivedDate, 0, 0);
+  const endDate = setTime(adjustedStart, 0, 0);
 
-      return current;
+  while (current <= endDate) {
+    const dateText = toLocalDateString(current);
+
+    if (isWeekend(current)) {
+      skippedDates.add("Weekend: " + dateText);
     }
 
-    function addRoundedWorkingDays(adjustedStart, requiredHours, skippedDates) {
-      const hours = Number(requiredHours);
+    if (isPublicHoliday(current)) {
+      skippedDates.add("Public Holiday: " + dateText);
+    }
 
-      if (!Number.isFinite(hours) || hours <= 0) {
-        return cloneDate(adjustedStart);
-      }
-
-      let current = cloneDate(adjustedStart);
-      current = normalizeStartTime(current, skippedDates);
-
-      let remaining = hours;
-
-      while (remaining > 0.0001) {
-        current = moveToNextWorkingDay(current, skippedDates);
-
-        const dailyLimit = setTime(current, WORK_END_HOUR, 0);
-
-        if (current >= dailyLimit) {
-          current.setDate(current.getDate() + 1);
-          current = setTime(current, WORK_START_HOUR, 0);
-          continue;
-        }
-
-        const availableHours =
-          (dailyLimit.getTime() - current.getTime()) / MS_PER_HOUR;
-
-        const hoursToAdd = Math.min(remaining, availableHours);
-
-        current = new Date(
-          current.getTime() + hoursToAdd * MS_PER_HOUR
-        );
-
-        remaining -= hoursToAdd;
-
-        if (remaining > 0.0001) {
-          current.setDate(current.getDate() + 1);
-          current = setTime(current, WORK_START_HOUR, 0);
-        }
-      }
+    current.setDate(current.getDate() + 1);
+    current = setTime(current, 0, 0);
+  }
+}
 
       return current;
     }
@@ -1624,12 +1659,55 @@
             throw new Error("Available Start Time cannot be earlier than Received Date & Time.");
           }
 
-          const skippedDates = new Set();
-          const adjustedStart = normalizeStartTime(availableStartTime, skippedDates);
-          const originalRequiredHours = calculateRequiredHours(taskType, language, pages);
-          const requiredHours = originalRequiredHours / manpower;
-          const baseTat = addRoundedWorkingDays(adjustedStart, requiredHours, skippedDates);
-          const standardTatWithBuffer = addWorkingHours(baseTat, bufferHours, jobType, skippedDates);
+   const skippedDates = new Set();
+
+/*
+ * Normal TAT starts from the selected Available Start Time.
+ * If it falls outside normal working hours, it is moved to the next
+ * valid normal working time.
+ */
+const adjustedStart = normalizeStartTime(
+  availableStartTime,
+  skippedDates
+);
+
+/*
+ * Record weekends/public holidays between the received date and the
+ * adjusted start for display purposes only.
+ */
+recordNonWorkingDatesBetween(
+  receivedDateTime,
+  adjustedStart,
+  skippedDates
+);
+
+const originalRequiredHours = calculateRequiredHours(
+  taskType,
+  language,
+  pages
+);
+
+const requiredHours = originalRequiredHours / manpower;
+
+/*
+ * Base TAT:
+ * Accumulate the required workload only during normal working time.
+ */
+const baseTat = addNormalWorkingHours(
+  adjustedStart,
+  requiredHours,
+  skippedDates
+);
+
+/*
+ * Buffer:
+ * In Normal TAT mode, the buffer also follows normal working hours.
+ */
+const standardTatWithBuffer = addNormalWorkingHours(
+  baseTat,
+  bufferHours,
+  skippedDates
+);
 
           let finalTat = standardTatWithBuffer;
           let assessmentMode = "normal";
