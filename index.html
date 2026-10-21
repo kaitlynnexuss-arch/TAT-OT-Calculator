@@ -1233,7 +1233,10 @@
     <div class="footer-note">
       TAT values are calculated using working hours and public holiday exclusions.
     </div>
-  </main>
+   </main>
+
+  <!-- Flatpickr JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 
   <script>
     const WORK_START_HOUR = 9;
@@ -1469,13 +1472,52 @@ function recordNonWorkingDatesBetween(
     }
 
     function parseDateTime(value) {
-      if (!value) {
-        return null;
-      }
+  if (!value) {
+    return null;
+  }
 
-      const date = new Date(value);
-      return Number.isNaN(date.getTime()) ? null : date;
-    }
+  const match = String(value)
+    .trim()
+    .match(
+      /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const hour = Number(match[4] || 0);
+  const minute = Number(match[5] || 0);
+
+  const date = new Date(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    0,
+    0
+  );
+
+  /*
+   * Verify that JavaScript did not automatically roll an invalid date
+   * into the next month, for example 2026-02-31.
+   */
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute
+  ) {
+    return null;
+  }
+
+  return date;
+}
 
     function formatNumber(value, digits = 0) {
       return Number(value).toFixed(digits);
@@ -1512,14 +1554,76 @@ function recordNonWorkingDatesBetween(
     let selectedHolidays = [];
 
     document.addEventListener("DOMContentLoaded", function () {
-      const form = document.getElementById("tatForm");
-      const resultCard = document.getElementById("resultCard");
-      const formError = document.getElementById("formError");
-      const holidayDateInput = document.getElementById("holidayDate");
-      const holidayTags = document.getElementById("holidayTags");
-      const clientTatSection = document.getElementById("clientTatSection");
-      const clientRequestsTat = document.getElementById("clientRequestsTat");
-      const clientRequestsRushOT = document.getElementById("clientRequestsRushOT");
+  const form = document.getElementById("tatForm");
+  const resultCard = document.getElementById("resultCard");
+  const formError = document.getElementById("formError");
+  const holidayDateInput = document.getElementById("holidayDate");
+  const holidayTags = document.getElementById("holidayTags");
+  const addHolidayBtn = document.getElementById("addHolidayBtn");
+  const clientTatSection = document.getElementById("clientTatSection");
+  const clientRequestsTat = document.getElementById("clientRequestsTat");
+  const clientRequestsRushOT = document.getElementById(
+    "clientRequestsRushOT"
+  );
+
+  /*
+   * Date and time pickers
+   */
+  const receivedPicker = flatpickr("#receivedDateTime", {
+    enableTime: true,
+    time_24hr: true,
+    dateFormat: "Y-m-d H:i",
+    allowInput: true,
+    minuteIncrement: 1
+  });
+
+  const availablePicker = flatpickr("#availableStartTime", {
+    enableTime: true,
+    time_24hr: true,
+    dateFormat: "Y-m-d H:i",
+    allowInput: true,
+    minuteIncrement: 1
+  });
+
+  const clientTatPicker = flatpickr("#clientTat", {
+    enableTime: true,
+    time_24hr: true,
+    dateFormat: "Y-m-d H:i",
+    allowInput: true,
+    minuteIncrement: 1
+  });
+
+  const holidayPicker = flatpickr("#holidayDate", {
+    enableTime: false,
+    dateFormat: "Y-m-d",
+    allowInput: true
+  });
+
+  /*
+   * Open the corresponding calendar when its calendar icon is clicked.
+   */
+  document.querySelectorAll(".date-picker-icon").forEach(function (icon) {
+    function openCorrespondingPicker() {
+      const pickerName = icon.dataset.picker;
+
+      if (pickerName === "received") {
+        receivedPicker.open();
+      } else if (pickerName === "available") {
+        availablePicker.open();
+      } else if (pickerName === "clientTat") {
+        clientTatPicker.open();
+      }
+    }
+
+    icon.addEventListener("click", openCorrespondingPicker);
+
+    icon.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openCorrespondingPicker();
+      }
+    });
+  });
 
       function hideError() {
         formError.classList.add("d-none");
@@ -1542,15 +1646,36 @@ function recordNonWorkingDatesBetween(
         });
       }
 
-      holidayDateInput.addEventListener("change", function () {
-        const selectedDate = holidayDateInput.value;
-        if (selectedDate && !selectedHolidays.includes(selectedDate)) {
-          selectedHolidays.push(selectedDate);
-          selectedHolidays.sort();
-          renderHolidayTags();
-          holidayDateInput.value = "";
-        }
-      });
+function addSelectedHoliday() {
+  const selectedDate = holidayDateInput.value.trim();
+
+  if (!selectedDate) {
+    return;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
+    showError("Please select a valid public holiday date.");
+    return;
+  }
+
+  hideError();
+
+  if (!selectedHolidays.includes(selectedDate)) {
+    selectedHolidays.push(selectedDate);
+    selectedHolidays.sort();
+    renderHolidayTags();
+  }
+
+  holidayPicker.clear();
+}
+
+holidayDateInput.addEventListener("change", function () {
+  addSelectedHoliday();
+});
+
+addHolidayBtn.addEventListener("click", function () {
+  addSelectedHoliday();
+});
 
       holidayTags.addEventListener("click", function (event) {
         const button = event.target.closest(".remove-holiday");
