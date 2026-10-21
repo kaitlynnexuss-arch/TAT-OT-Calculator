@@ -1267,34 +1267,46 @@ const firebaseConfig = {
  * These values must match the actual Firestore collection
  * and document names used by the original application.
  */
-const HOLIDAY_COLLECTION = "settings";
-const HOLIDAY_DOCUMENT = "publicHolidays";
+/*
+ * Realtime Database path.
+ *
+ * Expected structure:
+ * settings
+ *   publicHolidays
+ *     dates
+ *       0: "2026-01-01"
+ *       1: "2026-10-19"
+ */
+const HOLIDAY_DATABASE_PATH =
+  "settings/publicHolidays";
 
-let db = null;
+let realtimeDatabase = null;
 let firebaseReady = false;
 
 try {
   if (typeof firebase === "undefined") {
-    throw new Error("The Firebase SDK failed to load.");
+    throw new Error(
+      "The Firebase SDK failed to load."
+    );
   }
 
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
 
-  db = firebase.firestore();
+  realtimeDatabase = firebase.database();
   firebaseReady = true;
 
   console.log(
-    "Firebase connected successfully:",
+    "Firebase Realtime Database connected successfully:",
     firebaseConfig.projectId
   );
 } catch (error) {
   firebaseReady = false;
-  db = null;
+  realtimeDatabase = null;
 
   console.error(
-    "Firebase initialization failed:",
+    "Firebase Realtime Database initialization failed:",
     error
   );
 }
@@ -1704,6 +1716,13 @@ updatePagesFromTRange();
 /*
  * Date and time pickers
  */
+if (typeof flatpickr !== "function") {
+  showError(
+    "The date picker failed to load. Please check your network connection and reload the page."
+  );
+  return;
+}
+
 const currentDateTime = new Date();
 currentDateTime.setSeconds(0, 0);
 
@@ -1782,13 +1801,21 @@ function renderHolidayTags() {
     const badge = document.createElement("span");
     badge.className = "holiday-badge";
 
-    badge.innerHTML =
-      `${item} ` +
-      `<button type="button" ` +
-      `class="remove-holiday" ` +
-      `data-date="${item}" ` +
-      `aria-label="Remove ${item}">&times;</button>`;
+    badge.appendChild(
+      document.createTextNode(item + " ")
+    );
 
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-holiday";
+    removeButton.dataset.date = item;
+    removeButton.setAttribute(
+      "aria-label",
+      "Remove " + item
+    );
+    removeButton.textContent = "×";
+
+    badge.appendChild(removeButton);
     holidayTags.appendChild(badge);
   });
 }
@@ -1863,42 +1890,85 @@ function isValidHolidayDate(value) {
 
 async function loadHolidaysOnline() {
   /*
-   * Show locally cached holidays immediately.
+   * Display locally cached holidays first.
    */
   renderHolidayTags();
 
-  if (!firebaseReady || !db) {
+  if (!firebaseReady || !realtimeDatabase) {
     showFirebaseStatus(
-      "Firebase is not configured. Local cached holidays are being used.",
+      "Firebase Realtime Database is not available. Local cached holidays are being used.",
       "warning"
     );
     return;
   }
 
   showFirebaseStatus(
-    "Loading holidays from Firebase...",
+    "Loading holidays from Firebase Realtime Database...",
     "muted"
   );
 
   try {
-    const holidayDocument = await db
-      .collection(HOLIDAY_COLLECTION)
-      .doc(HOLIDAY_DOCUMENT)
-      .get();
+    const snapshot = await realtimeDatabase
+      .ref(HOLIDAY_DATABASE_PATH)
+      .once("value");
 
-    if (!holidayDocument.exists) {
+    if (!snapshot.exists()) {
       showFirebaseStatus(
-        "No online holiday document was found. Local cached holidays are being used.",
+        "No online holiday data was found at " +
+          HOLIDAY_DATABASE_PATH +
+          ". Local cached holidays are being used.",
         "warning"
       );
       return;
     }
 
-    const data = holidayDocument.data() || {};
+    const data = snapshot.val();
 
-    const onlineDates = Array.isArray(data.dates)
-      ? data.dates
-      : [];
+    /*
+     * Supported formats:
+     *
+     * Format 1:
+     * {
+     *   dates: ["2026-01-01", "2026-10-19"]
+     * }
+     *
+     * Format 2:
+     * ["2026-01-01", "2026-10-19"]
+     *
+     * Format 3:
+     * {
+     *   "2026-01-01": true,
+     *   "2026-10-19": true
+     * }
+     */
+    let onlineDates = [];
+
+    if (
+      data &&
+      Array.isArray(data.dates)
+    ) {
+      onlineDates = data.dates;
+    } else if (
+      data &&
+      data.dates &&
+      typeof data.dates === "object"
+    ) {
+      onlineDates = Object.values(data.dates);
+    } else if (Array.isArray(data)) {
+      onlineDates = data;
+    } else if (
+      data &&
+      typeof data === "object"
+    ) {
+      onlineDates = Object.keys(data).filter(
+        function (key) {
+          return (
+            isValidHolidayDate(key) &&
+            Boolean(data[key])
+          );
+        }
+      );
+    }
 
     selectedHolidays = [
       ...new Set(
@@ -1915,12 +1985,12 @@ async function loadHolidaysOnline() {
 
     showFirebaseStatus(
       selectedHolidays.length +
-        " holiday(s) loaded from Firebase.",
+        " holiday(s) loaded from Firebase Realtime Database.",
       "success"
     );
   } catch (error) {
     console.error(
-      "Unable to load holidays from Firebase:",
+      "Unable to load holidays from Firebase Realtime Database:",
       error
     );
 
@@ -1935,9 +2005,9 @@ async function loadHolidaysOnline() {
 }
 
 async function saveHolidaysOnline() {
-  if (!firebaseReady || !db) {
+  if (!firebaseReady || !realtimeDatabase) {
     showFirebaseStatus(
-      "Firebase is not configured. Please add the real Firebase configuration before saving online.",
+      "Firebase Realtime Database is not available. Holidays cannot be saved online.",
       "danger"
     );
     return;
@@ -1946,42 +2016,42 @@ async function saveHolidaysOnline() {
   saveHolidaysBtn.disabled = true;
 
   showFirebaseStatus(
-    "Saving holidays to Firebase...",
+    "Saving holidays to Firebase Realtime Database...",
     "muted"
   );
 
   try {
     selectedHolidays = [
       ...new Set(
-        selectedHolidays.filter(isValidHolidayDate)
+        selectedHolidays.filter(
+          isValidHolidayDate
+        )
       )
     ].sort();
 
-    await db
-      .collection(HOLIDAY_COLLECTION)
-      .doc(HOLIDAY_DOCUMENT)
-      .set(
-        {
-          dates: selectedHolidays,
-          updatedAt:
-            firebase.firestore.FieldValue.serverTimestamp()
-        },
-        {
-          merge: true
-        }
-      );
+    /*
+     * Save without deleting other values that may exist
+     * under settings/publicHolidays.
+     */
+    await realtimeDatabase
+      .ref(HOLIDAY_DATABASE_PATH)
+      .update({
+        dates: selectedHolidays,
+        updatedAt:
+          firebase.database.ServerValue.TIMESTAMP
+      });
 
     saveHolidaysToLocalStorage();
     renderHolidayTags();
 
     showFirebaseStatus(
       selectedHolidays.length +
-        " holiday(s) saved online successfully.",
+        " holiday(s) saved to Firebase Realtime Database successfully.",
       "success"
     );
   } catch (error) {
     console.error(
-      "Unable to save holidays online:",
+      "Unable to save holidays to Firebase Realtime Database:",
       error
     );
 
@@ -2240,9 +2310,9 @@ clientRequestsRushOT.addEventListener(
             throw new Error("Available Start Time cannot be earlier than Received Date & Time.");
           }
 
-    if (
+if (
   clientRequestsTat.checked &&
-  clientTat <= receivedDateTime
+  (!clientTat || clientTat <= receivedDateTime)
 ) {
   throw new Error(
     "Client Requested TAT must be later than the Received Date & Time."
