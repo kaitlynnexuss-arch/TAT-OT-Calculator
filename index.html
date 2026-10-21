@@ -1144,9 +1144,10 @@
                 </label>
 
                 <div class="form-text mt-1">
-                  Rush calculation starts from the Received Date &amp; Time
-                  and includes weekends and public holidays.
-                </div>
+  Rush production starts from the Received Date &amp; Time,
+  runs continuously through overnight hours, weekends and
+  public holidays, and does not include Buffer.
+</div>
               </div>
             </div>
           </div>
@@ -1199,9 +1200,9 @@
 
         <div class="tat-highlight mb-4">
           <div class="result-heading">
-            <i class="bi bi-clock-history"></i>
-            Standard Expected TAT
-          </div>
+  <i class="bi bi-clock-history"></i>
+  <span id="resultTatLabel">Standard Expected TAT</span>
+</div>
 
           <div id="standardTatDisplay" class="tat-main"></div>
           <div id="standardTatShortDisplay" class="small-note mt-2"></div>
@@ -2581,9 +2582,32 @@ const standardTatWithBuffer = addNormalWorkingHours(
           steps.push("Skipped Non-working Dates:");
           steps.push(skippedDates.size ? Array.from(skippedDates).sort().map((item) => "- " + item).join("\n") : "- No weekend or public holiday was crossed during this calculation.");
           steps.push("");
-          steps.push("Base TAT (before Buffer): " + formatFullDateTime(baseTat));
-          steps.push("Buffer Added: " + formatNumber(bufferHours, 2) + " hours");
-          steps.push("Standard Expected TAT (with buffer): " + formatFullDateTime(standardTatWithBuffer));
+          steps.push(
+  "Base TAT (before Buffer): " +
+    formatFullDateTime(baseTat)
+);
+
+if (clientRequestsRushOT.checked) {
+  steps.push(
+    "Normal Standard Expected TAT Reference: " +
+      formatFullDateTime(standardTatWithBuffer)
+  );
+
+  steps.push(
+    "Rush OT Buffer: 0.00 hours"
+  );
+} else {
+  steps.push(
+    "Buffer Added: " +
+      formatNumber(bufferHours, 2) +
+      " hours"
+  );
+
+  steps.push(
+    "Standard Expected TAT (with buffer): " +
+      formatFullDateTime(standardTatWithBuffer)
+  );
+}
 if (clientRequestsTat.checked) {
   /*
    * Client Requested Specific TAT
