@@ -890,24 +890,25 @@
     </label>
 
     <div class="input-group">
-      <input
-        type="number"
-        id="manpower"
-        class="form-control"
-        min="1"
-        step="1"
-        value="1"
-        required
-      >
+<input
+  type="number"
+  id="manpower"
+  class="form-control"
+  min="0.5"
+  step="0.5"
+  value="1"
+  required
+>
 
-      <span class="input-group-text">
-        person(s)
-      </span>
+<span class="input-group-text">
+  Manpower
+</span>
     </div>
 
-    <div class="form-text">
-      The total workload will be divided by the number of staff.
-    </div>
+ <div class="form-text">
+  Enter the available manpower capacity in 0.5 increments.
+  The default manpower is 1 Manpower.
+</div>
   </div>
 
   <!-- Available Start Time -->
@@ -1232,7 +1233,9 @@
       <div class="card-body p-4 p-md-5">
         <div class="result-header mb-4">
           <h2>Calculation Result</h2>
-          <p>Standard Expected TAT and OT assessment</p>
+          <p id="resultModeDescription">
+  Standard Expected TAT and OT assessment
+</p>
         </div>
 
         <div class="tat-highlight mb-4">
@@ -1265,10 +1268,6 @@
             Copy Email
           </button>
 
-          <button id="saveResultBtn" type="button" class="btn btn-success">
-            <i class="bi bi-cloud-arrow-up me-1"></i>
-            Save Result
-          </button>
         </div>
       </div>
     </div>
@@ -1289,14 +1288,7 @@
 const WORK_START_HOUR = 9;
 const WORK_END_HOUR = 22;
 const MS_PER_HOUR = 1000 * 60 * 60;
-
-  /*
- * Email recipients.
- * Replace these values with the actual email addresses.
- */
-const EMAIL_TO = "recipient@example.com";
-const EMAIL_CC = "cc@example.com";
-
+  
 const firebaseConfig = {
   apiKey: "AIzaSyBPzgZHbuzlFmcnJ3cZODruohfTXa-Yoy8",
   authDomain: "tat-calculate.firebaseapp.com",
@@ -1308,10 +1300,6 @@ const firebaseConfig = {
   measurementId: "G-67XS52H7MB"
 };
 
-/*
- * These values must match the actual Firestore collection
- * and document names used by the original application.
- */
 /*
  * Realtime Database path.
  *
@@ -1365,11 +1353,12 @@ function cloneDate(date) {
 }
 
     function toLocalDateString(date) {
-      const year = date.getFullYear();
-      const month = pad(date.getMonth() + 1);
-      const day = pad(date.getDate());
-      return `${year}-${month}-${day}`;
-    }
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+
+  return `${year}-${month}-${day}`;
+}
 
     function setTime(date, hour, minute) {
       const output = cloneDate(date);
@@ -1499,8 +1488,8 @@ function addNormalWorkingHours(startDate, hours, skippedDates) {
     const hoursToAdd = Math.min(remaining, availableHours);
 
     current = new Date(
-      current.getTime() + hoursToAdd * MS_PER_HOUR
-    );
+  current.getTime() + hoursToAdd * MS_PER_HOUR
+);
 
     remaining -= hoursToAdd;
 
@@ -1547,24 +1536,26 @@ function recordNonWorkingDatesBetween(
 }
 
     function calculateRequiredHours(taskType, language, pages) {
-      if (taskType === "New Draft") {
-        return language === "E2C" ? pages : pages * 1.5;
-      }
+  if (taskType === "New Draft") {
+    return language === "E2C"
+      ? pages
+      : pages * 1.5;
+  }
 
-      if (taskType === "Chase Markups") {
-        return (pages / 80) * 13;
-      }
+  if (taskType === "Chase Markups") {
+    return (pages / 80) * 13;
+  }
 
-      if (taskType === "Line-by-line Review") {
-        return pages;
-      }
+  if (taskType === "Line-by-line Review") {
+    return pages;
+  }
 
-      if (taskType === "Call Obvious") {
-        return pages / 10;
-      }
+  if (taskType === "Call Obvious") {
+    return pages / 10;
+  }
 
-      return 0;
-    }
+  return 0;
+}
 
     function getProcessingRateText(taskType, language) {
       if (taskType === "New Draft") {
@@ -1914,10 +1905,12 @@ try {
 }
   
     document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("tatForm");
-  const resultCard = document.getElementById("resultCard");
-  const formError = document.getElementById("formError");
-  const holidayDateInput = document.getElementById("holidayDate");
+const form = document.getElementById("tatForm");
+const resultCard = document.getElementById("resultCard");
+const formError = document.getElementById("formError");
+const copyEmailBtn =document.getElementById("copyEmailBtn");
+const emailDraftElement =document.getElementById("emailDraft");
+const holidayDateInput = document.getElementById("holidayDate");
 const holidayTags = document.getElementById("holidayTags");
 const addHolidayBtn = document.getElementById("addHolidayBtn");
 const saveHolidaysBtn = document.getElementById("saveHolidaysBtn");
@@ -2063,6 +2056,92 @@ const availablePicker = flatpickr("#availableStartTime", {
         formError.classList.remove("d-none");
       }
 
+async function copyTextToClipboard(text) {
+  if (
+    navigator.clipboard &&
+    window.isSecureContext
+  ) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const temporaryTextArea =
+    document.createElement("textarea");
+
+  temporaryTextArea.value = text;
+  temporaryTextArea.setAttribute("readonly", "");
+  temporaryTextArea.style.position = "fixed";
+  temporaryTextArea.style.left = "-9999px";
+  temporaryTextArea.style.top = "0";
+
+  document.body.appendChild(temporaryTextArea);
+  temporaryTextArea.select();
+  temporaryTextArea.setSelectionRange(
+    0,
+    temporaryTextArea.value.length
+  );
+
+  const copied =
+    document.execCommand("copy");
+
+  temporaryTextArea.remove();
+
+  if (!copied) {
+    throw new Error(
+      "The browser did not allow the email draft to be copied."
+    );
+  }
+}
+
+copyEmailBtn.addEventListener(
+  "click",
+  async function () {
+    hideError();
+
+    const emailText =
+      emailDraftElement.textContent.trim();
+
+    if (!emailText) {
+      showError(
+        "Please calculate the TAT before copying the email draft."
+      );
+      return;
+    }
+
+    const originalButtonContent =
+      copyEmailBtn.innerHTML;
+
+    copyEmailBtn.disabled = true;
+
+    try {
+      await copyTextToClipboard(emailText);
+
+      copyEmailBtn.innerHTML =
+        '<i class="bi bi-check-circle-fill me-1"></i>Copied';
+
+      window.setTimeout(function () {
+        copyEmailBtn.innerHTML =
+          originalButtonContent;
+
+        copyEmailBtn.disabled = false;
+      }, 1500);
+    } catch (error) {
+      console.error(
+        "Unable to copy the email draft:",
+        error
+      );
+
+      copyEmailBtn.disabled = false;
+      copyEmailBtn.innerHTML =
+        originalButtonContent;
+
+      showError(
+        "Unable to copy the email draft. Please select and copy it manually."
+      );
+    }
+  }
+);
+      
 function renderHolidayTags() {
   holidayTags.innerHTML = "";
 
@@ -2344,7 +2423,6 @@ saveHolidaysBtn.addEventListener(
 /*
  * Show local holidays first, then try to load Firebase data.
  */
-renderHolidayTags();
 loadHolidaysOnline();
 
 function addSelectedHoliday() {
@@ -2377,13 +2455,6 @@ function addSelectedHoliday() {
 
   holidayPicker.clear();
 }
-
-holidayDateInput.addEventListener(
-  "change",
-  function () {
-    addSelectedHoliday();
-  }
-);
 
 addHolidayBtn.addEventListener(
   "click",
@@ -2434,18 +2505,6 @@ function showClientTatSection() {
    * Show the Client Requested TAT section.
    */
   clientTatSection.style.display = "flex";
-
-  const jobName =
-  document
-    .getElementById("jobName")
-    .value
-    .trim();
-
-const jobId =
-  document
-    .getElementById("jobId")
-    .value
-    .trim();
   
   const receivedValue =
       document.getElementById("receivedDateTime").value;
@@ -2507,62 +2566,96 @@ clientRequestsRushOT.addEventListener(
   }
 );
 
-  form.addEventListener("submit", function (event) {
+form.addEventListener("submit", function (event) {
   event.preventDefault();
   hideError();
+
+  resultCard.style.display = "none";
 
   updatePagesFromTRange();
 
   try {
-const jobName =document.getElementById("jobName").value.trim();
-const jobId =document.getElementById("jobId").value.trim();
-const receivedValue =document.getElementById("receivedDateTime").value;
-const jobType =document.getElementById("jobType").value;
-const taskType = document.getElementById("taskType").value;
-const language = document.getElementById("language").value;
-const startT =Number(document.getElementById("startT").value);
-const endTValue =document.getElementById("endT").value.trim();
-const endT =
-  endTValue
-    ? Number(endTValue)
-    : startT; 
+    const jobName = document
+      .getElementById("jobName")
+      .value
+      .trim();
+
+    const jobId = document
+      .getElementById("jobId")
+      .value
+      .trim();
+
+    const receivedValue = document
+      .getElementById("receivedDateTime")
+      .value;
+
+    const availableStartValue = document
+      .getElementById("availableStartTime")
+      .value;
+
+    const jobType = document
+      .getElementById("jobType")
+      .value;
+
+    const taskType = document
+      .getElementById("taskType")
+      .value;
+
+    const language = document
+      .getElementById("language")
+      .value;
+
+    const startT = Number(
+      document.getElementById("startT").value
+    );
+
+    const endTValue = document
+      .getElementById("endT")
+      .value
+      .trim();
+
+    const endT = endTValue
+      ? Number(endTValue)
+      : startT;
+
+    const pages = Number(
+      document.getElementById("pages").value
+    );
+
+    const manpower = Number(
+      document.getElementById("manpower").value
+    );
+
+    const bufferHours = Number(
+      document.getElementById("bufferHours").value
+    );
+
+    const fileFormat = document
+      .getElementById("fileFormat")
+      .value;
+
+    const clientTatValue = document
+      .getElementById("clientTat")
+      .value;
+
     if (!Number.isInteger(startT) || startT < 1) {
   throw new Error(
-    "Please provide a valid Start T Number."
+    "Start T Number must be a positive whole number."
   );
 }
 
-if (!Number.isInteger(endT) || endT < startT) {
+if (!Number.isInteger(endT) || endT < 1) {
+  throw new Error(
+    "End T Number must be a positive whole number."
+  );
+}
+
+if (endT < startT) {
   throw new Error(
     "End T Number cannot be smaller than Start T Number."
   );
 }
-
-const startT =
-  Number(
-    document.getElementById(
-      "startT"
-    ).value
-  );
-
-const endTValue =
-  document
-    .getElementById("endT")
-    .value
-    .trim();
-
-const endT =
-  endTValue
-    ? Number(endTValue)
-    : startT;
     
-    const pages = Number(document.getElementById("pages").value);
-          const manpower = Number(document.getElementById("manpower").value);
-          const availableStartValue = document.getElementById("availableStartTime").value;
-          const bufferHours = Number(document.getElementById("bufferHours").value);
-          const fileFormat = document.getElementById("fileFormat").value;
-          const clientTatValue = document.getElementById("clientTat").value;
-
     if (!jobName) {
   throw new Error(
     "Please provide the Job Name."
@@ -2595,17 +2688,29 @@ if (!jobId) {
             throw new Error("Please provide valid Pages.");
           }
 
-          if (!Number.isFinite(manpower) || manpower < 1) {
-            throw new Error("Please provide valid Manpower.");
-          }
+   if (
+  !Number.isFinite(manpower) ||
+  manpower < 0.5 ||
+  manpower % 0.5 !== 0
+) {
+  throw new Error(
+    "Manpower must be at least 0.5 and entered in increments of 0.5."
+  );
+}
 
           if (!availableStartValue) {
             throw new Error("Please provide the Available Start Time.");
           }
 
-          if (!Number.isFinite(bufferHours) || bufferHours < 0) {
-            throw new Error("Please provide valid Buffer hours.");
-          }
+        if (
+  !Number.isFinite(bufferHours) ||
+  bufferHours < 0 ||
+  bufferHours % 0.5 !== 0
+) {
+  throw new Error(
+    "Buffer must be 0 or a multiple of 0.5 hours."
+  );
+}
 
           if (!fileFormat) {
             throw new Error("Please select the File Format.");
@@ -2710,7 +2815,15 @@ const steps = [];
           steps.push("Processing Rate: " + getProcessingRateText(taskType, language));
           steps.push("Original Workload for 1 Person: " + formatNumber(originalRequiredHours, 2) + " hours");
           steps.push("Manpower: " + manpower + (manpower === 1 ? " person" : " persons"));
-          steps.push("Adjusted Required Working Hours: " + formatNumber(originalRequiredHours, 2) + " / " + manpower + " = " + formatNumber(requiredHours, 2) + " hours");
+steps.push(
+  "Adjusted Required Working Hours: " +
+    formatNumber(originalRequiredHours, 2) +
+    " ÷ " +
+    manpower +
+    " = " +
+    formatNumber(requiredHours, 2) +
+    " hours"
+);
           steps.push("Working Hours per Day: " + (WORK_END_HOUR - WORK_START_HOUR) + " hours (09:00-22:00)");
           steps.push("Received Date & Time: " + formatFullDateTime(receivedDateTime));
           steps.push("Selected Available Start Time: " + formatFullDateTime(availableStartTime));
@@ -2776,105 +2889,93 @@ if (clientRequestsTat.checked) {
       formatFullDateTime(baseTat)
   );
 
+if (clientTat < baseTat) {
+  const timeDifferenceMilliseconds =
+    baseTat.getTime() -
+    clientTat.getTime();
+
+  const timeDifferenceHours =
+    timeDifferenceMilliseconds /
+    MS_PER_HOUR;
+
+  const chargeableOtHours =
+    calculateChargeableOtHours(
+      timeDifferenceHours
+    );
+
+  finalChargeableOtHours =
+    chargeableOtHours;
+
   steps.push(
-    "Client Requested TAT: " +
-      formatFullDateTime(clientTat)
+    "OT Assessment: The Client Requested TAT is earlier than the Base TAT without Buffer."
   );
 
   steps.push(
-    "OT Comparison TAT without Buffer: " +
-      formatFullDateTime(baseTat)
+    "OT Calculation Guideline: Base TAT without Buffer - Client Requested TAT = Time Difference."
   );
 
-  if (clientTat < baseTat) {
-    const timeDifferenceMilliseconds =
-      baseTat.getTime() -
-      clientTat.getTime();
-
-    const timeDifferenceHours =
-      timeDifferenceMilliseconds /
-      MS_PER_HOUR;
-
-const chargeableOtHours =
-  calculateChargeableOtHours(
-    timeDifferenceHours
+  steps.push(
+    "OT Time Difference: " +
+      formatFullDateTime(baseTat) +
+      " - " +
+      formatFullDateTime(clientTat) +
+      " = " +
+      formatNumber(
+        timeDifferenceHours,
+        2
+      ) +
+      " hours"
   );
 
-finalChargeableOtHours =
-  chargeableOtHours;
+  steps.push(
+    "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
+  );
 
-    steps.push(
-      "OT Assessment: The Client Requested TAT is earlier than the Base TAT without Buffer."
-    );
+  steps.push(
+    "Chargeable OT Hours: " +
+      formatOtHoursForEmail(
+        chargeableOtHours
+      ) +
+      " hours"
+  );
 
-    steps.push(
-      "OT Calculation Guideline: Base TAT without Buffer - Client Requested TAT = Time Difference."
-    );
+  steps.push(
+    "OT Charge Breakdown: " +
+      getOtChargeBreakdown(
+        chargeableOtHours
+      )
+  );
 
+  if (chargeableOtHours > 0) {
     steps.push(
-      "OT Time Difference: " +
-        formatFullDateTime(baseTat) +
-        " - " +
-        formatFullDateTime(clientTat) +
-        " = " +
-        formatNumber(
-          timeDifferenceHours,
-          2
-        ) +
-        " hours"
-    );
-
-    steps.push(
-      "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
-    );
-
-    steps.push(
-      "Chargeable OT Hours: " +
-        formatNumber(
-          chargeableOtHours,
-          2
-        ) +
-        " hours"
-    );
-
-    steps.push(
-      "OT Charge Breakdown: " +
-        getOtChargeBreakdown(
+      "OT Charge Result: Charge " +
+        formatOtHoursForEmail(
           chargeableOtHours
-        )
+        ) +
+        " OT hours."
     );
-
-    if (chargeableOtHours > 0) {
-      steps.push(
-        "OT Charge Result: Charge " +
-          formatNumber(
-            chargeableOtHours,
-            2
-          ) +
-          " OT hours."
-      );
-    } else {
-      steps.push(
-        "OT Charge Result: No OT charge because the time difference is less than 5 hours."
-      );
-    }
   } else {
     steps.push(
-      "OT Assessment: No OT is required because the Client Requested TAT is not earlier than the Base TAT without Buffer."
-    );
-
-    steps.push(
-      "OT Time Difference: 0.00 hours"
-    );
-
-    steps.push(
-      "Chargeable OT Hours: 0.00 hours"
-    );
-
-    steps.push(
-      "OT Charge Result: No OT charge."
+      "OT Charge Result: No OT charge because the time difference is less than 5 hours."
     );
   }
+} else {
+  steps.push(
+    "OT Assessment: No OT is required because the Client Requested TAT is not earlier than the Base TAT without Buffer."
+  );
+
+  steps.push(
+    "OT Time Difference: 0.00 hours"
+  );
+
+  steps.push(
+    "Chargeable OT Hours: 0 hours"
+  );
+
+  steps.push(
+    "OT Charge Result: No OT charge."
+  );
+}
 } else if (clientRequestsRushOT.checked) {
   /*
    * Rush OT
@@ -2996,14 +3097,13 @@ finalChargeableOtHours =
       "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
     );
 
-    steps.push(
-      "Chargeable Rush OT Hours: " +
-        formatNumber(
-          chargeableRushOtHours,
-          2
-        ) +
-        " hours"
-    );
+   steps.push(
+  "Chargeable Rush OT Hours: " +
+    formatOtHoursForEmail(
+      chargeableRushOtHours
+    ) +
+    " hours"
+);
 
     steps.push(
       "Rush OT Charge Breakdown: " +
@@ -3012,31 +3112,30 @@ finalChargeableOtHours =
         )
     );
 
-    if (chargeableRushOtHours > 0) {
-      steps.push(
-        "Rush OT Charge Result: Charge " +
-          formatNumber(
-            chargeableRushOtHours,
-            2
-          ) +
-          " OT hours."
-      );
-    } else {
-      steps.push(
-        "Rush OT Charge Result: No OT charge because the time difference is less than 5 hours."
-      );
-    }
+  if (chargeableRushOtHours > 0) {
+  steps.push(
+    "Rush OT Charge Result: Charge " +
+      formatOtHoursForEmail(
+        chargeableRushOtHours
+      ) +
+      " OT hours."
+  );
+} else {
+  steps.push(
+    "Rush OT Charge Result: No OT charge because the time difference is less than 5 hours."
+  );
+}
   } else {
     steps.push(
       "Rush OT Assessment: No OT is required because the Rush Completion is not earlier than the Rush OT Comparison TAT."
     );
 
     steps.push(
-      "Rush OT Time Difference: 0.00 hours"
+      "Rush OT Time Difference: 0 hours"
     );
 
     steps.push(
-      "Chargeable Rush OT Hours: 0.00 hours"
+      "Chargeable Rush OT Hours: 0 hours"
     );
 
     steps.push(
@@ -3066,87 +3165,6 @@ finalChargeableOtHours =
     "The Standard Expected TAT including Buffer is used."
   );
 }
-
-/*
- * Build the Email Draft.
- * Replace these email addresses with the actual recipients.
- */
-const emailTo =
-  "TN HK CS / TOPPAN Nexus (HK) <cs@toppannexus.com>";
-
-const emailCc =
-  "TN LS Internal Services <ls-internalservices@toppannexus.com>";
-
-const languageText =
-  language === "E2C"
-    ? "E to C"
-    : "C to E";
-
-const emailTatDescription =
-  assessmentMode === "rush"
-    ? "rush completion TAT"
-    : "standard expected TAT";
-
-const emailLines = [
-  "To: " + emailTo
-];
-
-/*
- * Do not display the CC line when no CC address is provided.
- */
-if (emailCc.trim()) {
-  emailLines.push(
-    "CC: " + emailCc
-  );
-}
-
-emailLines.push(
-  "Subject: TAT Confirmation - " + Job Name +
-    Job ID +
-    " - " +
-    languageText,
-  "",
-  "Dear Team,",
-  "",
-  "Please note that the " +
-    emailTatDescription +
-    " is " +
-    formatFullDateTime(finalTat) +
-    "."
-);
-
-/*
- * Add OT information for Client Requested TAT
- * and Rush OT modes.
- */
-if (assessmentMode !== "normal") {
-  emailLines.push("");
-
-  if (finalChargeableOtHours > 0) {
-    emailLines.push(
-      "The chargeable OT is " +
-        formatNumber(
-          finalChargeableOtHours,
-          2
-        ) +
-        " hours (" +
-        getOtChargeBreakdown(
-          finalChargeableOtHours
-        ) +
-        ")."
-    );
-  } else {
-    emailLines.push(
-      "No chargeable OT is required."
-    );
-  }
-}
-
-emailLines.push(
-  "",
-  "Regards,",
-  "System"
-);
 
 /*
  * Select the recipients according to Job Type.
@@ -3235,7 +3253,8 @@ const emailDraft = [
   "Regards,"
 ].join("\n");
 
-
+if (assessmentMode === "rush") {
+    
 document.getElementById(
   "standardTatDisplay"
 ).textContent =
@@ -3259,6 +3278,11 @@ document.getElementById(
   emailDraft;
 
 resultCard.style.display = "block";
+
+resultCard.scrollIntoView({
+  behavior: "smooth",
+  block: "start"
+});
         } catch (error) {
           showError(error.message);
         }
