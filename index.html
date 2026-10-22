@@ -917,9 +917,10 @@
     </div>
 
 <div class="form-text">
-  Normal TAT starts from this time and only counts working hours
-  from 09:00 to 22:00, excluding weekends and public holidays.
-  Rush OT starts from the Received Date & Time.
+  All calculation modes start from this Available Start Time.
+  Normal TAT counts working hours from 09:00 to 22:00,
+  excluding weekends and public holidays.
+  Rush OT runs continuously from this time.
 </div>
   </div>
 
@@ -1157,7 +1158,7 @@
                 </label>
 
                 <div class="form-text mt-1">
-  Rush production starts from the Received Date & Time,
+  Rush production starts from the Available Start Time,
   runs continuously through overnight hours, weekends and
   public holidays, and does not include Buffer.
 </div>
@@ -3119,7 +3120,7 @@ if (clientTat < baseTat) {
    * Rush OT
    *
    * Rush production:
-   * - Starts from Received Date & Time
+   * - Starts from Available Start Time
    * - Uses continuous calendar hours
    * - Includes 22:00-09:00
    * - Includes weekends
@@ -3129,7 +3130,7 @@ if (clientTat < baseTat) {
   assessmentMode = "rush";
 
   const rushStart =
-    cloneDate(receivedDateTime);
+  cloneDate(availableStartTime);
 
   const rushCompletion =
     addContinuousHours(
@@ -3186,8 +3187,8 @@ finalChargeableOtHours =
   );
 
   steps.push(
-    "Rush Production Rule: Production runs continuously from the Received Date & Time. Overnight hours from 22:00 to 09:00, weekends and public holidays are included."
-  );
+  "Rush Production Rule: Production runs continuously from the Available Start Time. Overnight hours from 22:00 to 09:00, weekends and public holidays are included."
+);
 
   steps.push(
     "Rush Buffer Added: 0 hours"
