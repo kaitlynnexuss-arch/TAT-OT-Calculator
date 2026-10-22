@@ -3253,8 +3253,34 @@ const emailDraft = [
   "Regards,"
 ].join("\n");
 
+    const resultTatLabel = document.getElementById(
+  "resultTatLabel"
+);
+
+const resultModeDescription = document.getElementById(
+  "resultModeDescription"
+);
+
 if (assessmentMode === "rush") {
-    
+  resultTatLabel.textContent =
+    "Rush Completion TAT";
+
+  resultModeDescription.textContent =
+    "Rush completion and OT assessment";
+} else if (assessmentMode === "client-requested") {
+  resultTatLabel.textContent =
+    "Client Requested TAT";
+
+  resultModeDescription.textContent =
+    "Client requested TAT and OT assessment";
+} else {
+  resultTatLabel.textContent =
+    "Standard Expected TAT";
+
+  resultModeDescription.textContent =
+    "Standard Expected TAT assessment";
+}
+
 document.getElementById(
   "standardTatDisplay"
 ).textContent =
@@ -3283,6 +3309,7 @@ resultCard.scrollIntoView({
   behavior: "smooth",
   block: "start"
 });
+    
         } catch (error) {
           showError(error.message);
         }
