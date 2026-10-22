@@ -700,6 +700,23 @@
       white-space: pre-wrap;
     }
 
+    .info-box {
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.recipient-box {
+  border: 1px solid #bdddff;
+  background: var(--info-bg);
+  color: #1e3a5f;
+}
+
+.ot-value {
+  color: var(--danger);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+    
     .footer-note {
       margin-top: 20px;
       color: #94a3b8;
@@ -1060,57 +1077,80 @@
             </div>
           </div>
 
-          <div class="section-title holidays">
-            Holiday Settings
-          </div>
+      <div class="section-title holidays">
+  Public Holidays
+</div>
 
-          <div class="holiday-panel mb-4">
-            <div class="holiday-panel-content">
-              <div class="row g-3 align-items-end">
-                <div class="col-md-8">
-                  <label for="holidayDate" class="form-label">
-                    Add Public Holiday
-                  </label>
+<div class="holiday-panel mb-4">
+  <div class="holiday-panel-content">
+    <div class="row g-3">
+      <div class="col-md-8">
+        <label
+          for="holidayDate"
+          class="form-label"
+        >
+          Hong Kong Public Holidays
+        </label>
 
-                  <div class="holiday-picker-wrap">
-                    <i class="bi bi-calendar3"></i>
-                    <input
-                      type="text"
-                      id="holidayDate"
-                      class="form-control"
-                      placeholder="Select holiday date"
-                    >
-                  </div>
-                </div>
+        <div class="holiday-picker-wrap">
+          <i class="bi bi-calendar3"></i>
 
-                <div class="col-md-4">
-                  <button
-                    type="button"
-                    id="addHolidayBtn"
-                    class="btn btn-outline-primary w-100 holiday-action-button"
-                  >
-                    Add Holiday
-                  </button>
-                </div>
-              </div>
+          <input
+            type="text"
+            id="holidayDate"
+            class="form-control"
+            placeholder="Select one or more public holidays"
+          >
+        </div>
 
-              <div id="holidayTags" class="holiday-tags mt-3"></div>
+        <div class="form-text">
+          Multiple dates and multiple years are supported.
+        </div>
+      </div>
 
-              <button
-                type="button"
-                id="saveHolidaysBtn"
-                class="btn btn-sm save-online-button mt-3"
-              >
-                <i class="bi bi-cloud-arrow-up me-1"></i>
-                Save Holidays Online
-              </button>
+      <div class="col-md-4 d-flex align-items-end">
+        <div class="d-grid gap-2 w-100">
+          <button
+            type="button"
+            id="saveHolidaysBtn"
+            class="btn save-online-button holiday-action-button"
+          >
+            <i class="bi bi-cloud-arrow-up me-1"></i>
+            Save Online
+          </button>
 
-              <div id="firebaseStatus" class="firebase-status text-muted d-none">
-                <i class="bi bi-info-circle"></i>
-                <span></span>
-              </div>
-            </div>
-          </div>
+          <button
+            type="button"
+            id="clearHolidaysBtn"
+            class="btn btn-outline-secondary holiday-action-button"
+          >
+            <i class="bi bi-trash3 me-1"></i>
+            Clear All Holidays
+          </button>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="form-label">
+          Selected Holidays
+        </div>
+
+        <div
+          id="holidayTags"
+          class="holiday-tags"
+        ></div>
+
+        <div
+          id="firebaseStatus"
+          class="firebase-status text-muted d-none"
+        >
+          <i class="bi bi-info-circle"></i>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
           <div class="section-divider"></div>
 
@@ -1236,29 +1276,51 @@
           <div id="standardTatShortDisplay" class="small-note mt-2"></div>
         </div>
 
-        <div class="result-heading">
-          <i class="bi bi-list-ul"></i>
-          Calculation Steps
-        </div>
+<div class="mb-4">
+  <div class="result-heading">
+    <i class="bi bi-lightning-charge"></i>
+    OT Assessment
+  </div>
 
-        <pre id="calculationSteps" class="steps-box"></pre>
+  <div id="otResult"></div>
+</div>
 
-        <div class="result-heading mt-4">
-          <i class="bi bi-envelope"></i>
-          Email Draft
-        </div>
+<div class="mb-4">
+  <div class="result-heading">
+    <i class="bi bi-people"></i>
+    Email Recipients
+  </div>
 
-        <div id="emailDraft" class="email-draft-box"></div>
+  <div
+    id="recipientResult"
+    class="info-box recipient-box"
+  ></div>
+</div>
 
-        <div class="d-flex flex-wrap gap-2 mt-4">
-          <button id="copyEmailBtn" type="button" class="btn btn-outline-primary">
-            <i class="bi bi-clipboard me-1"></i>
-            Copy Email
-          </button>
+<div class="mb-2">
+  <div class="result-heading">
+    <i class="bi bi-envelope-paper"></i>
+    Email Draft
+  </div>
 
-        </div>
-      </div>
-    </div>
+  <div
+    id="emailDraft"
+    class="email-draft-box mb-3"
+  ></div>
+
+  <div class="d-flex flex-wrap gap-2">
+    <button
+      id="copyEmailBtn"
+      type="button"
+      class="btn btn-outline-primary btn-sm px-3"
+    >
+      <i class="bi bi-copy me-1"></i>
+      Copy Email Draft
+    </button>
+  </div>
+</div>
+</div>
+</div>
 
     <div class="footer-note">
       TAT values are calculated using working hours and public holiday exclusions.
@@ -1893,15 +1955,17 @@ try {
 }
   
     document.addEventListener("DOMContentLoaded", function () {
+const clearHolidaysBtn = document.getElementById("clearHolidaysBtn");
 const form = document.getElementById("tatForm");
 const resultCard = document.getElementById("resultCard");
 const formError = document.getElementById("formError");
 const resetFormBtn = document.getElementById("resetFormBtn");
 const copyEmailBtn =document.getElementById("copyEmailBtn");
 const emailDraftElement =document.getElementById("emailDraft");
+const otResultElement = document.getElementById("otResult");
+const recipientResult = document.getElementById("recipientResult");
 const holidayDateInput = document.getElementById("holidayDate");
 const holidayTags = document.getElementById("holidayTags");
-const addHolidayBtn = document.getElementById("addHolidayBtn");
 const saveHolidaysBtn = document.getElementById("saveHolidaysBtn");
 const firebaseStatus = document.getElementById("firebaseStatus");
 const startTInput = document.getElementById("startT");
@@ -1909,9 +1973,7 @@ const endTInput = document.getElementById("endT");
 const pagesInput = document.getElementById("pages");
 const clientTatSection = document.getElementById("clientTatSection");
 const clientRequestsTat = document.getElementById("clientRequestsTat");
-const clientRequestsRushOT = document.getElementById(
-  "clientRequestsRushOT"
-);
+const clientRequestsRushOT = document.getElementById("clientRequestsRushOT");
 
 function updatePagesFromTRange() {
   const startValue = startTInput.value.trim();
@@ -2003,11 +2065,28 @@ const availablePicker = flatpickr("#availableStartTime", {
     minuteIncrement: 1
   });
 
-  const holidayPicker = flatpickr("#holidayDate", {
+const holidayPicker = flatpickr(
+  "#holidayDate",
+  {
+    mode: "multiple",
     enableTime: false,
     dateFormat: "Y-m-d",
-    allowInput: true
-  });
+    conjunction: ", ",
+    allowInput: false,
+
+    onChange: function (selectedDates) {
+      selectedHolidays = selectedDates
+        .map(function (date) {
+          return toLocalDateString(date);
+        })
+        .filter(isValidHolidayDate)
+        .sort();
+
+      saveHolidaysToLocalStorage();
+      renderHolidayTags();
+    }
+  }
+);
 
   /*
    * Open the corresponding calendar when its calendar icon is clicked.
@@ -2106,7 +2185,8 @@ copyEmailBtn.addEventListener(
       await copyTextToClipboard(emailText);
 
       copyEmailBtn.innerHTML =
-        '<i class="bi bi-check-circle-fill me-1"></i>Copied';
+        '<i class="bi bi-check-circle-fill me-1"></i>' +
+        "Copied";
 
       window.setTimeout(function () {
         copyEmailBtn.innerHTML =
@@ -2134,6 +2214,24 @@ copyEmailBtn.addEventListener(
 function renderHolidayTags() {
   holidayTags.innerHTML = "";
 
+if (!selectedHolidays.length) {
+  const emptyMessage =
+    document.createElement("span");
+
+  emptyMessage.className =
+    "text-muted small";
+
+  emptyMessage.innerHTML =
+    '<i class="bi bi-calendar-x me-1"></i>' +
+    "No holidays selected.";
+
+  holidayTags.appendChild(
+    emptyMessage
+  );
+
+  return;
+}
+  
   selectedHolidays.forEach(function (item) {
     const badge = document.createElement("span");
     badge.className = "holiday-badge";
@@ -2280,32 +2378,90 @@ async function loadHolidaysOnline() {
      */
     let onlineDates = [];
 
-    if (
-      data &&
-      Array.isArray(data.dates)
-    ) {
-      onlineDates = data.dates;
-    } else if (
-      data &&
-      data.dates &&
-      typeof data.dates === "object"
-    ) {
-      onlineDates = Object.values(data.dates);
-    } else if (Array.isArray(data)) {
-      onlineDates = data;
-    } else if (
-      data &&
-      typeof data === "object"
-    ) {
-      onlineDates = Object.keys(data).filter(
-        function (key) {
-          return (
-            isValidHolidayDate(key) &&
-            Boolean(data[key])
-          );
-        }
+/*
+ * Current format:
+ * {
+ *   dates: ["2026-01-01", "2026-02-17"]
+ * }
+ */
+if (
+  data &&
+  Array.isArray(data.dates)
+) {
+  onlineDates = data.dates;
+
+/*
+ * Current Firebase indexed-object format:
+ * {
+ *   dates: {
+ *     0: "2026-01-01",
+ *     1: "2026-02-17"
+ *   }
+ * }
+ */
+} else if (
+  data &&
+  data.dates &&
+  typeof data.dates === "object"
+) {
+  onlineDates = Object.values(data.dates);
+
+/*
+ * Previous application format:
+ * {
+ *   holidays: ["2026-01-01", "2026-02-17"]
+ * }
+ */
+} else if (
+  data &&
+  Array.isArray(data.holidays)
+) {
+  onlineDates = data.holidays;
+
+/*
+ * Previous Firebase indexed-object format:
+ * {
+ *   holidays: {
+ *     0: "2026-01-01",
+ *     1: "2026-02-17"
+ *   }
+ * }
+ */
+} else if (
+  data &&
+  data.holidays &&
+  typeof data.holidays === "object"
+) {
+  onlineDates = Object.values(
+    data.holidays
+  );
+
+/*
+ * Direct array format.
+ */
+} else if (Array.isArray(data)) {
+  onlineDates = data;
+
+/*
+ * Date-key format:
+ * {
+ *   "2026-01-01": true,
+ *   "2026-02-17": true
+ * }
+ */
+} else if (
+  data &&
+  typeof data === "object"
+) {
+  onlineDates = Object.keys(data).filter(
+    function (key) {
+      return (
+        isValidHolidayDate(key) &&
+        Boolean(data[key])
       );
     }
+  );
+}
 
     selectedHolidays = [
       ...new Set(
@@ -2371,13 +2527,24 @@ async function saveHolidaysOnline() {
      * under settings/publicHolidays.
      */
     await realtimeDatabase
-      .ref(HOLIDAY_DATABASE_PATH)
-      .update({
-        dates: selectedHolidays,
-        updatedAt:
-          firebase.database.ServerValue.TIMESTAMP
-      });
+  .ref(HOLIDAY_DATABASE_PATH)
+  .update({
+    /*
+     * Current format.
+     */
+    dates: selectedHolidays,
 
+    /*
+     * Previous-format compatibility.
+     * This can be removed in the future after all
+     * application versions have migrated to dates.
+     */
+    holidays: selectedHolidays,
+
+    updatedAt:
+      firebase.database.ServerValue.TIMESTAMP
+  });
+    
     saveHolidaysToLocalStorage();
     renderHolidayTags();
 
@@ -2409,48 +2576,27 @@ saveHolidaysBtn.addEventListener(
   }
 );
 
+clearHolidaysBtn.addEventListener(
+  "click",
+  function () {
+    selectedHolidays = [];
+
+    holidayPicker.clear();
+
+    saveHolidaysToLocalStorage();
+    renderHolidayTags();
+
+    showFirebaseStatus(
+      "Holiday settings cleared locally. Click Save Online to update Firebase.",
+      "warning"
+    );
+  }
+);
+      
 /*
  * Show local holidays first, then try to load Firebase data.
  */
 loadHolidaysOnline();
-
-function addSelectedHoliday() {
-  const selectedDate =
-    holidayDateInput.value.trim();
-
-  if (!selectedDate) {
-    showError(
-      "Please select a public holiday date."
-    );
-    return;
-  }
-
-  if (!isValidHolidayDate(selectedDate)) {
-    showError(
-      "Please select a valid public holiday date."
-    );
-    return;
-  }
-
-  hideError();
-
-  if (!selectedHolidays.includes(selectedDate)) {
-    selectedHolidays.push(selectedDate);
-    selectedHolidays.sort();
-
-    saveHolidaysToLocalStorage();
-    renderHolidayTags();
-  }
-
-  holidayPicker.clear();
-}
-
-addHolidayBtn.addEventListener(
-  "click",
-  function () {
-    addSelectedHoliday();
-  }
-);
 
 holidayTags.addEventListener(
   "click",
@@ -2465,13 +2611,18 @@ holidayTags.addEventListener(
 
     const date = button.dataset.date;
 
-    selectedHolidays =
-      selectedHolidays.filter(function (item) {
-        return item !== date;
-      });
+selectedHolidays =
+  selectedHolidays.filter(function (item) {
+    return item !== date;
+  });
 
-    saveHolidaysToLocalStorage();
-    renderHolidayTags();
+holidayPicker.setDate(
+  selectedHolidays,
+  false
+);
+
+saveHolidaysToLocalStorage();
+renderHolidayTags();
   }
 );
 
@@ -2573,10 +2724,14 @@ resetFormBtn.addEventListener(
      * so the date fields must also be cleared through
      * the Flatpickr instances.
      */
-    receivedPicker.clear();
-    availablePicker.clear();
-    clientTatPicker.clear();
-    holidayPicker.clear();
+    receivedPicker.c*ear();
+availablePicker.clear();
+cl*entTatPicker.clear();
+
+holidayPick*r.setDate(
+  selectedHolidays,
+  f*lse
+);
 
     /*
      * Hide and clear the conditional Client TAT area.
@@ -2618,8 +2773,15 @@ resetFormBtn.addEventListener(
       "calculationSteps"
     ).textContent = "";
 
-    emailDraftElement.textContent = "";
+document.getElementById(
+  "otResult"
+).innerHTML = "";
 
+document.getElementById(
+  "recipientResult"
+).innerHTML = "";
+
+emailDraftElement.textContent = "";
     /*
      * Restore the default result headings.
      */
@@ -2637,7 +2799,7 @@ resetFormBtn.addEventListener(
      * Restore the Copy Email button in case it was
      * showing the temporary Copied state.
      */
-    copyEmailBtn.disabled = fals*;
+    copyEmailBtn.disabled =*false;
     copyEmailBtn.innerHTML =
       '<i class="bi bi-clipboard me-1"></i>' +
       "Copy Email";
@@ -2978,13 +3140,14 @@ steps.push(
 
 if (clientRequestsRushOT.checked) {
   steps.push(
-    "Normal Standard Expected TAT Reference: " +
-      formatFullDateTime(standardTatWithBuffer)
+    "Normal Base TAT Reference without Buffer: " +
+      formatFullDateTime(baseTat)
   );
 
   steps.push(
     "Rush OT Buffer: 0 hours"
   );
+}
 } else {
   steps.push(
     "Buffer Added: " +
@@ -3130,7 +3293,7 @@ if (clientTat < baseTat) {
   assessmentMode = "rush";
 
   const rushStart =
-  cloneDate(availableStartTime);
+    cloneDate(availableStartTime);
 
   const rushCompletion =
     addContinuousHours(
@@ -3381,8 +3544,6 @@ const emailBodyLine =
   ".";
 
 const emailDraft = [
-  "To: " + emailTo,
-  "CC: " + emailCc,
   "Subject: " + emailSubject,
   "",
   "Dear Team,",
@@ -3392,6 +3553,71 @@ const emailDraft = [
   "Regards,"
 ].join("\n");
 
+if (assessmentMode === "normal") {
+  otResultElement.innerHTML =
+    '<div class="info-box border bg-light">' +
+      '<strong>' +
+        '<i class="bi bi-dash-circle me-1"></i>' +
+        "OT: N/A" +
+      '</strong>' +
+      '<br>' +
+      '<span class="small text-muted">' +
+        "The client did not request a specific TAT or Rush OT." +
+      '</span>' +
+    '</div>';
+} else if (finalChargeableOtHours > 0) {
+  otResultElement.innerHTML =
+    '<div class="info-box" ' +
+      'style="background: var(--danger-bg); ' +
+      'border: 1px solid #fecaca;">' +
+      '<div>' +
+        '<strong>' +
+          '<i class="bi bi-lightning-charge-fill me-1"></i>' +
+          "OT Required: Yes" +
+        '</strong>' +
+      '</div>' +
+      '<hr>' +
+      '<div class="ot-value">' +
+        '<i class="bi bi-lightning-charge-fill"></i> ' +
+        "Recommended OT Charge: " +
+        formatOtHoursForEmail(
+          finalChargeableOtHours
+        ) +
+        "h OT" +
+      '</div>' +
+    '</div>';
+} else {
+  otResultElement.innerHTML =
+    '<div class="info-box" ' +
+      'style="background: var(--success-bg); ' +
+      'border: 1px solid #a9e6be;">' +
+      '<strong class="text-success">' +
+        '<i class="bi bi-check-circle-fill me-1"></i>' +
+        "OT Required: No" +
+      '</strong>' +
+      '<br>' +
+      '<span class="small text-muted">' +
+        "No chargeable OT is required." +
+      '</span>' +
+    '</div>';
+}
+
+  recipientResult.innerHTML =
+  '<div>' +
+    '<strong>' +
+      '<i class="bi bi-send me-1"></i>' +
+      "To:" +
+    '</strong> ' +
+    emailTo +
+  '</div>' +
+  '<div class="mt-1">' +
+    '<strong>' +
+      '<i class="bi bi-copy me-1"></i>' +
+      "CC:" +
+    '</strong> ' +
+    emailCc +
+  '</div>';
+  
     const resultTatLabel = document.getElementById(
   "resultTatLabel"
 );
