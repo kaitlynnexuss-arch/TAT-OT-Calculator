@@ -1278,6 +1278,18 @@
 
 <div class="mb-4">
   <div class="result-heading">
+    <i class="bi bi-list-check"></i>
+    Calculation Steps
+  </div>
+
+  <pre
+    id="calculationSteps"
+    class="steps-box"
+  ></pre>
+</div>
+
+<div class="mb-4">
+  <div class="result-heading">
     <i class="bi bi-lightning-charge"></i>
     OT Assessment
   </div>
@@ -1314,8 +1326,8 @@
       type="button"
       class="btn btn-outline-primary btn-sm px-3"
     >
-      <i class="bi bi-copy me-1"></i>
-      Copy Email Draft
+      <i class="bi bi-check-circle-fill me-1"></i>' +
+      "Copied";
     </button>
   </div>
 </div>
@@ -1964,7 +1976,6 @@ const copyEmailBtn =document.getElementById("copyEmailBtn");
 const emailDraftElement =document.getElementById("emailDraft");
 const otResultElement = document.getElementById("otResult");
 const recipientResult = document.getElementById("recipientResult");
-const holidayDateInput = document.getElementById("holidayDate");
 const holidayTags = document.getElementById("holidayTags");
 const saveHolidaysBtn = document.getElementById("saveHolidaysBtn");
 const firebaseStatus = document.getElementById("firebaseStatus");
@@ -2075,21 +2086,16 @@ const holidayPicker = flatpickr(
     allowInput: false,
 
     onChange: function (selectedDates) {
-      selectedHolidays = selectedDates
-        .map(function (date) {
-          return toLocalDateString(date);
-        })
-        .filter(isValidHolidayDate)
-        .sort();
+  selectedHolidays = selectedDates
+    .map(function (date) {
+      return toLocalDateString(date);
+    })
+    .filter(isValidHolidayDate)
+    .sort();
 
-      holidayPicker.setDate(
-  selectedHolidays,
-  false
-);
-
-saveHolidaysToLocalStorage();
-renderHolidayTags();
-    }
+  saveHolidaysToLocalStorage();
+  renderHolidayTags();
+}
   }
 );
 
@@ -2187,18 +2193,19 @@ copyEmailBtn.addEventListener(
     copyEmailBtn.disabled = true;
 
     try {
-      await copyTextToClipboard(emailText);
+  await copyTextToClipboard(emailText);
 
-      copyEmailBtn.innerHTML =
-        '<i class="bi bi-check-circle-fill me-1"></i>' +
-        "Copied";
+  copyEmailBtn.innerHTML =
+    '<i class="bi bi-check-circle-fill me-1"></i>' +
+    "Copied";
 
-      window.setTimeout(function () {
-        copyEmailBtn.innerHTML =
-          originalButtonContent;
+  window.setTimeout(function () {
+    copyEmailBtn.innerHTML =
+      originalButtonContent;
 
-        copyEmailBtn.disabled = false;
-      }, 1500);
+    copyEmailBtn.disabled = false;
+  }, 1500);
+}
     } catch (error) {
       console.error(
         "Unable to copy the email draft:",
@@ -2381,105 +2388,93 @@ async function loadHolidaysOnline() {
      *   "2026-10-19": true
      * }
      */
-    let onlineDates = [];
+let onlineDates = [];
 
 /*
- * Current format:
- * {
- *   dates: ["2026-01-01", "2026-02-17"]
- * }
+ * Read both the current "dates" format and
+ * the previous "holidays" format.
+ *
+ * Combining the two arrays prevents an empty
+ * dates array from hiding older holiday records.
  */
-if (
-  data &&
-  Array.isArray(data.dates)
-) {
-  onlineDates = data.dates;
+if (data && typeof data === "object") {
+  if (Array.isArray(data.dates)) {
+    onlineDates.push(
+      ...data.dates
+    );
+  } else if (
+    data.dates &&
+    typeof data.dates === "object"
+  ) {
+    onlineDates.push(
+      ...Object.values(data.dates)
+    );
+  }
+
+  if (Array.isArray(data.holidays)) {
+    onlineDates.push(
+      ...data.holidays
+    );
+  } else if (
+    data.holidays &&
+    typeof data.holidays === "object"
+  ) {
+    onlineDates.push(
+      ...Object.values(data.holidays)
+    );
+  }
+}
 
 /*
- * Current Firebase indexed-object format:
- * {
- *   dates: {
- *     0: "2026-01-01",
- *     1: "2026-02-17"
- *   }
- * }
+ * Support a direct array stored at the path.
  */
-} else if (
-  data &&
-  data.dates &&
-  typeof data.dates === "object"
-) {
-  onlineDates = Object.values(data.dates);
-
-/*
- * Previous application format:
- * {
- *   holidays: ["2026-01-01", "2026-02-17"]
- * }
- */
-} else if (
-  data &&
-  Array.isArray(data.holidays)
-) {
-  onlineDates = data.holidays;
-
-/*
- * Previous Firebase indexed-object format:
- * {
- *   holidays: {
- *     0: "2026-01-01",
- *     1: "2026-02-17"
- *   }
- * }
- */
-} else if (
-  data &&
-  data.holidays &&
-  typeof data.holidays === "object"
-) {
-  onlineDates = Object.values(
-    data.holidays
+if (Array.isArray(data)) {
+  onlineDates.push(
+    ...data
   );
+}
 
 /*
- * Direct array format.
- */
-} else if (Array.isArray(data)) {
-  onlineDates = data;
-
-/*
- * Date-key format:
+ * Support a date-key object:
  * {
  *   "2026-01-01": true,
  *   "2026-02-17": true
  * }
  */
-} else if (
+if (
   data &&
-  typeof data === "object"
+  typeof data === "object" &&
+  !Array.isArray(data)
 ) {
-  onlineDates = Object.keys(data).filter(
-    function (key) {
-      return (
-        isValidHolidayDate(key) &&
-        Boolean(data[key])
-      );
-    }
+  onlineDates.push(
+    ...Object.keys(data).filter(
+      function (key) {
+        return (
+          isValidHolidayDate(key) &&
+          Boolean(data[key])
+        );
+      }
+    )
   );
 }
 
-    selectedHolidays = [
-      ...new Set(
-        onlineDates
-          .map(function (item) {
-            return String(item).trim();
-          })
-          .filter(isValidHolidayDate)
-      )
-    ].sort();
+ selectedHolidays = [
+  ...new Set(
+    onlineDates
+      .map(function (item) {
+        return String(item).trim();
+      })
+      .filter(isValidHolidayDate)
+  )
+].sort();
 
-    saveHolidaysToLocalStorage();
-    renderHolidayTags();
+holidayPicker.setDate(
+  selectedHolidays,
+  false
+);
+
+saveHolidaysToLocalStorage();
+renderHolidayTags();
 
     showFirebaseStatus(
       selectedHolidays.length +
@@ -2650,23 +2645,25 @@ function showClientTatSection() {
    * Show the Client Requested TAT section.
    */
   clientTatSection.style.display = "flex";
-  
-  const receivedValue =
-      document.getElementById("receivedDateTime").value;
 
-  const receivedDate =
-    receivedPicker.selectedDates.length > 0
-      ? receivedPicker.selectedDates[0]
-      : parseDateTime(receivedValue);
+  const availableValue =
+    document.getElementById(
+      "availableStartTime"
+    ).value;
 
-  if (receivedDate) {
+  const availableDate =
+    availablePicker.selectedDates.length > 0
+      ? availablePicker.selectedDates[0]
+      : parseDateTime(availableValue);
+
+  if (availableDate) {
     clientTatPicker.set(
       "minDate",
-      receivedDate
+      availableDate
     );
 
     clientTatPicker.jumpToDate(
-      receivedDate
+      availableDate
     );
   } else {
     clientTatPicker.set(
@@ -2729,13 +2726,13 @@ resetFormBtn.addEventListener(
      * so the date fields must also be cleared through
      * the Flatpickr instances.
      */
-    receivedPicker.c*ear();
+    receivedPicker.clear();
 availablePicker.clear();
-cl*entTatPicker.clear();
+clientTatPicker.clear();
 
-holidayPick*r.setDate(
+holidayPicker.setDate(
   selectedHolidays,
-  f*lse
+  false
 );
 
     /*
@@ -2804,7 +2801,7 @@ emailDraftElement.textContent = "";
      * Restore the Copy Email button in case it was
      * showing the temporary Copied state.
      */
-    copyEmailBtn.disabled =*false;
+    copyEmailBtn.disabled = false;
     copyEmailBtn.innerHTML =
       '<i class="bi bi-clipboard me-1"></i>' +
       "Copy Email";
@@ -2996,15 +2993,6 @@ if (!fileFormat) {
 
 if (
   clientRequestsTat.checked &&
-  clientRequestsRushOT.checked
-) {
-  throw new Error(
-    "Please select only one client request option."
-  );
-}
-
-if (
-  clientRequestsTat.checked &&
   !clientTatValue
 ) {
   throw new Error(
@@ -3052,10 +3040,10 @@ if (availableStartTime < receivedDateTime) {
 
 if (
   clientRequestsTat.checked &&
-  (!clientTat || clientTat <= receivedDateTime)
+  (!clientTat || clientTat <= availableStartTime)
 ) {
   throw new Error(
-    "Client Requested TAT must be later than the Received Date & Time."
+    "Client Requested TAT must be later than the Available Start Time."
   );
 }
 
@@ -3606,8 +3594,47 @@ if (assessmentMode === "normal") {
     '</div>';
 }
 
-  recipientResult.innerHTML =
-  '<div>' +
+recipientResult.innerHTML = "";
+
+const toLine = document.createElement("div");
+const toLabel = document.createElement("strong");
+const toIcon = document.createElement("i");
+
+toIcon.className = "bi bi-send me-1";
+toLabel.appendChild(toIcon);
+toLabel.appendChild(
+  document.createTextNode("To:")
+);
+
+toLine.appendChild(toLabel);
+toLine.appendChild(
+  document.createTextNode(
+    " " + emailTo
+  )
+);
+
+const ccLine = document.createElement("div");
+ccLine.className = "mt-1";
+
+const ccLabel = document.createElement("strong");
+const ccIcon = document.createElement("i");
+
+ccIcon.className = "bi bi-copy me-1";
+ccLabel.appendChild(ccIcon);
+ccLabel.appendChild(
+  document.createTextNode("CC:")
+);
+
+ccLine.appendChild(ccLabel);
+ccLine.appendChild(
+  document.createTextNode(
+    " " + emailCc
+  )
+);
+
+recipientResult.appendChild(toLine);
+recipientResult.appendChild(ccLine);
+    '<div>' +
     '<strong>' +
       '<i class="bi bi-send me-1"></i>' +
       "To:" +
