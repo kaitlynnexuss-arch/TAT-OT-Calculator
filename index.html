@@ -2082,8 +2082,13 @@ const holidayPicker = flatpickr(
         .filter(isValidHolidayDate)
         .sort();
 
-      saveHolidaysToLocalStorage();
-      renderHolidayTags();
+      holidayPicker.setDate(
+  selectedHolidays,
+  false
+);
+
+saveHolidaysToLocalStorage();
+renderHolidayTags();
     }
   }
 );
@@ -3147,7 +3152,6 @@ if (clientRequestsRushOT.checked) {
   steps.push(
     "Rush OT Buffer: 0 hours"
   );
-}
 } else {
   steps.push(
     "Buffer Added: " +
