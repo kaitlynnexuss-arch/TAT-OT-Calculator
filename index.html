@@ -30,10 +30,8 @@
       --primary-dark: #18265f;
       --primary-light: #edf0ff;
       --secondary: #7c3aed;
-      --accent: #14b8a6;
       --success: #16a34a;
       --success-bg: #ecfdf3;
-      --warning: #d97706;
       --warning-bg: #fff8e8;
       --danger: #dc2626;
       --danger-bg: #fff1f2;
@@ -41,7 +39,6 @@
       --text-main: #1e293b;
       --text-muted: #64748b;
       --border: #dbe3ef;
-      --surface: #ffffff;
       --background: #f4f7fb;
     }
 
@@ -399,11 +396,6 @@
       box-shadow: 0 8px 18px rgba(80, 70, 190, 0.31);
     }
 
-    .btn-success {
-      border: 0;
-      background: linear-gradient(135deg, #16a34a, #059669);
-    }
-
     .btn-outline-primary {
       color: var(--primary);
       border-color: #aeb9eb;
@@ -708,23 +700,6 @@
       white-space: pre-wrap;
     }
 
-    .info-box {
-      padding: 15px;
-      border-radius: 12px;
-    }
-
-    .recipient-box {
-      border: 1px solid #bdddff;
-      background: var(--info-bg);
-      color: #1e3a5f;
-    }
-
-    .ot-value {
-      color: var(--danger);
-      font-size: 1.3rem;
-      font-weight: 800;
-    }
-
     .footer-note {
       margin-top: 20px;
       color: #94a3b8;
@@ -851,7 +826,7 @@
       for="receivedDateTime"
       class="form-label required"
     >
-      Received Date &amp; Time
+      Received Date & Time
     </label>
 
     <div class="input-group">
@@ -944,7 +919,7 @@
 <div class="form-text">
   Normal TAT starts from this time and only counts working hours
   from 09:00 to 22:00, excluding weekends and public holidays.
-  Rush OT starts from the Received Date &amp; Time.
+  Rush OT starts from the Received Date & Time.
 </div>
   </div>
 
@@ -1182,7 +1157,7 @@
                 </label>
 
                 <div class="form-text mt-1">
-  Rush production starts from the Received Date &amp; Time,
+  Rush production starts from the Received Date & Time,
   runs continuously through overnight hours, weekends and
   public holidays, and does not include Buffer.
 </div>
@@ -1220,11 +1195,23 @@
 
           <div id="formError" class="alert alert-danger d-none mt-3" role="alert"></div>
 
-          <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn btn-primary btn-lg px-4">
-              Calculate TAT
-            </button>
-          </div>
+         <div class="d-flex flex-wrap justify-content-end gap-2 mt-4">
+  <button
+    type="button"
+    id="resetFormBtn"
+    class="btn btn-outline-secondary btn-lg px-4"
+  >
+    <i class="bi bi-arrow-counterclockwise me-1"></i>
+    Reset Form
+  </button>
+
+  <button
+    type="submit"
+    class="btn btn-primary btn-lg px-4"
+  >
+    Calculate TAT
+  </button>
+</div>
         </form>
       </div>
     </div>
@@ -1908,6 +1895,7 @@ try {
 const form = document.getElementById("tatForm");
 const resultCard = document.getElementById("resultCard");
 const formError = document.getElementById("formError");
+const resetFormBtn = document.getElementById("resetFormBtn");
 const copyEmailBtn =document.getElementById("copyEmailBtn");
 const emailDraftElement =document.getElementById("emailDraft");
 const holidayDateInput = document.getElementById("holidayDate");
@@ -2566,6 +2554,110 @@ clientRequestsRushOT.addEventListener(
   }
 );
 
+resetFormBtn.addEventListener(
+  "click",
+  function () {
+    /*
+     * Reset regular form controls to their HTML defaults.
+     *
+     * Manpower returns to 1.
+     * Buffer returns to 3.
+     * Select fields return to their blank options.
+     * Both client request checkboxes become unchecked.
+     */
+    form.reset();
+
+    /*
+     * Flatpickr maintains its own internal date state,
+     * so the date fields must also be cleared through
+     * the Flatpickr instances.
+     */
+    receivedPicker.clear();
+    availablePicker.clear();
+    clientTatPicker.clear();
+    holidayPicker.clear();
+
+    /*
+     * Hide and clear the conditional Client TAT area.
+     */
+    clientRequestsTat.checked = false;
+    clientRequestsRushOT.checked = false;
+    hideClientTatSection(true);
+
+    /*
+     * Clear custom validation messages.
+     */
+    startTInput.setCustomValidity("");
+    endTInput.setCustomValidity("");
+
+    /*
+     * Recalculate the readonly Pages field after reset.
+     */
+    updatePagesFromTRange();
+
+    /*
+     * Clear any form error.
+     */
+    hideError();
+
+    /*
+     * Hide and clear the previous result.
+     */
+    resultCard.style.display = "none";
+
+    document.getElementById(
+      "standardTatDisplay"
+    ).textContent = "";
+
+    document.getElementById(
+      "standardTatShortDisplay"
+    ).textContent = "";
+
+    document.getElementById(
+      "calculationSteps"
+    ).textContent = "";
+
+    emailDraftElement.textContent = "";
+
+    /*
+     * Restore the default result headings.
+     */
+    document.getElementById(
+      "resultTatLabel"
+    ).textContent =
+      "Standard Expected TAT";
+
+    document.getElementById(
+      "resultModeDescription"
+    ).textContent =
+      "Standard Expected TAT and OT assessment";
+
+    /*
+     * Restore the Copy Email button in case it was
+     * showing the temporary Copied state.
+     */
+    copyEmailBtn.disabled = fals*;
+    copyEmailBtn.innerHTML =
+      '<i class="bi bi-clipboard me-1"></i>' +
+      "Copy Email";
+
+    /*
+     * Return to the top of the form.
+     */
+    form.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+    /*
+     * Move keyboard focus to the first field.
+     */
+    document.getElementById(
+      "jobName"
+    ).focus();
+  }
+);
+      
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   hideError();
@@ -2638,7 +2730,63 @@ form.addEventListener("submit", function (event) {
       .getElementById("clientTat")
       .value;
 
-    if (!Number.isInteger(startT) || startT < 1) {
+/*
+ * Validate fields in the same order in which
+ * they appear on the form.
+ */
+if (!jobName) {
+  throw new Error(
+    "Please provide the Job Name."
+  );
+}
+
+if (!jobId) {
+  throw new Error(
+    "Please provide the Job ID."
+  );
+}
+
+if (!receivedValue) {
+  throw new Error(
+    "Please provide the Received Date & Time."
+  );
+}
+
+if (
+  !Number.isFinite(manpower) ||
+  manpower < 0.5 ||
+  manpower % 0.5 !== 0
+) {
+  throw new Error(
+    "Manpower must be at least 0.5 and entered in increments of 0.5."
+  );
+}
+
+if (!availableStartValue) {
+  throw new Error(
+    "Please provide the Available Start Time."
+  );
+}
+
+if (!jobType) {
+  throw new Error(
+    "Please select the Job Type."
+  );
+}
+
+if (!taskType) {
+  throw new Error(
+    "Please select the Task Type."
+  );
+}
+
+if (!language) {
+  throw new Error(
+    "Please select the Language."
+  );
+}
+
+if (!Number.isInteger(startT) || startT < 1) {
   throw new Error(
     "Start T Number must be a positive whole number."
   );
@@ -2655,54 +2803,14 @@ if (endT < startT) {
     "End T Number cannot be smaller than Start T Number."
   );
 }
-    
-    if (!jobName) {
+
+if (!Number.isFinite(pages) || pages <= 0) {
   throw new Error(
-    "Please provide the Job Name."
+    "Please provide valid Pages."
   );
 }
 
-if (!jobId) {
-  throw new Error(
-    "Please provide the Job ID."
-  );
-}
-    
-    if (!receivedValue) {
-            throw new Error("Please provide the Received Date & Time.");
-          }
-
-          if (!jobType) {
-            throw new Error("Please select the Job Type.");
-          }
-
-          if (!taskType) {
-            throw new Error("Please select the Task Type.");
-          }
-
-          if (!language) {
-            throw new Error("Please select the Language.");
-          }
-
-          if (!Number.isFinite(pages) || pages <= 0) {
-            throw new Error("Please provide valid Pages.");
-          }
-
-   if (
-  !Number.isFinite(manpower) ||
-  manpower < 0.5 ||
-  manpower % 0.5 !== 0
-) {
-  throw new Error(
-    "Manpower must be at least 0.5 and entered in increments of 0.5."
-  );
-}
-
-          if (!availableStartValue) {
-            throw new Error("Please provide the Available Start Time.");
-          }
-
-        if (
+if (
   !Number.isFinite(bufferHours) ||
   bufferHours < 0 ||
   bufferHours % 0.5 !== 0
@@ -2712,37 +2820,67 @@ if (!jobId) {
   );
 }
 
-          if (!fileFormat) {
-            throw new Error("Please select the File Format.");
-          }
+if (!fileFormat) {
+  throw new Error(
+    "Please select the File Format."
+  );
+}
 
-          if (clientRequestsTat.checked && clientRequestsRushOT.checked) {
-            throw new Error("Please select only one client request option.");
-          }
+if (
+  clientRequestsTat.checked &&
+  clientRequestsRushOT.checked
+) {
+  throw new Error(
+    "Please select only one client request option."
+  );
+}
 
-          if (clientRequestsTat.checked && !clientTatValue) {
-            throw new Error("Please provide the Client Requested TAT.");
-          }
+if (
+  clientRequestsTat.checked &&
+  !clientTatValue
+) {
+  throw new Error(
+    "Please provide the Client Requested TAT."
+  );
+}
 
-          const receivedDateTime = parseDateTime(receivedValue);
-          const availableStartTime = parseDateTime(availableStartValue);
-          const clientTat = clientTatValue ? parseDateTime(clientTatValue) : null;
+/*
+ * Parse and validate the date values only after
+ * confirming that the required fields are present.
+ */
+const receivedDateTime =
+  parseDateTime(receivedValue);
 
-          if (!receivedDateTime) {
-            throw new Error("Received Date & Time is invalid.");
-          }
+const availableStartTime =
+  parseDateTime(availableStartValue);
 
-          if (!availableStartTime) {
-            throw new Error("Available Start Time is invalid.");
-          }
+const clientTat = clientTatValue
+  ? parseDateTime(clientTatValue)
+  : null;
 
-          if (clientTatValue && !clientTat) {
-            throw new Error("Client Requested TAT is invalid.");
-          }
+if (!receivedDateTime) {
+  throw new Error(
+    "Received Date & Time is invalid."
+  );
+}
 
-          if (availableStartTime < receivedDateTime) {
-            throw new Error("Available Start Time cannot be earlier than Received Date & Time.");
-          }
+if (!availableStartTime) {
+  throw new Error(
+    "Available Start Time is invalid."
+  );
+}
+
+if (clientTatValue && !clientTat) {
+  throw new Error(
+    "Client Requested TAT is invalid."
+  );
+}
+
+if (availableStartTime < receivedDateTime) {
+  throw new Error(
+    "Available Start Time cannot be earlier than Received Date & Time."
+  );
+}
 
 if (
   clientRequestsTat.checked &&
