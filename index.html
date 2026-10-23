@@ -2726,8 +2726,18 @@ resetFormBtn.addEventListener(
      * so the date fields must also be cleared through
      * the Flatpickr instances.
      */
-    receivedPicker.clear();
-availablePicker.clear();
+const resetDateTime = new Date();
+resetDateTime.setSeconds(0, 0);
+
+receivedPicker.setDate(
+  resetDateTime,
+  false
+);
+
+availablePicker.setDate(
+  resetDateTime,
+  false
+);
 clientTatPicker.clear();
 
 holidayPicker.setDate(
@@ -2804,7 +2814,7 @@ emailDraftElement.textContent = "";
     copyEmailBtn.disabled = false;
     copyEmailBtn.innerHTML =
       '<i class="bi bi-clipboard me-1"></i>' +
-      "Copy Email";
+      "Copy Email Draft";
 
     /*
      * Return to the top of the form.
@@ -2991,6 +3001,15 @@ if (!fileFormat) {
   );
 }
 
+if (
+  clientRequestsTat.checked &&
+  clientRequestsRushOT.checked
+) {
+  throw new Error(
+    "Please select only one client request option."
+  );
+}
+    
 if (
   clientRequestsTat.checked &&
   !clientTatValue
@@ -3634,20 +3653,6 @@ ccLine.appendChild(
 
 recipientResult.appendChild(toLine);
 recipientResult.appendChild(ccLine);
-    '<div>' +
-    '<strong>' +
-      '<i class="bi bi-send me-1"></i>' +
-      "To:" +
-    '</strong> ' +
-    emailTo +
-  '</div>' +
-  '<div class="mt-1">' +
-    '<strong>' +
-      '<i class="bi bi-copy me-1"></i>' +
-      "CC:" +
-    '</strong> ' +
-    emailCc +
-  '</div>';
   
     const resultTatLabel = document.getElementById(
   "resultTatLabel"
