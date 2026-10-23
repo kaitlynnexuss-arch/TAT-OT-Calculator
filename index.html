@@ -1396,7 +1396,7 @@ try {
     "Firebase Realtime Database connected successfully:",
     firebaseConfig.projectId
   );
-catch (error) {
+} catch (error) {
   firebaseReady = false;
   realtimeDatabase = null;
 
@@ -2068,6 +2068,16 @@ const availablePicker = flatpickr("#availableStartTime", {
   defaultDate: currentDateTime
 });
 
+receivedPicker.setDate(
+  currentDateTime,
+  true
+);
+
+availablePicker.setDate(
+  currentDateTime,
+  true
+);
+      
   const clientTatPicker = flatpickr("#clientTat", {
     enableTime: true,
     time_24hr: true,
@@ -2084,18 +2094,21 @@ const holidayPicker = flatpickr(
     dateFormat: "Y-m-d",
     conjunction: ", ",
     allowInput: false,
-
+    defaultDate: selectedHolidays,
     onChange: function (selectedDates) {
-  selectedHolidays = selectedDates
-    .map(function (date) {
-      return toLocalDateString(date);
-    })
-    .filter(isValidHolidayDate)
-    .sort();
+      selectedHolidays = [
+        ...new Set(
+          selectedDates
+            .map(function (date) {
+              return toLocalDateString(date);
+            })
+            .filter(isValidHolidayDate)
+        )
+      ].sort();
 
-  saveHolidaysToLocalStorage();
-  renderHolidayTags();
-}
+      saveHolidaysToLocalStorage();
+      renderHolidayTags();
+    }
   }
 );
 
@@ -2196,8 +2209,8 @@ copyEmailBtn.addEventListener(
       await copyTextToClipboard(emailText);
 
       copyEmailBtn.innerHTML =
-        '<i class="bi bi-check-circle-fill me-1"></i>' +
-        "Copied";
+        '<i class="bi bi-copy me-1"></i>' +
+        "Copy Email Draft";
 
       window.setTimeout(function () {
         copyEmailBtn.innerHTML =
@@ -2335,10 +2348,12 @@ function isValidHolidayDate(value) {
 }
 
 async function loadHolidaysOnline() {
-  /*
-   * Display locally cached holidays first.
-   */
   renderHolidayTags();
+
+  holidayPicker.setDate(
+    selectedHolidays,
+    false
+  );
 
   if (!firebaseReady || !realtimeDatabase) {
     showFirebaseStatus(
@@ -2369,111 +2384,83 @@ async function loadHolidaysOnline() {
     }
 
     const data = snapshot.val();
+    const onlineDates = [];
 
-    /*
-     * Supported formats:
-     *
-     * Format 1:
-     * {
-     *   dates: ["2026-01-01", "2026-10-19"]
-     * }
-     *
-     * Format 2:
-     * ["2026-01-01", "2026-10-19"]
-     *
-     * Format 3:
-     * {
-     *   "2026-01-01": true,
-     *   "2026-10-19": true
-     * }
-     */
-let onlineDates = [];
+    if (Array.isArray(data)) {
+      onlineDates.push(...data);
+    }
 
-/*
- * Read both the current "dates" format and
- * the previous "holidays" format.
- *
- * Combining the two arrays prevents an empty
- * dates array from hiding older holiday records.
- */
-if (data && typeof data === "object") {
-  if (Array.isArray(data.dates)) {
-    onlineDates.push(
-      ...data.dates
-    );
-  } else if (
-    data.dates &&
-    typeof data.dates === "object"
-  ) {
-    onlineDates.push(
-      ...Object.values(data.dates)
-    );
-  }
-
-  if (Array.isArray(data.holidays)) {
-    onlineDates.push(
-      ...data.holidays
-    );
-  } else if (
-    data.holidays &&
-    typeof data.holidays === "object"
-  ) {
-    onlineDates.push(
-      ...Object.values(data.holidays)
-    );
-  }
-}
-
-/*
- * Support a direct array stored at the path.
- */
-if (Array.isArray(data)) {
-  onlineDates.push(
-    ...data
-  );
-}
-
-/*
- * Support a date-key object:
- * {
- *   "2026-01-01": true,
- *   "2026-02-17": true
- * }
- */
-if (
-  data &&
-  typeof data === "object" &&
-  !Array.isArray(data)
-) {
-  onlineDates.push(
-    ...Object.keys(data).filter(
-      function (key) {
-        return (
-          isValidHolidayDate(key) &&
-          Boolean(data[key])
+    if (
+      data &&
+      typeof data === "object" &&
+      !Array.isArray(data)
+    ) {
+      if (Array.isArray(data.dates)) {
+        onlineDates.push(...data.dates);
+      } else if (
+        data.dates &&
+        typeof data.dates === "object"
+      ) {
+        onlineDates.push(
+          ...Object.values(data.dates)
         );
       }
-    )
-  );
-}
 
- selectedHolidays = [
-  ...new Set(
-    onlineDates
-      .map(function (item) {
-        return String(item).trim();
-      })
-      .filter(isValidHolidayDate)
-  )
-].sort();
+      if (Array.isArray(data.holidays)) {
+        onlineDates.push(...data.holidays);
+      } else if (
+        data.holidays &&
+        typeof data.holidays === "object"
+      ) {
+        onlineDates.push(
+          ...Object.values(data.holidays)
+        );
+      }
 
-holidayPicker.setDate(
-  selectedHolidays,
-  false
-);
+      Object.keys(data).forEach(function (key) {
+        if (
+          isValidHolidayDate(key) &&
+          Boolean(data[key])
+        ) {
+          onlineDates.push(key);
+        }
+      });
+    }
 
-saveHolidaysToLocalStorage();
-renderHolidayTags();
+    const validOnlineDates = [
+      ...new Set(
+        onlineDates
+          .map(function (item) {
+            return String(item).trim();
+          })
+          .filter(isValidHolidayDate)
+      )
+    ].sort();
+
+    if (!validOnlineDates.length) {
+      holidayPicker.setDate(
+        selectedHolidays,
+        false
+      );
+
+      renderHolidayTags();
+
+      showFirebaseStatus(
+        "Online data was found, but it contains no valid holiday dates. Local cached holidays are being used.",
+        "warning"
+      );
+      return;
+    }
+
+    selectedHolidays = validOnlineDates;
+
+    holidayPicker.setDate(
+      selectedHolidays,
+      false
+    );
+
+    saveHolidaysToLocalStorage();
+    renderHolidayTags();
 
     showFirebaseStatus(
       selectedHolidays.length +
@@ -2484,6 +2471,11 @@ renderHolidayTags();
     console.error(
       "Unable to load holidays from Firebase Realtime Database:",
       error
+    );
+
+    holidayPicker.setDate(
+      selectedHolidays,
+      false
     );
 
     renderHolidayTags();
