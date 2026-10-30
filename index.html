@@ -766,7 +766,44 @@
         border-radius: 12px;
       }
     }
-  </style>
+.task-type-inline {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  gap: 10px;
+}
+
+.task-type-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.aa-level-field {
+  flex: 0 0 46%;
+  min-width: 0;
+  max-width: 200px;
+}
+
+.aa-level-field .form-label {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.aa-level-field .form-select {
+  padding-left: 10px;
+  padding-right: 28px;
+  font-size: 0.84rem;
+}
+
+#startT:disabled,
+#endT:disabled,
+#pages:disabled {
+  background-color: #f8fafc;
+  color: var(--text-muted);
+  opacity: 1;
+  cursor: not-allowed;
+}
+</style>
 </head>
 
 <body>
@@ -779,7 +816,7 @@
           </div>
 
           <div>
-            <h1>TAT &amp; OT Calculator</h1>
+            <h1>TAT & OT Calculator</h1>
             <p>Standard Expected TAT and Overtime Assessment Tool</p>
           </div>
         </div>
@@ -801,41 +838,6 @@
           </div>
 
           <div class="row g-3 mb-4">
-            <!-- Job Name -->
-<div class="col-md-6">
-  <label
-    for="jobName"
-    class="form-label required"
-  >
-    Job Name
-  </label>
-
-  <input
-    type="text"
-    id="jobName"
-    class="form-control"
-    placeholder="Example: IMPACT Therapeutics_Adv"
-    required
-  >
-</div>
-
-<!-- Job ID -->
-<div class="col-md-6">
-  <label
-    for="jobId"
-    class="form-label required"
-  >
-    Job ID
-  </label>
-
-  <input
-    type="text"
-    id="jobId"
-    class="form-control"
-    placeholder="Example: HAM26101018"
-    required
-  >
-</div>
             
   <!-- Received Date & Time -->
   <div class="col-md-6">
@@ -872,37 +874,6 @@
     </div>
   </div>
 
-  <!-- Manpower -->
-  <div class="col-md-6">
-    <label
-      for="manpower"
-      class="form-label required"
-    >
-      Manpower
-    </label>
-
-    <div class="input-group">
-<input
-  type="number"
-  id="manpower"
-  class="form-control"
-  min="0.5"
-  step="0.5"
-  value="1"
-  required
->
-
-<span class="input-group-text">
-  Manpower
-</span>
-    </div>
-
- <div class="form-text">
-  Enter the available manpower capacity in 0.5 increments.
-  The default manpower is 1 Manpower.
-</div>
-  </div>
-
   <!-- Available Start Time -->
   <div class="col-md-6">
     <label
@@ -932,116 +903,159 @@
         required
       >
     </div>
-
-<div class="form-text">
-  All calculation modes start from this Available Start Time.
-  Normal TAT counts working hours from 09:00 to 22:00,
-  excluding weekends and public holidays.
-  Rush OT runs continuously from this time.
-</div>
   </div>
 
+<div class="col-md-6">
+  <label for="jobType" class="form-label required">
+    Job Type
+  </label>
+
+  <select id="jobType" class="form-select" required>
+    <option value="">-- Select Job Type --</option>
+    <option value="AM_CR">AM / CR</option>
+    <option value="AR_IR_QR_ER">AR / IR / QR / ER</option>
+    <option value="IP_LS">IP / LS</option>
+  </select>
+</div>
+
+<div class="col-md-6">
+  <label for="language" class="form-label required">
+    Language
+  </label>
+
+  <select id="language" class="form-select" required>
+    <option value="">-- Select Language --</option>
+    <option value="E2C">E to C</option>
+    <option value="C2E">C to E</option>
+    <option value="Bilingual">Bilingual</option>
+  </select>
+</div>
+
+<div class="col-md-6">
+  <label for="workType" class="form-label required">
+    Work Type
+  </label>
+
+  <select id="workType" class="form-select" required>
+    <option value="">-- Select Work Type --</option>
+    <option value="Translation">Translation</option>
+    <option value="Checking">Checking</option>
+  </select>
+</div>
+
+<div class="col-md-6">
+  <div class="task-type-inline">
+    <div class="task-type-field">
+      <label for="taskType" class="form-label required">
+        Task Type
+      </label>
+
+      <select
+        id="taskType"
+        class="form-select"
+        required
+        disabled
+      >
+        <option value="">-- Select Work Type First --</option>
+      </select>
+    </div>
+
+    <div
+      id="aaLevelSection"
+      class="aa-level-field conditional-section"
+    >
+      <label for="aaLevel" class="form-label required">
+        AA Markup Level
+      </label>
+
+      <select id="aaLevel" class="form-select">
+        <option value="AA_L1">Lvl 1 (Easy)</option>
+        <option value="AA_L2" selected>Lvl 2 (Hard)</option>
+        <option value="AA_L3">Lvl 3 (Extreme)</option>
+      </select>
+    </div>
+  </div>
+</div>
             <div class="col-md-6">
-              <label for="jobType" class="form-label required">
-                Job Type
-              </label>
-
-              <select id="jobType" class="form-select" required>
-                <option value="">-- Select Job Type --</option>
-                <option value="Compliance">Compliance Jobs</option>
-                <option value="IPO">IPO Jobs (including side jobs)</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="taskType" class="form-label required">
-                Task Type
-              </label>
-
-              <select id="taskType" class="form-select" required>
-                <option value="">-- Select Task Type --</option>
-                <option value="New Draft">New Draft</option>
-                <option value="Chase Markups">Chase Markups</option>
-                <option value="Line-by-line Review">
-                  Line-by-line Review
-                </option>
-                <option value="Call Obvious">Call Obvious</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="language" class="form-label required">
-                Language
-              </label>
-
-              <select id="language" class="form-select" required>
-                <option value="">-- Select Language --</option>
-                <option value="E2C">E to C</option>
-                <option value="C2E">C to E</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label for="startT" class="form-label required">
-                Start T Number
+              <label for="startT" class="form-label">
+              Start T Number
+              <span class="small-note">(Optional)</span>
               </label>
 
               <div class="input-group">
                 <span class="input-group-text">T</span>
 
                 <input
-                  type="number"
-                  id="startT"
-                  class="form-control"
-                  min="1"
-                  step="1"
-                  required
-                >
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="endT" class="form-label">
-                End T Number
-                <span class="small-note">(Optional)</span>
-              </label>
-
-              <div class="input-group">
-                <span class="input-group-text">T</span>
-
-                <input
-                  type="number"
-                  id="endT"
-                  class="form-control"
-                  min="1"
-                  step="1"
-                >
-              </div>
-
-              <div class="form-text">
-                Example: Start T = 2 and End T = 5 will display as T2-T5.
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label for="pages" class="form-label required">
-                Pages
-              </label>
-
-<input
   type="number"
-  id="pages"
+  id="startT"
   class="form-control"
   min="1"
   step="1"
-  readonly
-  required
->
-
-<div class="form-text">
-  Automatically calculated from the Start T and End T numbers.
-</div>
+  placeholder="Optional"
+/>
+              </div>
             </div>
+
+<div class="col-md-6">
+  <label for="endT" class="form-label">
+    End T Number
+    <span class="small-note">(Optional)</span>
+  </label>
+
+  <div class="input-group">
+    <span class="input-group-text">T</span>
+
+    <input
+      type="number"
+      id="endT"
+      class="form-control"
+      min="1"
+      step="1"
+      placeholder="Optional"
+    />
+  </div>
+
+  <div class="form-text">
+    Leave blank if only one T number is involved.
+  </div>
+</div>
+
+<div class="col-md-6">
+  <label for="pages" class="form-label">
+    Manual Pages
+    <span class="small-note">(Optional)</span>
+  </label>
+
+  <input
+    type="number"
+    id="pages"
+    class="form-control"
+    min="0"
+    step="any"
+    placeholder="Example: 1.75"
+  >
+
+  <div class="form-text">
+    Where specific page numbers are required, please enter such page numbers manually.
+  </div>
+</div>
+
+<div class="col-md-6">
+  <label for="tCalculatedPages" class="form-label">
+    Pages Calculated from T Number
+  </label>
+
+  <input
+    type="number"
+    id="tCalculatedPages"
+    class="form-control"
+    readonly
+  >
+
+  <div class="form-text">
+    Automatically calculated from Start T and End T.
+  </div>
+</div>
 
             <div class="col-md-6">
               <label for="bufferHours" class="form-label required">
@@ -1062,22 +1076,9 @@
                 <span class="input-group-text">hours</span>
               </div>
             </div>
-
-            <div class="col-md-6">
-              <label for="fileFormat" class="form-label required">
-                File Format
-              </label>
-
-              <select id="fileFormat" class="form-select" required>
-                <option value="">-- Select File Format --</option>
-                <option value="Word">Word</option>
-                <option value="Excel">Excel</option>
-                <option value="PDF">PDF</option>
-              </select>
-            </div>
           </div>
 
-      <div class="section-title holidays">
+<div class="section-title holidays">
   Public Holidays
 </div>
 
@@ -1085,10 +1086,7 @@
   <div class="holiday-panel-content">
     <div class="row g-3">
       <div class="col-md-8">
-        <label
-          for="holidayDate"
-          class="form-label"
-        >
+        <label for="holidayDate" class="form-label">
           Hong Kong Public Holidays
         </label>
 
@@ -1104,7 +1102,7 @@
         </div>
 
         <div class="form-text">
-          Multiple dates and multiple years are supported.
+          Select all public holidays for the current year.
         </div>
       </div>
 
@@ -1155,7 +1153,7 @@
           <div class="section-divider"></div>
 
           <div class="section-title settings">
-            OT &amp; TAT Settings
+            OT & TAT Settings
           </div>
 
           <div class="row g-3 mb-4">
@@ -1176,8 +1174,6 @@
 
                 <div class="form-text mt-1">
                   Enter the exact TAT requested by the client.
-                  OT will continue to compare Base TAT without Buffer
-                  against the Client Requested TAT.
                 </div>
               </div>
             </div>
@@ -1198,9 +1194,7 @@
                 </label>
 
                 <div class="form-text mt-1">
-  Rush production starts from the Available Start Time,
-  runs continuously through overnight hours, weekends and
-  public holidays, and does not include Buffer.
+  Rush production starts from the Available Start Time.
 </div>
               </div>
             </div>
@@ -1275,6 +1269,19 @@
           <div id="standardTatDisplay" class="tat-main"></div>
           <div id="standardTatShortDisplay" class="small-note mt-2"></div>
         </div>
+
+<div class="mb-4">
+  <div class="result-heading">
+    <i class="bi bi-people"></i>
+    Recommended Manpower
+  </div>
+
+  <div
+    id="manpowerResult"
+    class="info-box border bg-light"
+    style="white-space: pre-line;"
+  ></div>
+</div>
 
 <div class="mb-4">
   <div class="result-heading">
@@ -1597,92 +1604,267 @@ function recordNonWorkingDatesBetween(
   }
 }
 
-    function calculateRequiredHours(taskType, language, pages) {
-  if (taskType === "New Draft") {
-    return language === "E2C"
-      ? pages
-      : pages * 1.5;
-  }
+/*
+ * All standards are pages per hour.
+ *
+ * null means that the standard has not been configured.
+ * Do not use 0 to represent a missing standard.
+ */
+function createEmptyRateStandards() {
+  const standards = {};
 
-  if (taskType === "Chase Markups") {
-    return (pages / 80) * 13;
-  }
+  const jobTypes = [
+    "AM_CR",
+    "AR_IR_QR_ER",
+    "IP_LS"
+  ];
 
-  if (taskType === "Line-by-line Review") {
-    return pages;
-  }
+  const languages = [
+    "E2C",
+    "C2E",
+    "Bilingual"
+  ];
 
-  if (taskType === "Call Obvious") {
-    return pages / 10;
-  }
+  jobTypes.forEach(function (jobType) {
+    standards[jobType] = {};
 
-  return 0;
+    languages.forEach(function (language) {
+      standards[jobType][language] = {
+        Translation: {
+          "New Draft": null,
+          "AA Markup": {
+            AA_L1: null,
+            AA_L2: null,
+            AA_L3: null
+          },
+          "AI Review": null,
+          "Dora Check": null
+        },
+
+        Checking: {
+          "Banker AI": null,
+          "Dora Check": null,
+          "SCTC Conversion": null,
+          "AI Review": null,
+          "Line by Line Review (Human)": null,
+          "Call Redaction": null,
+          "Call Obvious": null,
+          "Call Paragraph / Pagination": null,
+          "Milestone / Bulk Print": null
+        }
+      };
+    });
+  });
+
+  return standards;
 }
 
-    function getProcessingRateText(taskType, language) {
-      if (taskType === "New Draft") {
-        return language === "E2C"
-          ? "New Draft (E to C): 1 page = 1 hour"
-          : "New Draft (C to E): 1 page = 1.5 hours";
-      }
+const RATE_STANDARDS = createEmptyRateStandards();
 
-      if (taskType === "Chase Markups") {
-        return "Chase Markups: estimated at 80 pages per 13-hour working day";
-      }
+/*
+ * Enter the actual standards from your images here.
+ *
+ * Each value must mean:
+ * number of pages processed by one person in one hour.
+ *
+ * Replace null with the confirmed standard.
+ */
 
-      if (taskType === "Line-by-line Review") {
-        return "Line-by-line Review: 1 page = 1 hour";
-      }
+// AM / CR
+RATE_STANDARDS.AM_CR.E2C.Translation["New Draft"] = 2.0;
+RATE_STANDARDS.AM_CR.E2C.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.AM_CR.E2C.Translation["AA Markup"].AA_L2 = 5;
+RATE_STANDARDS.AM_CR.E2C.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.AM_CR.E2C.Translation["AI Review"] = 6;
+RATE_STANDARDS.AM_CR.E2C.Translation["Dora Check"] = 45;
 
-      return "Call Obvious: 10 pages = 1 hour";
-    }
+// AR / IR / QR
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Translation["New Draft"] = 3;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Translation["AA Markup"].AA_L2 = 5;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Translation["AI Review"] = 6.5;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Translation["Dora Check"] = 40;
 
-    function parseDateTime(value) {
-  if (!value) {
-    return null;
-  }
+// IP / LS
+RATE_STANDARDS.IP_LS.E2C.Translation["New Draft"] = 2;
+RATE_STANDARDS.IP_LS.E2C.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.IP_LS.E2C.Translation["AA Markup"].AA_L2 = 5;
+RATE_STANDARDS.IP_LS.E2C.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.IP_LS.E2C.Translation["AI Review"] = 5;
+RATE_STANDARDS.IP_LS.E2C.Translation["Dora Check"] = 35;
 
-  const match = String(value)
-    .trim()
-    .match(
-      /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/
-    );
+RATE_STANDARDS.AM_CR.C2E.Translation["New Draft"] = 1.5;
+RATE_STANDARDS.AM_CR.C2E.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.AM_CR.C2E.Translation["AA Markup"].AA_L2 = 3;
+RATE_STANDARDS.AM_CR.C2E.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.AM_CR.C2E.Translation["AI Review"] = 6;
+RATE_STANDARDS.AM_CR.C2E.Translation["Dora Check"] = 35;
 
-  if (!match) {
-    return null;
-  }
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Translation["New Draft"] = 1;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Translation["AA Markup"].AA_L2 = 3;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Translation["AI Review"] = 6.5;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Translation["Dora Check"] = 32;
 
-  const year = Number(match[1]);
-  const month = Number(match[2]) - 1;
-  const day = Number(match[3]);
-  const hour = Number(match[4] || 0);
-  const minute = Number(match[5] || 0);
+RATE_STANDARDS.IP_LS.C2E.Translation["New Draft"] = 1;
+RATE_STANDARDS.IP_LS.C2E.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.IP_LS.C2E.Translation["AA Markup"].AA_L2 = 3;
+RATE_STANDARDS.IP_LS.C2E.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.IP_LS.C2E.Translation["AI Review"] = 5;
+RATE_STANDARDS.IP_LS.C2E.Translation["Dora Check"] = 30;
 
-  const date = new Date(
-    year,
-    month,
-    day,
-    hour,
-    minute,
-    0,
-    0
-  );
+RATE_STANDARDS.AM_CR.Bilingual.Translation["New Draft"] = 1.75;
+RATE_STANDARDS.AM_CR.Bilingual.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.AM_CR.Bilingual.Translation["AA Markup"].AA_L2 = 6;
+RATE_STANDARDS.AM_CR.Bilingual.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.AM_CR.Bilingual.Translation["AI Review"] = 5;
+RATE_STANDARDS.AM_CR.Bilingual.Translation["Dora Check"] = 35;
 
-  /*
-   * Verify that JavaScript did not automatically roll an invalid date
-   * into the next month, for example 2026-02-31.
-   */
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Translation["New Draft"] = 2;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Translation["AA Markup"].AA_L2 = 6;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Translation["AI Review"] = 5;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Translation["Dora Check"] = 32;
+
+RATE_STANDARDS.IP_LS.Bilingual.Translation["New Draft"] = 1.5;
+RATE_STANDARDS.IP_LS.Bilingual.Translation["AA Markup"].AA_L1 = 12;
+RATE_STANDARDS.IP_LS.Bilingual.Translation["AA Markup"].AA_L2 = 6;
+RATE_STANDARDS.IP_LS.Bilingual.Translation["AA Markup"].AA_L3 = 1;
+RATE_STANDARDS.IP_LS.Bilingual.Translation["AI Review"] = 4;
+RATE_STANDARDS.IP_LS.Bilingual.Translation["Dora Check"] = 30;
+
+/* ======================
+   CHECKING STANDARDS
+   ====================== */
+
+RATE_STANDARDS.AM_CR.E2C.Checking["Dora Check"] = 45;
+RATE_STANDARDS.AM_CR.E2C.Checking["SCTC Conversion"] = 100;
+RATE_STANDARDS.AM_CR.E2C.Checking["AI Review"] = 6;
+RATE_STANDARDS.AM_CR.E2C.Checking["Line by Line Review (Human)"] = 4;
+RATE_STANDARDS.AM_CR.E2C.Checking["Call Obvious"] = 10;
+RATE_STANDARDS.AM_CR.E2C.Checking["Call Paragraph / Pagination"] = 110;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Checking["Dora Check"] = 40;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Checking["SCTC Conversion"] = 100;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Checking["AI Review"] = 6.5;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Checking["Line by Line Review (Human)"] = 4;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Checking["Call Obvious"] = 10;
+RATE_STANDARDS.AR_IR_QR_ER.E2C.Checking["Call Paragraph / Pagination"] = 110;
+RATE_STANDARDS.IP_LS.E2C.Checking["Banker AI"] = 50;
+RATE_STANDARDS.IP_LS.E2C.Checking["Dora Check"] = 35;
+RATE_STANDARDS.IP_LS.E2C.Checking["SCTC Conversion"] = 100;
+RATE_STANDARDS.IP_LS.E2C.Checking["AI Review"] = 5;
+RATE_STANDARDS.IP_LS.E2C.Checking["Line by Line Review (Human)"] = 3;
+RATE_STANDARDS.IP_LS.E2C.Checking["Call Redaction"] = 37.5;
+RATE_STANDARDS.IP_LS.E2C.Checking["Call Obvious"] = 12;
+RATE_STANDARDS.IP_LS.E2C.Checking["Call Paragraph / Pagination"] = 110;
+RATE_STANDARDS.IP_LS.E2C.Checking["Milestone / Bulk Print"] = 100;
+RATE_STANDARDS.AM_CR.C2E.Checking["Dora Check"] = 35;
+RATE_STANDARDS.AM_CR.C2E.Checking["AI Review"] = 6;
+RATE_STANDARDS.AM_CR.C2E.Checking["Line by Line Review (Human)"] = 2;
+RATE_STANDARDS.AM_CR.C2E.Checking["Call Obvious"] = 8;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Checking["Dora Check"] = 32;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Checking["AI Review"] = 6.5;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Checking["Line by Line Review (Human)"] = 2;
+RATE_STANDARDS.AR_IR_QR_ER.C2E.Checking["Call Obvious"] = 8;
+RATE_STANDARDS.IP_LS.C2E.Checking["Dora Check"] = 30;
+RATE_STANDARDS.IP_LS.C2E.Checking["AI Review"] = 5;
+RATE_STANDARDS.IP_LS.C2E.Checking["Line by Line Review (Human)"] = 1.5;
+RATE_STANDARDS.IP_LS.C2E.Checking["Call Redaction"] = 37.5;
+RATE_STANDARDS.IP_LS.C2E.Checking["Call Obvious"] = 9.5;
+RATE_STANDARDS.AM_CR.Bilingual.Checking["Dora Check"] = 35;
+RATE_STANDARDS.AM_CR.Bilingual.Checking["AI Review"] = 5;
+RATE_STANDARDS.AM_CR.Bilingual.Checking["Line by Line Review (Human)"] = 2;
+RATE_STANDARDS.AM_CR.Bilingual.Checking["Call Obvious"] = 8;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Checking["Dora Check"] = 32;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Checking["AI Review"] = 5;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Checking["Line by Line Review (Human)"] = 2;
+RATE_STANDARDS.AR_IR_QR_ER.Bilingual.Checking["Call Obvious"] = 8;
+RATE_STANDARDS.IP_LS.Bilingual.Checking["Dora Check"] = 30;
+RATE_STANDARDS.IP_LS.Bilingual.Checking["AI Review"] = 4;
+RATE_STANDARDS.IP_LS.Bilingual.Checking["Line by Line Review (Human)"] = 1.5;
+RATE_STANDARDS.IP_LS.Bilingual.Checking["Call Redaction"] = 37.5;
+RATE_STANDARDS.IP_LS.Bilingual.Checking["Call Obvious"] = 9.5;
+
+function getProcessingRate(
+  jobType,
+  language,
+  workType,
+  taskType,
+  aaLevel
+) {
+  const taskRates =
+    RATE_STANDARDS[jobType]?.[language]?.[workType];
+
+  const configuredRate =
+    taskType === "AA Markup"
+      ? taskRates?.[taskType]?.[aaLevel]
+      : taskRates?.[taskType];
+
   if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== month ||
-    date.getDate() !== day ||
-    date.getHours() !== hour ||
-    date.getMinutes() !== minute
+    typeof configuredRate !== "number" ||
+    !Number.isFinite(configuredRate) ||
+    configuredRate <= 0
   ) {
-    return null;
+    const combination = [
+      jobType,
+      language,
+      workType,
+      taskType,
+      taskType === "AA Markup" ? aaLevel : ""
+    ]
+      .filter(Boolean)
+      .join(" / ");
+
+throw new Error(
+  "No processing rate found for: " +
+    combination +
+    ". Please check RATE_STANDARDS."
+);
   }
 
-  return date;
+  return configuredRate;
+}
+
+function calculateRequiredHours(pages, pagesPerHour) {
+  if (
+    !Number.isFinite(pages) ||
+    pages <= 0 ||
+    !Number.isFinite(pagesPerHour) ||
+    pagesPerHour <= 0
+  ) {
+    throw new Error(
+      "Pages and pages-per-hour standard must be greater than 0."
+    );
+  }
+
+  return pages / pagesPerHour;
+}
+
+function getProcessingRateText(
+  taskType,
+  pagesPerHour,
+  aaLevel
+) {
+  const levelLabels = {
+    AA_L1: "Lvl 1 (Easy)",
+    AA_L2: "Lvl 2 (Hard)",
+    AA_L3: "Lvl 3 (Extreme)"
+  };
+
+  const taskLabel =
+    taskType === "AA Markup"
+      ? taskType + " " + levelLabels[aaLevel]
+      : taskType;
+
+  return (
+    taskLabel +
+    ": " +
+    String(pagesPerHour) +
+    " pages per hour"
+  );
 }
 
     function formatNumber(value, digits = 0) {
@@ -1768,58 +1950,62 @@ function formatOtHoursForEmail(hours) {
         .replace(/\.?0+$/, "");
 }
 
-  /*
- * Convert an actual time difference into chargeable OT hours.
- *
- * Charging rules:
- * - Less than 5 hours: no OT charge
- * - 5 to less than 10 hours: charge 5 OT hours
- * - Every complete 10-hour block: charge 10 OT hours
- * - An additional complete 5-hour block: charge another 5 OT hours
- *
- * Examples:
- * 4.99 hours  -> 0 OT hours
- * 5 hours     -> 5 OT hours
- * 9.99 hours  -> 5 OT hours
- * 10 hours    -> 10 OT hours
- * 14.99 hours -> 10 OT hours
- * 15 hours    -> 15 OT hours
- * 34 hours    -> 30 OT hours
- * 82 hours    -> 80 OT hours
+ /*
+ * Calculate the calendar-date difference.
+ * Time-of-day is ignored by this helper.
  */
-function calculateChargeableOtHours(timeDifferenceHours) {
-  const hours = Number(timeDifferenceHours);
+function calculateCalendarDayDifference(
+  earlierDate,
+  laterDate
+) {
+  if (
+    !(earlierDate instanceof Date) ||
+    !(laterDate instanceof Date) ||
+    Number.isNaN(earlierDate.getTime()) ||
+    Number.isNaN(laterDate.getTime())
+  ) {
+    throw new Error(
+      "Valid dates are required for the OT day calculation."
+    );
+  }
 
-  if (!Number.isFinite(hours) || hours < 5) {
+  if (laterDate <= earlierDate) {
     return 0;
   }
 
-  const completeTenHourBlocks =
-    Math.floor(hours / 10) * 10;
+  /*
+   * Convert each local calendar date into a UTC date value.
+   *
+   * This deliberately ignores the time-of-day and avoids
+   * daylight-saving or 23/25-hour-day calculation issues.
+   */
+  const earlierDateOnly = Date.UTC(
+    earlierDate.getFullYear(),
+    earlierDate.getMonth(),
+    earlierDate.getDate()
+  );
 
-  const remainingHours =
-    hours % 10;
+  const laterDateOnly = Date.UTC(
+    laterDate.getFullYear(),
+    laterDate.getMonth(),
+    laterDate.getDate()
+  );
 
-  const additionalFiveHours =
-    remainingHours >= 5 ? 5 : 0;
+  const millisecondsPerDay =
+    24 * 60 * 60 * 1000;
 
-  return (
-    completeTenHourBlocks +
-    additionalFiveHours
+  return Math.max(
+    0,
+    Math.round(
+      (
+        laterDateOnly -
+        earlierDateOnly
+      ) /
+      millisecondsPerDay
+    )
   );
 }
 
-/*
- * Add production hours continuously for Rush OT.
- *
- * Rush production includes:
- * - Normal working hours
- * - Overnight hours from 22:00 to 09:00
- * - Weekends
- * - Public holidays
- *
- * Buffer is not added.
- */
 function addContinuousHours(startDate, hours) {
   const totalHours = Number(hours);
 
@@ -1898,75 +2084,462 @@ function getRushOtComparisonTat(baseTat) {
 
   return comparisonTat;
 }
-
-/*
- * Return a readable OT charge breakdown.
- *
- * Examples:
- * 30 chargeable hours -> 3 OT days
- * 35 chargeable hours -> 3 OT days + 5 OT hours
- * 80 chargeable hours -> 8 OT days
- */
-function getOtChargeBreakdown(chargeableOtHours) {
-  const hours = Number(chargeableOtHours);
-
-  if (!Number.isFinite(hours) || hours <= 0) {
-    return "No OT charge";
-  }
-
-  const completeOtDays =
-    Math.floor(hours / 10);
-
-  const remainingOtHours =
-    hours % 10;
-
-  const breakdown = [];
-
-  if (completeOtDays > 0) {
-    breakdown.push(
-      completeOtDays +
-        (completeOtDays === 1
-          ? " OT day"
-          : " OT days")
-    );
-  }
-
-  if (remainingOtHours > 0) {
-    breakdown.push(
-      remainingOtHours +
-        " OT hours"
-    );
-  }
-
-  return breakdown.join(" + ");
-}
   
+function getHongKongYear() {
+  return Number(
+    new Intl.DateTimeFormat("en", {
+      timeZone: "Asia/Hong_Kong",
+      year: "numeric"
+    }).format(new Date())
+  );
+}
+
+const HOLIDAY_YEAR = getHongKongYear();
+
+const HOLIDAY_CACHE_KEY =
+  "tatSelectedHolidays_" + HOLIDAY_YEAR;
+
+function isCurrentYearHoliday(value) {
+  return (
+    typeof value === "string" &&
+    value.startsWith(HOLIDAY_YEAR + "-")
+  );
+}
+
 let selectedHolidays = [];
 
 try {
   const cachedHolidays = JSON.parse(
-    localStorage.getItem("tatSelectedHolidays") || "[]"
+    localStorage.getItem(HOLIDAY_CACHE_KEY) || "[]"
   );
 
   if (Array.isArray(cachedHolidays)) {
-    selectedHolidays = cachedHolidays
-      .map(function (item) {
-        return String(item).trim();
-      })
-      .filter(function (item) {
-        return /^\d{4}-\d{2}-\d{2}$/.test(item);
-      })
-      .filter(function (item, index, array) {
-        return array.indexOf(item) === index;
-      })
-      .sort();
+    selectedHolidays = [
+      ...new Set(
+        cachedHolidays
+          .map(function (item) {
+            return String(item).trim();
+          })
+          .filter(function (item) {
+            return (
+              /^\d{4}-\d{2}-\d{2}$/.test(item) &&
+              isCurrentYearHoliday(item)
+            );
+          })
+      )
+    ].sort();
   }
 } catch (error) {
-  console.warn("Unable to load cached holidays:", error);
+  console.warn(
+    "Unable to load cached holidays:",
+    error
+  );
+
   selectedHolidays = [];
 }
-  
+
+function parseDateTime(value) {
+  if (!value) {
+    return null;
+  }
+
+  const match = String(value)
+    .trim()
+    .match(
+      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})$/
+    );
+
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+
+  const date = new Date(
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    0,
+    0
+  );
+
+  /*
+   * Reject impossible dates such as:
+   * 2026-02-31
+   * 2026-13-01
+   * 2026-10-30 24:00
+   */
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month ||
+    date.getDate() !== day ||
+    date.getHours() !== hour ||
+    date.getMinutes() !== minute
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function calculateOtAssessment(
+  earlierDeadline,
+  laterComparison
+) {
+  const actualDifferenceHours = Math.max(
+    0,
+    (
+      laterComparison.getTime() -
+      earlierDeadline.getTime()
+    ) / MS_PER_HOUR
+  );
+
+  const calendarDays =
+    calculateCalendarDayDifference(
+      earlierDeadline,
+      laterComparison
+    );
+
+  const chargeableHours =
+    actualDifferenceHours >= 24
+      ? calendarDays * 10
+      : Math.floor(actualDifferenceHours / 5) * 5;
+
+  return {
+    calendarDays,
+    chargeableHours,
+    earlierDateText: toLocalDateString(
+      earlierDeadline
+    ),
+    laterDateText: toLocalDateString(
+      laterComparison
+    )
+  };
+}
+
+function getOtDisplayLines(prefix, assessment) {
+  return [
+    prefix +
+      " Calendar-Day Difference: " +
+      assessment.laterDateText +
+      " - " +
+      assessment.earlierDateText +
+      " = " +
+      assessment.calendarDays +
+      (
+        assessment.calendarDays === 1
+          ? " calendar day"
+          : " calendar days"
+      ),
+
+    prefix +
+      " Hours: " +
+      formatOtHoursForEmail(
+        assessment.chargeableHours
+      ) +
+      " hours"
+  ];
+}
+
+const PERSON_HOURS_PER_DAY = 9;
+
+function calculatePersonCapacity(
+  startDate,
+  deadline,
+  continuous,
+  bufferHours
+) {
+  if (deadline <= startDate) {
+    return 0;
+  }
+
+  const segments = [];
+
+  let day = setTime(startDate, 0, 0);
+
+  while (day < deadline) {
+    const nextDay = cloneDate(day);
+
+    nextDay.setDate(
+      nextDay.getDate() + 1
+    );
+
+    nextDay.setHours(0, 0, 0, 0);
+
+    if (continuous || isWorkingDay(day)) {
+      const windowStart = continuous
+        ? day
+        : setTime(day, WORK_START_HOUR, 0);
+
+      const windowEnd = continuous
+        ? nextDay
+        : setTime(day, WORK_END_HOUR, 0);
+
+      const segmentStart = Math.max(
+        startDate.getTime(),
+        windowStart.getTime()
+      );
+
+      const segmentEnd = Math.min(
+        deadline.getTime(),
+        windowEnd.getTime()
+      );
+
+      if (segmentEnd > segmentStart) {
+        segments.push(
+          (
+            segmentEnd - segmentStart
+          ) / MS_PER_HOUR
+        );
+      }
+    }
+
+    day = nextDay;
+  }
+
+  /*
+   * Reserve Buffer from the end of the available
+   * production timeline before applying the
+   * daily nine-hour capacity limit.
+   */
+  let bufferRemaining = bufferHours;
+
+  for (
+    let index = segments.length - 1;
+    index >= 0 && bufferRemaining > 0;
+    index -= 1
+  ) {
+    const reserved = Math.min(
+      segments[index],
+      bufferRemaining
+    );
+
+    segments[index] -= reserved;
+    bufferRemaining -= reserved;
+  }
+
+  return segments.reduce(
+    function (total, hours) {
+      return total + Math.min(
+        PERSON_HOURS_PER_DAY,
+        hours
+      );
+    },
+    0
+  );
+}
+
+function getManpowerRecommendation(
+  workloadHours,
+  startDate,
+  deadline,
+  assessmentMode,
+  bufferHours
+) {
+  const continuous =
+    assessmentMode === "rush";
+
+  const reservedBuffer =
+    assessmentMode === "normal"
+      ? bufferHours
+      : 0;
+
+  const capacityPerPerson =
+    calculatePersonCapacity(
+      startDate,
+      deadline,
+      continuous,
+      reservedBuffer
+    );
+
+  if (capacityPerPerson <= 0) {
+    return {
+      people: null,
+      capacityPerPerson: 0,
+      message:
+        "No production capacity is available before this TAT under the selected schedule."
+    };
+  }
+
+  const ratio =
+    workloadHours / capacityPerPerson;
+
+  const nearestInteger =
+    Math.round(ratio);
+
+  const adjustedRatio =
+    Math.abs(ratio - nearestInteger) < 1e-10
+      ? nearestInteger
+      : ratio;
+
+  const people = Math.max(
+    1,
+    Math.ceil(adjustedRatio)
+  );
+
+  return {
+    people,
+    capacityPerPerson,
+    message:
+      "Recommended Manpower: " +
+      people +
+      (
+        people === 1
+          ? " person"
+          : " persons"
+      ) +
+      " to meet this TAT, based on a maximum of " +
+      PERSON_HOURS_PER_DAY +
+      " hours per person per calendar day."
+  };
+}
+
     document.addEventListener("DOMContentLoaded", function () {
+const workTypeInput =
+  document.getElementById("workType");
+
+const taskTypeInput =
+  document.getElementById("taskType");
+
+const aaLevelSection =
+  document.getElementById("aaLevelSection");
+
+const aaLevelInput =
+  document.getElementById("aaLevel");
+const TASK_OPTIONS = {
+  Translation: [
+    {
+      value: "New Draft",
+      label: "New Draft"
+    },
+    {
+      value: "AA Markup",
+      label: "AA Markup"
+    },
+    {
+      value: "AI Review",
+      label: "AI Review"
+    },
+    {
+      value: "Dora Check",
+      label: "Dora Check"
+    }
+  ],
+
+  Checking: [
+    {
+  value: "Banker AI",
+  label: "Banker AI"
+    },
+    {
+  value: "Dora Check",
+  label: "Dora Check"
+    },
+    {
+      value: "SCTC Conversion",
+      label: "SCTC Conversion"
+    },
+    {
+      value: "AI Review",
+      label: "AI Review"
+    },
+    {
+      value: "Line by Line Review (Human)",
+      label: "Line by Line Review (Human)"
+    },
+    {
+      value: "Call Redaction",
+      label: "Call Redaction"
+    },
+    {
+      value: "Call Obvious",
+      label: "Call Obvious"
+    },
+    {
+      value: "Call Paragraph / Pagination",
+      label: "Call Paragraph / Pagination"
+    },
+    {
+      value: "Milestone / Bulk Print",
+      label: "Milestone / Bulk Print"
+    }
+  ]
+};
+function hideAaLevelSection() {
+  aaLevelSection.style.display = "none";
+  aaLevelInput.required = false;
+  aaLevelInput.value = "AA_L2";
+}
+
+function updateAaLevelVisibility() {
+  if (
+    workTypeInput.value === "Translation" &&
+    taskTypeInput.value === "AA Markup"
+  ) {
+    aaLevelSection.style.display = "block";
+    aaLevelInput.required = true;
+
+    if (!aaLevelInput.value) {
+      aaLevelInput.value = "AA_L2";
+    }
+  } else {
+    hideAaLevelSection();
+  }
+}
+
+function updateTaskTypeOptions() {
+  const workType = workTypeInput.value;
+
+  taskTypeInput.innerHTML = "";
+
+  const blankOption =
+    document.createElement("option");
+
+  blankOption.value = "";
+  blankOption.textContent = workType
+    ? "-- Select Task Type --"
+    : "-- Select Work Type First --";
+
+  taskTypeInput.appendChild(blankOption);
+
+  if (!workType || !TASK_OPTIONS[workType]) {
+    taskTypeInput.disabled = true;
+    hideAaLevelSection();
+    return;
+  }
+
+  TASK_OPTIONS[workType].forEach(function (task) {
+    const option =
+      document.createElement("option");
+
+    option.value = task.value;
+    option.textContent = task.label;
+
+    taskTypeInput.appendChild(option);
+  });
+
+  taskTypeInput.disabled = false;
+  hideAaLevelSection();
+}
+
+workTypeInput.addEventListener(
+  "change",
+  updateTaskTypeOptions
+);
+
+taskTypeInput.addEventListener(
+  "change",
+  updateAaLevelVisibility
+);
+
+updateTaskTypeOptions();
+hideAaLevelSection();
 const clearHolidaysBtn = document.getElementById("clearHolidaysBtn");
 const form = document.getElementById("tatForm");
 const resultCard = document.getElementById("resultCard");
@@ -1982,58 +2555,187 @@ const firebaseStatus = document.getElementById("firebaseStatus");
 const startTInput = document.getElementById("startT");
 const endTInput = document.getElementById("endT");
 const pagesInput = document.getElementById("pages");
+const tCalculatedPagesInput =
+  document.getElementById("tCalculatedPages");
+
 const clientTatSection = document.getElementById("clientTatSection");
 const clientRequestsTat = document.getElementById("clientRequestsTat");
 const clientRequestsRushOT = document.getElementById("clientRequestsRushOT");
 
-function updatePagesFromTRange() {
-  const startValue = startTInput.value.trim();
-  const endValue = endTInput.value.trim();
+function getTRangeState() {
+  const startText = startTInput.value.trim();
+  const endText = endTInput.value.trim();
 
-  if (!startValue) {
-    pagesInput.value = "";
-    endTInput.setCustomValidity("");
-    return;
+  if (!startText && !endText) {
+    return {
+      present: false,
+      valid: false,
+      error: ""
+    };
   }
 
-  const startT = Number(startValue);
-
-  if (!Number.isInteger(startT) || startT < 1) {
-    pagesInput.value = "";
-    endTInput.setCustomValidity("");
-    return;
+  if (!startText) {
+    return {
+      present: true,
+      valid: false,
+      error: "Please enter Start T Number when End T Number is entered."
+    };
   }
 
-  if (!endValue) {
-    pagesInput.value = 1;
-    endTInput.setCustomValidity("");
-    return;
+  const startT = Number(startText);
+  const endT = endText ? Number(endText) : startT;
+
+  if (!Number.isSafeInteger(startT) || startT < 1) {
+    return {
+      present: true,
+      valid: false,
+      error: "Start T Number must be a positive whole number."
+    };
   }
 
-  const endT = Number(endValue);
-
-  if (!Number.isInteger(endT) || endT < 1) {
-    pagesInput.value = "";
-    endTInput.setCustomValidity(
-      "End T Number must be a positive whole number."
-    );
-    return;
+  if (!Number.isSafeInteger(endT) || endT < 1) {
+    return {
+      present: true,
+      valid: false,
+      error: "End T Number must be a positive whole number."
+    };
   }
 
   if (endT < startT) {
-    pagesInput.value = "";
-    endTInput.setCustomValidity(
-      "End T Number cannot be smaller than Start T Number."
-    );
+    return {
+      present: true,
+      valid: false,
+      error: "End T Number cannot be smaller than Start T Number."
+    };
+  }
+
+  return {
+    present: true,
+    valid: true,
+    startT,
+    endT,
+    pages: endT - startT + 1,
+    error: ""
+  };
+}
+
+function hasManualPageInput() {
+  return (
+    pagesInput.value.trim() !== "" ||
+    pagesInput.validity.badInput
+  );
+}
+
+function updatePagesFromTRange() {
+  const manualEntered = hasManualPageInput();
+
+  const tEntered =
+    startTInput.value.trim() !== "" ||
+    endTInput.value.trim() !== "" ||
+    startTInput.validity.badInput ||
+    endTInput.validity.badInput;
+
+  startTInput.setCustomValidity("");
+  endTInput.setCustomValidity("");
+
+  if (manualEntered && tEntered) {
+    startTInput.disabled = false;
+    endTInput.disabled = false;
+    pagesInput.disabled = false;
+    tCalculatedPagesInput.value = "";
     return;
   }
 
-  endTInput.setCustomValidity("");
-  pagesInput.value = endT - startT + 1;
+  startTInput.disabled = manualEntered;
+  endTInput.disabled = manualEntered;
+  pagesInput.disabled = tEntered;
+
+  if (manualEntered) {
+    tCalculatedPagesInput.value = "";
+    return;
+  }
+
+  const range = getTRangeState();
+
+  tCalculatedPagesInput.value =
+    range.valid ? String(range.pages) : "";
+
+  if (range.present && !range.valid) {
+    endTInput.setCustomValidity(range.error);
+  }
 }
 
-startTInput.addEventListener("input", updatePagesFromTRange);
-endTInput.addEventListener("input", updatePagesFromTRange);
+function resolvePageSelection() {
+  const tEntered =
+    startTInput.value.trim() !== "" ||
+    endTInput.value.trim() !== "" ||
+    startTInput.validity.badInput ||
+    endTInput.validity.badInput;
+
+  if (hasManualPageInput() && tEntered) {
+    throw new Error(
+      "Please enter either T Numbers or Manual Pages, not both. Clear one group before calculating."
+    );
+  }
+  if (hasManualPageInput()) {
+    const manualPages = Number(
+      pagesInput.value.trim()
+    );
+
+    if (
+      pagesInput.validity.badInput ||
+      !Number.isFinite(manualPages) ||
+      manualPages <= 0
+    ) {
+      throw new Error(
+        "Manual Pages must be a valid number greater than 0."
+      );
+    }
+
+    return {
+      source: "manual",
+      pages: manualPages,
+      hasTRange: false,
+      startT: null,
+      endT: null
+    };
+  }
+
+  const range = getTRangeState();
+
+  if (range.present && !range.valid) {
+    throw new Error(range.error);
+  }
+
+  if (!range.valid) {
+    throw new Error(
+      "Please enter a valid T-number range or Manual Pages."
+    );
+  }
+
+  return {
+    source: "t",
+    pages: range.pages,
+    hasTRange: true,
+    startT: range.startT,
+    endT: range.endT
+  };
+}
+
+startTInput.addEventListener(
+  "input",
+  updatePagesFromTRange
+);
+
+endTInput.addEventListener(
+  "input",
+  updatePagesFromTRange
+);
+
+pagesInput.addEventListener(
+  "input",
+  updatePagesFromTRange
+);
 
 updatePagesFromTRange();
 
@@ -2092,6 +2794,10 @@ const holidayPicker = flatpickr(
     mode: "multiple",
     enableTime: false,
     dateFormat: "Y-m-d",
+
+minDate: HOLIDAY_YEAR + "-01-01",
+maxDate: HOLIDAY_YEAR + "-12-31",
+    
     conjunction: ", ",
     allowInput: false,
     defaultDate: selectedHolidays,
@@ -2206,12 +2912,11 @@ copyEmailBtn.addEventListener(
     copyEmailBtn.disabled = true;
 
     try {
-      await copyTextToClipboard(emailText);
+await copyTextToClipboard(emailText);
 
-      copyEmailBtn.innerHTML =
-        '<i class="bi bi-copy me-1"></i>' +
-        "Copy Email Draft";
-
+copyEmailBtn.innerHTML =
+      '<i class="bi bi-check-lg me-1"></i>' +
+      "Copied!";
       window.setTimeout(function () {
         copyEmailBtn.innerHTML =
           originalButtonContent;
@@ -2282,7 +2987,7 @@ if (!selectedHolidays.length) {
 function saveHolidaysToLocalStorage() {
   try {
     localStorage.setItem(
-      "tatSelectedHolidays",
+      HOLIDAY_CACHE_KEY,
       JSON.stringify(selectedHolidays)
     );
   } catch (error) {
@@ -2383,8 +3088,42 @@ async function loadHolidaysOnline() {
       return;
     }
 
-    const data = snapshot.val();
-    const onlineDates = [];
+const data = snapshot.val();
+
+const savedYear =
+  data !== null &&
+  typeof data === "object" &&
+  !Array.isArray(data) &&
+  Object.hasOwn(data, "year")
+    ? Number(data.year)
+    : null;
+
+if (
+  savedYear !== null &&
+  savedYear !== HOLIDAY_YEAR
+) {
+  holidayPicker.setDate(
+    selectedHolidays,
+    false
+  );
+
+  renderHolidayTags();
+
+  showFirebaseStatus(
+    selectedHolidays.length > 0
+      ? "Local holiday draft for " +
+          HOLIDAY_YEAR +
+          " has been restored. Click Save Online to save it for future use."
+      : "Please enter the public holidays for " +
+          HOLIDAY_YEAR +
+          " and click Save Online.",
+    "warning"
+  );
+
+  return;
+}
+
+const onlineDates = [];
 
     if (Array.isArray(data)) {
       onlineDates.push(...data);
@@ -2427,30 +3166,47 @@ async function loadHolidaysOnline() {
       });
     }
 
-    const validOnlineDates = [
-      ...new Set(
-        onlineDates
-          .map(function (item) {
-            return String(item).trim();
-          })
-          .filter(isValidHolidayDate)
-      )
-    ].sort();
+const validOnlineDates = [
+  ...new Set(
+    onlineDates
+      .map(function (item) {
+        return String(item).trim();
+      })
+      .filter(isValidHolidayDate)
+      .filter(isCurrentYearHoliday)
+  )
+].sort();
 
-    if (!validOnlineDates.length) {
-      holidayPicker.setDate(
-        selectedHolidays,
-        false
-      );
+const hasSavedHolidayStructure =
+  Array.isArray(data) ||
+  (
+    data !== null &&
+    typeof data === "object" &&
+    (
+      Object.hasOwn(data, "dates") ||
+      Object.hasOwn(data, "holidays") ||
+      Object.hasOwn(data, "updatedAt")
+    )
+  );
 
-      renderHolidayTags();
+if (
+  !validOnlineDates.length &&
+  !hasSavedHolidayStructure
+) {
+  holidayPicker.setDate(
+    selectedHolidays,
+    false
+  );
 
-      showFirebaseStatus(
-        "Online data was found, but it contains no valid holiday dates. Local cached holidays are being used.",
-        "warning"
-      );
-      return;
-    }
+  renderHolidayTags();
+
+  showFirebaseStatus(
+    "Online data has no recognized holiday structure. Local cached holidays are being used.",
+    "warning"
+  );
+
+  return;
+}
 
     selectedHolidays = validOnlineDates;
 
@@ -2505,33 +3261,41 @@ async function saveHolidaysOnline() {
   );
 
   try {
-    selectedHolidays = [
-      ...new Set(
-        selectedHolidays.filter(
-          isValidHolidayDate
-        )
-      )
-    ].sort();
+if (getHongKongYear() !== HOLIDAY_YEAR) {
+  throw new Error(
+    "The holiday year has changed. Please reload the page before saving."
+  );
+}
+
+if (
+  selectedHolidays.some(function (date) {
+    return (
+      !isValidHolidayDate(date) ||
+      !isCurrentYearHoliday(date)
+    );
+  })
+) {
+  throw new Error(
+    "Please select valid holiday dates within " +
+      HOLIDAY_YEAR +
+      " only."
+  );
+}
+
+selectedHolidays = [
+  ...new Set(selectedHolidays)
+].sort();
 
     /*
      * Save without deleting other values that may exist
      * under settings/publicHolidays.
      */
-    await realtimeDatabase
+await realtimeDatabase
   .ref(HOLIDAY_DATABASE_PATH)
   .update({
-    /*
-     * Current format.
-     */
+    year: HOLIDAY_YEAR,
     dates: selectedHolidays,
-
-    /*
-     * Previous-format compatibility.
-     * This can be removed in the future after all
-     * application versions have migrated to dates.
-     */
     holidays: selectedHolidays,
-
     updatedAt:
       firebase.database.ServerValue.TIMESTAMP
   });
@@ -2621,9 +3385,32 @@ function hideClientTatSection(clearValue = true) {
   clientTatSection.style.display = "none";
 
   if (clearValue) {
-    clientTatPicker.clear();
+  clientTatPicker.set("minDate", null); 
+  clientTatPicker.clear();
   }
 }
+
+function syncClientTatMinimum() {
+  const availableDate = parseDateTime(
+    document.getElementById("availableStartTime").value
+  );
+
+  clientTatPicker.set(
+    "minDate",
+    availableDate || null
+  );
+}
+
+availablePicker.config.onChange.push(
+  syncClientTatMinimum
+);
+
+document
+  .getElementById("availableStartTime")
+  .addEventListener(
+    "change",
+    syncClientTatMinimum
+  );
 
 function showClientTatSection() {
   /*
@@ -2705,13 +3492,18 @@ resetFormBtn.addEventListener(
     /*
      * Reset regular form controls to their HTML defaults.
      *
-     * Manpower returns to 1.
      * Buffer returns to 3.
      * Select fields return to their blank options.
      * Both client request checkboxes become unchecked.
      */
     form.reset();
+updateTaskTypeOptions();
+hideAaLevelSection();
 
+document.getElementById(
+  "manpowerResult"
+).textContent = "";
+    
     /*
      * Flatpickr maintains its own internal date state,
      * so the date fields must also be cleared through
@@ -2818,9 +3610,9 @@ copyEmailBtn.innerHTML =
     /*
      * Move keyboard focus to the first field.
      */
-    document.getElementById(
-      "jobName"
-    ).focus();
+document.getElementById(
+  "receivedDateTime"
+).focus();
   }
 );
       
@@ -2830,883 +3622,673 @@ form.addEventListener("submit", function (event) {
 
   resultCard.style.display = "none";
 
+try {
+  if (getHongKongYear() !== HOLIDAY_YEAR) {
+    throw new Error(
+      "The holiday year has changed. Please reload the page and confirm the new year's public holidays before calculating."
+    );
+  }
+
   updatePagesFromTRange();
-
-  try {
-    const jobName = document
-      .getElementById("jobName")
-      .value
-      .trim();
-
-    const jobId = document
-      .getElementById("jobId")
-      .value
-      .trim();
 
     const receivedValue = document
       .getElementById("receivedDateTime")
-      .value;
+      .value
+      .trim();
 
     const availableStartValue = document
       .getElementById("availableStartTime")
-      .value;
+      .value
+      .trim();
 
     const jobType = document
       .getElementById("jobType")
-      .value;
-
-    const taskType = document
-      .getElementById("taskType")
       .value;
 
     const language = document
       .getElementById("language")
       .value;
 
-    const startT = Number(
-      document.getElementById("startT").value
-    );
+    const workType = workTypeInput.value;
+    const taskType = taskTypeInput.value;
+    const aaLevel = aaLevelInput.value;
 
-    const endTValue = document
-      .getElementById("endT")
+    const bufferText = document
+      .getElementById("bufferHours")
       .value
       .trim();
 
-    const endT = endTValue
-      ? Number(endTValue)
-      : startT;
-
-    const pages = Number(
-      document.getElementById("pages").value
-    );
-
-    const manpower = Number(
-      document.getElementById("manpower").value
-    );
-
-    const bufferHours = Number(
-      document.getElementById("bufferHours").value
-    );
-
-    const fileFormat = document
-      .getElementById("fileFormat")
-      .value;
+    const bufferHours = Number(bufferText);
 
     const clientTatValue = document
       .getElementById("clientTat")
-      .value;
+      .value
+      .trim();
 
-/*
- * Validate fields in the same order in which
- * they appear on the form.
- */
-if (!jobName) {
-  throw new Error(
-    "Please provide the Job Name."
-  );
-}
+    const jobLabels = {
+      AM_CR: "AM / CR",
+      AR_IR_QR_ER: "AR / IR / QR / ER",
+      IP_LS: "IP / LS"
+    };
 
-if (!jobId) {
-  throw new Error(
-    "Please provide the Job ID."
-  );
-}
+    const languageLabels = {
+      E2C: "E to C",
+      C2E: "C to E",
+      Bilingual: "Bilingual"
+    };
 
-if (!receivedValue) {
-  throw new Error(
-    "Please provide the Received Date & Time."
-  );
-}
+    const aaLevelLabels = {
+      AA_L1: "AA Markup Lvl 1 (Easy)",
+      AA_L2: "AA Markup Lvl 2 (Hard)",
+      AA_L3: "AA Markup Lvl 3 (Extreme)"
+    };
 
-if (
-  !Number.isFinite(manpower) ||
-  manpower < 0.5 ||
-  manpower % 0.5 !== 0
-) {
-  throw new Error(
-    "Manpower must be at least 0.5 and entered in increments of 0.5."
-  );
-}
+    /*
+     * Validate the remaining input fields.
+     */
+    if (!receivedValue) {
+      throw new Error(
+        "Please provide the Received Date & Time."
+      );
+    }
 
-if (!availableStartValue) {
-  throw new Error(
-    "Please provide the Available Start Time."
-  );
-}
+    if (!availableStartValue) {
+      throw new Error(
+        "Please provide the Available Start Time."
+      );
+    }
 
-if (!jobType) {
-  throw new Error(
-    "Please select the Job Type."
-  );
-}
+    if (!Object.hasOwn(jobLabels, jobType)) {
+      throw new Error(
+        "Please select the Job Type."
+      );
+    }
 
-if (!taskType) {
-  throw new Error(
-    "Please select the Task Type."
-  );
-}
+    if (!Object.hasOwn(languageLabels, language)) {
+      throw new Error(
+        "Please select the Language."
+      );
+    }
 
-if (!language) {
-  throw new Error(
-    "Please select the Language."
-  );
-}
+    if (
+      workType !== "Translation" &&
+      workType !== "Checking"
+    ) {
+      throw new Error(
+        "Please select Translation or Checking."
+      );
+    }
 
-if (!Number.isInteger(startT) || startT < 1) {
-  throw new Error(
-    "Start T Number must be a positive whole number."
-  );
-}
+    const taskIsValid = TASK_OPTIONS[
+      workType
+    ].some(function (task) {
+      return task.value === taskType;
+    });
 
-if (!Number.isInteger(endT) || endT < 1) {
-  throw new Error(
-    "End T Number must be a positive whole number."
-  );
-}
+    if (!taskIsValid) {
+      throw new Error(
+        "Please select a valid Task Type."
+      );
+    }
 
-if (endT < startT) {
-  throw new Error(
-    "End T Number cannot be smaller than Start T Number."
-  );
-}
+    if (
+      taskType === "AA Markup" &&
+      !Object.hasOwn(aaLevelLabels, aaLevel)
+    ) {
+      throw new Error(
+        "Please select the AA Markup Level."
+      );
+    }
 
-if (!Number.isFinite(pages) || pages <= 0) {
-  throw new Error(
-    "Please provide valid Pages."
-  );
-}
+    const pageSelection = resolvePageSelection();
+    const pages = pageSelection.pages;
 
-if (
-  !Number.isFinite(bufferHours) ||
-  bufferHours < 0 ||
-  bufferHours % 0.5 !== 0
-) {
-  throw new Error(
-    "Buffer must be 0 or a multiple of 0.5 hours."
-  );
-}
+    if (
+      bufferText === "" ||
+      !Number.isFinite(bufferHours) ||
+      bufferHours < 0 ||
+      !Number.isInteger(bufferHours * 2)
+    ) {
+      throw new Error(
+        "Buffer must be 0 or a multiple of 0.5 hours."
+      );
+    }
 
-if (!fileFormat) {
-  throw new Error(
-    "Please select the File Format."
-  );
-}
+    if (
+      clientRequestsTat.checked &&
+      clientRequestsRushOT.checked
+    ) {
+      throw new Error(
+        "Please select only one client request option."
+      );
+    }
 
-if (
-  clientRequestsTat.checked &&
-  clientRequestsRushOT.checked
-) {
-  throw new Error(
-    "Please select only one client request option."
-  );
-}
-    
-if (
-  clientRequestsTat.checked &&
-  !clientTatValue
-) {
-  throw new Error(
-    "Please provide the Client Requested TAT."
-  );
-}
+    if (
+      clientRequestsTat.checked &&
+      !clientTatValue
+    ) {
+      throw new Error(
+        "Please provide the Client Requested TAT."
+      );
+    }
 
-/*
- * Parse and validate the date values only after
- * confirming that the required fields are present.
- */
-const receivedDateTime =
-  parseDateTime(receivedValue);
+    /*
+     * Parse dates.
+     */
+    const receivedDateTime =
+      parseDateTime(receivedValue);
 
-const availableStartTime =
-  parseDateTime(availableStartValue);
+    const availableStartTime =
+      parseDateTime(availableStartValue);
 
-const clientTat = clientTatValue
-  ? parseDateTime(clientTatValue)
-  : null;
+    const clientTat = clientRequestsTat.checked
+      ? parseDateTime(clientTatValue)
+      : null;
 
-if (!receivedDateTime) {
-  throw new Error(
-    "Received Date & Time is invalid."
-  );
-}
+    if (!receivedDateTime) {
+      throw new Error(
+        "Received Date & Time is invalid."
+      );
+    }
 
-if (!availableStartTime) {
-  throw new Error(
-    "Available Start Time is invalid."
-  );
-}
+    if (!availableStartTime) {
+      throw new Error(
+        "Available Start Time is invalid."
+      );
+    }
 
-if (clientTatValue && !clientTat) {
-  throw new Error(
-    "Client Requested TAT is invalid."
-  );
-}
+    if (availableStartTime < receivedDateTime) {
+      throw new Error(
+        "Available Start Time cannot be earlier than Received Date & Time."
+      );
+    }
 
-if (availableStartTime < receivedDateTime) {
-  throw new Error(
-    "Available Start Time cannot be earlier than Received Date & Time."
-  );
-}
+    if (
+      clientRequestsTat.checked &&
+      (!clientTat || clientTat <= availableStartTime)
+    ) {
+      throw new Error(
+        "Client Requested TAT must be valid and later than the Available Start Time."
+      );
+    }
 
-if (
-  clientRequestsTat.checked &&
-  (!clientTat || clientTat <= availableStartTime)
-) {
-  throw new Error(
-    "Client Requested TAT must be later than the Available Start Time."
-  );
-}
-
-   const skippedDates = new Set();
-
-/*
- * Normal TAT starts from the selected Available Start Time.
- * If it falls outside normal working hours, it is moved to the next
- * valid normal working time.
- */
-const adjustedStart = normalizeStartTime(
-  availableStartTime,
-  skippedDates
-);
-
-/*
- * Record weekends/public holidays between the received date and the
- * adjusted start for display purposes only.
- */
-recordNonWorkingDatesBetween(
-  receivedDateTime,
-  adjustedStart,
-  skippedDates
-);
-
-const originalRequiredHours = calculateRequiredHours(
-  taskType,
-  language,
-  pages
-);
-
-const requiredHours = originalRequiredHours / manpower;
-
-/*
- * Base TAT:
- * Accumulate the required workload only during normal working time.
- */
-const baseTat = addNormalWorkingHours(
-  adjustedStart,
-  requiredHours,
-  skippedDates
-);
-
-/*
- * Buffer:
- * In Normal TAT mode, the buffer also follows normal working hours.
- */
-const standardTatWithBuffer = addNormalWorkingHours(
-  baseTat,
-  bufferHours,
-  skippedDates
-);
-
-let finalTat = standardTatWithBuffer;
-let assessmentMode = "normal";
-let finalChargeableOtHours = 0;
-const steps = [];
-
-          steps.push("Job Type: " + (jobType === "Compliance" ? "Compliance Jobs" : "IPO Jobs (including side jobs)"));
-          steps.push("Task Type: " + taskType);
-          steps.push("Language: " + (language === "E2C" ? "E to C" : "C to E"));
-          steps.push("Pages: " + pages);
-          steps.push("Processing Rate: " + getProcessingRateText(taskType, language));
-          steps.push("Original Workload for 1 Person: " + formatNumber(originalRequiredHours, 2) + " hours");
-          steps.push("Manpower: " + manpower + (manpower === 1 ? " person" : " persons"));
-steps.push(
-  "Adjusted Required Working Hours: " +
-    formatNumber(originalRequiredHours, 2) +
-    " ÷ " +
-    manpower +
-    " = " +
-    formatNumber(requiredHours, 2) +
-    " hours"
-);
-          steps.push("Working Hours per Day: " + (WORK_END_HOUR - WORK_START_HOUR) + " hours (09:00-22:00)");
-          steps.push("Received Date & Time: " + formatFullDateTime(receivedDateTime));
-          steps.push("Selected Available Start Time: " + formatFullDateTime(availableStartTime));
-          steps.push("Adjusted Working Start: " + formatFullDateTime(adjustedStart));
-          steps.push("");
-          steps.push("Skipped Non-working Dates:");
-          steps.push(skippedDates.size ? Array.from(skippedDates).sort().map((item) => "- " + item).join("\n") : "- No weekend or public holiday was crossed during this calculation.");
-          steps.push("");
-          steps.push(
-  "Base TAT (before Buffer): " +
-    formatFullDateTime(baseTat)
-);
-
-if (clientRequestsRushOT.checked) {
-  steps.push(
-    "Normal Base TAT Reference without Buffer: " +
-      formatFullDateTime(baseTat)
-  );
-
-  steps.push(
-    "Rush OT Buffer: 0 hours"
-  );
-} else {
-  steps.push(
-    "Buffer Added: " +
-      formatNumber(bufferHours, 2) +
-      " hours"
-  );
-
-  steps.push(
-    "Standard Expected TAT (with buffer): " +
-      formatFullDateTime(standardTatWithBuffer)
-  );
-}
-    
-if (clientRequestsTat.checked) {
-  /*
-   * Client Requested Specific TAT
-   *
-   * OT comparison:
-   * Base TAT without Buffer
-   * minus Client Requested TAT.
-   */
-  assessmentMode = "client-requested";
-
-  /*
-   * The reported deadline is the exact TAT
-   * requested by the client.
-   */
-  finalTat = cloneDate(clientTat);
-
-  steps.push(
-    "Assessment Mode: Client Requested TAT"
-  );
-
-  steps.push(
-    "Client Requested TAT: " +
-      formatFullDateTime(clientTat)
-  );
-
-  steps.push(
-    "OT Comparison TAT without Buffer: " +
-      formatFullDateTime(baseTat)
-  );
-
-if (clientTat < baseTat) {
-  const timeDifferenceMilliseconds =
-    baseTat.getTime() -
-    clientTat.getTime();
-
-  const timeDifferenceHours =
-    timeDifferenceMilliseconds /
-    MS_PER_HOUR;
-
-  const chargeableOtHours =
-    calculateChargeableOtHours(
-      timeDifferenceHours
+    /*
+     * Select the exact pages-per-hour standard.
+     */
+    const pagesPerHour = getProcessingRate(
+      jobType,
+      language,
+      workType,
+      taskType,
+      aaLevel
     );
 
-  finalChargeableOtHours =
-    chargeableOtHours;
+    const originalRequiredHours =
+      calculateRequiredHours(
+        pages,
+        pagesPerHour
+      );
 
-  steps.push(
-    "OT Assessment: The Client Requested TAT is earlier than the Base TAT without Buffer."
-  );
+    if (!Number.isFinite(originalRequiredHours)) {
+      throw new Error(
+        "The calculated workload is too large."
+      );
+    }
 
-  steps.push(
-    "OT Calculation Guideline: Base TAT without Buffer - Client Requested TAT = Time Difference."
-  );
+    /*
+     * Manpower input has been removed.
+     *
+     * Keep the original TAT calculation as a
+     * one-person reference.
+     *
+     * Staffing is recommended separately.
+     */
+    const requiredHours = originalRequiredHours;
 
-  steps.push(
-    "OT Time Difference: " +
-      formatFullDateTime(baseTat) +
-      " - " +
-      formatFullDateTime(clientTat) +
-      " = " +
-      formatNumber(
-        timeDifferenceHours,
-        2
-      ) +
-      " hours"
-  );
+    const skippedDates = new Set();
 
-  steps.push(
-    "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
-  );
-
-  steps.push(
-    "Chargeable OT Hours: " +
-      formatOtHoursForEmail(
-        chargeableOtHours
-      ) +
-      " hours"
-  );
-
-  steps.push(
-    "OT Charge Breakdown: " +
-      getOtChargeBreakdown(
-        chargeableOtHours
-      )
-  );
-
-  if (chargeableOtHours > 0) {
-    steps.push(
-      "OT Charge Result: Charge " +
-        formatOtHoursForEmail(
-          chargeableOtHours
-        ) +
-        " OT hours."
-    );
-  } else {
-    steps.push(
-      "OT Charge Result: No OT charge because the time difference is less than 5 hours."
-    );
-  }
-} else {
-  steps.push(
-    "OT Assessment: No OT is required because the Client Requested TAT is not earlier than the Base TAT without Buffer."
-  );
-
-  steps.push(
-    "OT Time Difference: 0 hours"
-  );
-
-  steps.push(
-    "Chargeable OT Hours: 0 hours"
-  );
-
-  steps.push(
-    "OT Charge Result: No OT charge."
-  );
-}
-} else if (clientRequestsRushOT.checked) {
-  /*
-   * Rush OT
-   *
-   * Rush production:
-   * - Starts from Available Start Time
-   * - Uses continuous calendar hours
-   * - Includes 22:00-09:00
-   * - Includes weekends
-   * - Includes public holidays
-   * - Does not include Buffer
-   */
-  assessmentMode = "rush";
-
-  const rushStart =
-    cloneDate(availableStartTime);
-
-  const rushCompletion =
-    addContinuousHours(
-      rushStart,
-      requiredHours
+    const adjustedStart = normalizeStartTime(
+      availableStartTime,
+      skippedDates
     );
 
-  /*
-   * Calculate the normal comparison TAT without Buffer.
-   * The Rush comparison adjustment is handled by
-   * getRushOtComparisonTat().
-   */
-  const rushOtComparisonTat =
-    getRushOtComparisonTat(baseTat);
-
-  const rushTimeDifferenceMilliseconds =
-    Math.max(
-      0,
-      rushOtComparisonTat.getTime() -
-        rushCompletion.getTime()
+    recordNonWorkingDatesBetween(
+      receivedDateTime,
+      adjustedStart,
+      skippedDates
     );
 
-  const rushTimeDifferenceHours =
-    rushTimeDifferenceMilliseconds /
-    MS_PER_HOUR;
+    const baseTat = addNormalWorkingHours(
+      adjustedStart,
+      requiredHours,
+      skippedDates
+    );
 
-const chargeableRushOtHours =
-  calculateChargeableOtHours(
-    rushTimeDifferenceHours
-  );
+    const standardTatWithBuffer =
+      addNormalWorkingHours(
+        baseTat,
+        bufferHours,
+        skippedDates
+      );
 
-finalChargeableOtHours =
-  chargeableRushOtHours;
+    let assessmentMode = "normal";
+    let finalTat = standardTatWithBuffer;
+    let otAssessment = null;
+    let otPrefix = "";
 
-  /*
-   * In Rush mode, the delivery time shown to the user
-   * is the continuous Rush completion time.
-   */
-  finalTat = rushCompletion;
+    /*
+     * Client Requested TAT:
+     * Compare against normal Base TAT without Buffer.
+     */
+    if (clientRequestsTat.checked) {
+      assessmentMode = "client-requested";
+      finalTat = cloneDate(clientTat);
+      otPrefix = "Client OT";
 
-  steps.push(
-    "Assessment Mode: Rush OT"
-  );
+      otAssessment = calculateOtAssessment(
+        clientTat,
+        baseTat
+      );
+    } else if (clientRequestsRushOT.checked) {
+      /*
+       * Rush:
+       * Continuous production without Buffer.
+       *
+       * Preserve the original evening comparison rule.
+       */
+      assessmentMode = "rush";
 
-  steps.push(
-    "Rush Start: " +
-      formatFullDateTime(rushStart)
-  );
+      finalTat = addContinuousHours(
+        availableStartTime,
+        requiredHours
+      );
 
-  steps.push(
-    "Rush Required Production Hours: " +
-      formatNumber(requiredHours, 2) +
-      " hours"
-  );
+      const rushOtComparisonTat =
+        getRushOtComparisonTat(baseTat);
 
-  steps.push(
-  "Rush Production Rule: Production runs continuously from the Available Start Time. Overnight hours from 22:00 to 09:00, weekends and public holidays are included."
-);
+      otPrefix = "Rush OT";
 
-  steps.push(
-    "Rush Buffer Added: 0 hours"
-  );
-
-  steps.push(
-    "Rush Completion: " +
-      formatFullDateTime(rushCompletion)
-  );
-
-  steps.push(
-    "Rush OT Comparison TAT without Buffer: " +
-      formatFullDateTime(
+      otAssessment = calculateOtAssessment(
+        finalTat,
         rushOtComparisonTat
-      )
-  );
+      );
+    }
 
-  if (rushCompletion < rushOtComparisonTat) {
+    /*
+     * Build calculation steps.
+     */
+    const steps = [];
+
     steps.push(
-      "Rush OT Assessment: The Rush Completion is earlier than the Rush OT Comparison TAT without Buffer."
+      "Job Type: " + jobLabels[jobType]
     );
 
     steps.push(
-      "Rush OT Calculation Guideline: Rush OT Comparison TAT without Buffer - Rush Completion = Time Difference."
+      "Job Category: " +
+        (
+          jobType === "IP_LS"
+            ? "IPO (including side jobs)"
+            : "Compliance"
+        )
     );
 
     steps.push(
-      "Rush OT Time Difference: " +
-        formatFullDateTime(
-          rushOtComparisonTat
-        ) +
-        " - " +
-        formatFullDateTime(
-          rushCompletion
-        ) +
-        " = " +
-        formatNumber(
-          rushTimeDifferenceHours,
-          2
-        ) +
+      "Language: " + languageLabels[language]
+    );
+
+    steps.push(
+      "Work Type: " + workType
+    );
+
+    steps.push(
+      "Task Type: " + taskType
+    );
+
+    if (taskType === "AA Markup") {
+      steps.push(
+        "AA Markup Level: " +
+          aaLevelLabels[aaLevel]
+      );
+    }
+
+    steps.push(
+      "Page Source: " +
+        (
+          pageSelection.source === "t"
+            ? "T Number"
+            : "Manual Pages"
+        )
+    );
+
+    if (pageSelection.hasTRange) {
+      const rangeText =
+        pageSelection.startT === pageSelection.endT
+          ? "T" + pageSelection.startT
+          : "T" +
+            pageSelection.startT +
+            "-T" +
+            pageSelection.endT;
+
+      steps.push(
+        "T-number Scope: " + rangeText
+      );
+    }
+
+    steps.push(
+      "Pages Used for Calculation: " +
+        String(pages)
+    );
+
+    steps.push(
+      "Processing Rate: " +
+        getProcessingRateText(
+          taskType,
+          pagesPerHour,
+          aaLevel
+        )
+    );
+
+    steps.push(
+      "Original Workload for 1 Person: " +
+        formatNumber(originalRequiredHours, 2) +
         " hours"
     );
 
     steps.push(
-      "OT Charging Rule: 1 Day = 10 OT hours; each complete additional 5-hour block = 5 OT hours; less than 5 hours = no OT charge."
+      "Workload Calculation: " +
+        String(pages) +
+        " pages ÷ " +
+        String(pagesPerHour) +
+        " pages/hour = " +
+        formatNumber(originalRequiredHours, 2) +
+        " hours"
     );
 
-   steps.push(
-  "Chargeable Rush OT Hours: " +
-    formatOtHoursForEmail(
-      chargeableRushOtHours
+    steps.push(
+      "Normal TAT Working Window: 09:00-22:00, excluding weekends and selected public holidays."
+    );
+
+    steps.push(
+      "Received Date & Time: " +
+        formatFullDateTime(receivedDateTime)
+    );
+
+    steps.push(
+      "Selected Available Start Time: " +
+        formatFullDateTime(availableStartTime)
+    );
+
+    steps.push(
+      "Adjusted Normal Working Start: " +
+        formatFullDateTime(adjustedStart)
+    );
+
+    steps.push(
+      "Normal Base TAT without Buffer: " +
+        formatFullDateTime(baseTat)
+    );
+
+    if (assessmentMode === "normal") {
+      steps.push(
+        "Assessment Mode: Normal TAT"
+      );
+
+      steps.push(
+        "Buffer Added: " +
+          formatNumber(bufferHours, 2) +
+          " hours"
+      );
+
+      steps.push(
+        "Standard Expected TAT: " +
+          formatFullDateTime(finalTat)
+      );
+    } else if (assessmentMode === "client-requested") {
+      steps.push(
+        "Assessment Mode: Client Requested TAT"
+      );
+
+      steps.push(
+        "Client Requested TAT: " +
+          formatFullDateTime(finalTat)
+      );
+
+      steps.push(
+        "OT Comparison: Normal Base TAT without Buffer."
+      );
+    } else {
+      steps.push(
+        "Assessment Mode: Rush OT"
+      );
+
+      steps.push(
+        "Rush Start: " +
+          formatFullDateTime(availableStartTime)
+      );
+
+      steps.push(
+        "Rush Production: Continuous hours, including overnight hours, weekends and public holidays."
+      );
+
+      steps.push(
+        "Rush Buffer Added: 0 hours"
+      );
+
+      steps.push(
+        "Rush Completion: " +
+          formatFullDateTime(finalTat)
+      );
+    }
+
+    steps.push("");
+    steps.push(
+      "Skipped Dates in the Normal TAT Reference:"
+    );
+
+    steps.push(
+      skippedDates.size
+        ? Array.from(skippedDates)
+            .sort()
+            .map(function (item) {
+              return "- " + item;
+            })
+            .join("\n")
+        : "- None."
+    );
+
+    /*
+     * Staffing recommendation.
+     *
+     * The recommendation does not change the TAT
+     * reference or recalculate OT automatically.
+     */
+    const manpowerRecommendation =
+      getManpowerRecommendation(
+        originalRequiredHours,
+        availableStartTime,
+        finalTat,
+        assessmentMode,
+        bufferHours
+      );
+
+const manpowerLines = [
+  manpowerRecommendation.message,
+  "",
+  "Available Production Capacity per Person before TAT: " +
+    formatNumber(
+      manpowerRecommendation.capacityPerPerson,
+      2
     ) +
-    " hours"
-);
+    " hours",
+  "This recommendation does not automatically change the TAT or OT calculation."
+];
 
-    steps.push(
-      "Rush OT Charge Breakdown: " +
-        getOtChargeBreakdown(
-          chargeableRushOtHours
-        )
+    document.getElementById(
+      "manpowerResult"
+    ).textContent = manpowerLines.join("\n");
+
+    /*
+     * OT output:
+     * Only the requested two lines.
+     */
+    otResultElement.innerHTML = "";
+
+    const otBox = document.createElement("div");
+
+    otBox.className =
+      "info-box border bg-light";
+
+    otBox.style.whiteSpace = "pre-line";
+
+    if (otAssessment) {
+      otBox.textContent = getOtDisplayLines(
+        otPrefix,
+        otAssessment
+      ).join("\n");
+    } else {
+      otBox.textContent = "OT: N/A";
+    }
+
+    otResultElement.appendChild(otBox);
+
+    /*
+     * Recipient routing.
+     */
+    const isCompliance =
+      jobType === "AM_CR" ||
+      jobType === "AR_IR_QR_ER";
+
+    const emailTo = isCompliance
+      ? "TN HK AR CS / TOPPAN Nexus (HK) <ARCS@toppannexus.com>"
+      : "TN HK CS / TOPPAN Nexus (HK) <cs@toppannexus.com>";
+
+    const emailCc =
+      "TN LS Internal Services <ls-internalservices@toppannexus.com>";
+
+    recipientResult.innerHTML = "";
+
+    const toLine = document.createElement("div");
+    const toLabel = document.createElement("strong");
+
+    toLabel.textContent = "To: ";
+
+    toLine.appendChild(toLabel);
+    toLine.appendChild(
+      document.createTextNode(emailTo)
     );
 
-  if (chargeableRushOtHours > 0) {
-  steps.push(
-    "Rush OT Charge Result: Charge " +
-      formatOtHoursForEmail(
-        chargeableRushOtHours
-      ) +
-      " OT hours."
-  );
-} else {
-  steps.push(
-    "Rush OT Charge Result: No OT charge because the time difference is less than 5 hours."
-  );
-}
-  } else {
-    steps.push(
-      "Rush OT Assessment: No OT is required because the Rush Completion is not earlier than the Rush OT Comparison TAT."
+    const ccLine = document.createElement("div");
+    const ccLabel = document.createElement("strong");
+
+    ccLine.className = "mt-1";
+    ccLabel.textContent = "CC: ";
+
+    ccLine.appendChild(ccLabel);
+    ccLine.appendChild(
+      document.createTextNode(emailCc)
     );
 
-    steps.push(
-      "Rush OT Time Difference: 0 hours"
-    );
+    recipientResult.appendChild(toLine);
+    recipientResult.appendChild(ccLine);
 
-    steps.push(
-      "Chargeable Rush OT Hours: 0 hours"
-    );
+    /*
+     * Email:
+     * No Subject, Job Name, Job ID or File Format.
+     */
+    const emailLanguage = {
+      E2C: "CHI",
+      C2E: "ENG",
+      Bilingual: "Bilingual"
+    }[language];
 
-    steps.push(
-      "Rush OT Charge Result: No OT charge."
-    );
-  }
-} else {
-  /*
-   * Normal TAT
-   */
-  assessmentMode = "normal";
-  finalTat = standardTatWithBuffer;
+    /*
+     * If a T-number range exists, use "up to Txx".
+     *
+     * If only Manual Pages exists, do not invent
+     * a T number. Show the page count instead.
+     */
+const formattedPages =
+  Number.isInteger(pages)
+    ? pages
+    : pages.toFixed(2);
 
-  steps.push(
-    "Assessment Mode: Normal TAT"
-  );
+const emailScope =
+  pageSelection.hasTRange
+    ? " up to T" + pageSelection.endT
+    : " (" +
+      formattedPages +
+      (pages === 1 ? " page)" : " pages)");
 
-  steps.push(
-    "No Client Requested TAT or Rush OT was selected."
-  );
+    const emailDraft =
+      "TAT for " +
+      emailLanguage +
+      emailScope +
+      " is by " +
+      formatTatEmailDeadline(finalTat) +
+      ".";
 
-  steps.push(
-    "Normal TAT only counts working days from 09:00 to 22:00, excludes weekends and public holidays, and includes Buffer."
-  );
+    emailDraftElement.textContent = emailDraft;
 
-  steps.push(
-    "The Standard Expected TAT including Buffer is used."
-  );
-}
-
-/*
- * Select the recipients according to Job Type.
- */
-const emailTo =
-  jobType === "Compliance"
-    ? "TN HK AR CS / TOPPAN Nexus (HK) <ARCS@toppannexus.com>"
-    : "TN HK CS / TOPPAN Nexus (HK) <cs@toppannexus.com>";
-
-const emailCc =
-  "TN LS Internal Services <ls-internalservices@toppannexus.com>";
-
-/*
- * Translation language.
- */
-const translationText =
-  language === "E2C"
-    ? "CHI translation"
-    : "ENG translation";
-
-/*
- * Build the T-number text.
- */
-const lastTText =
-  "T" + endT;
-
-const fullTRangeText =
-  startT === endT
-    ? "T" + startT
-    : "T" + startT + "-T" + endT;
-
-/*
- * Normal mode uses "up to Txx".
- * OT modes use the full T-number range.
- */
-const jobScopeText =
-  assessmentMode === "normal"
-    ? "up to " + lastTText
-    : fullTRangeText;
-
-/*
- * Add OT wording only when OT is chargeable.
- */
-const otEmailText =
-  finalChargeableOtHours > 0
-    ? " with " +
-      formatOtHoursForEmail(
-        finalChargeableOtHours
-      ) +
-      "h OT incurred"
-    : "";
-
-/*
- * Subject:
- * [TAT] Job Name Job ID
- */
-const emailSubject =
-  "[TAT] " +
-  jobName +
-  " " +
-  jobId;
-
-/*
- * Email body.
- */
-const emailBodyLine =
-  translationText +
-  " " +
-  jobScopeText +
-  " will be ready by " +
-  formatTatEmailDeadline(finalTat) +
-  ", in " +
-  fileFormat +
-  otEmailText +
-  ".";
-
-const emailDraft = [
-  "Subject: " + emailSubject,
-  "",
-  "Dear Team,",
-  "",
-  emailBodyLine,
-  "",
-  "Regards,"
-].join("\n");
-
-if (assessmentMode === "normal") {
-  otResultElement.innerHTML =
-    '<div class="info-box border bg-light">' +
-      '<strong>' +
-        '<i class="bi bi-dash-circle me-1"></i>' +
-        "OT: N/A" +
-      '</strong>' +
-      '<br>' +
-      '<span class="small text-muted">' +
-        "The client did not request a specific TAT or Rush OT." +
-      '</span>' +
-    '</div>';
-} else if (finalChargeableOtHours > 0) {
-  otResultElement.innerHTML =
-    '<div class="info-box" ' +
-      'style="background: var(--danger-bg); ' +
-      'border: 1px solid #fecaca;">' +
-      '<div>' +
-        '<strong>' +
-          '<i class="bi bi-lightning-charge-fill me-1"></i>' +
-          "OT Required: Yes" +
-        '</strong>' +
-      '</div>' +
-      '<hr>' +
-      '<div class="ot-value">' +
-        '<i class="bi bi-lightning-charge-fill"></i> ' +
-        "Recommended OT Charge: " +
-        formatOtHoursForEmail(
-          finalChargeableOtHours
-        ) +
-        "h OT" +
-      '</div>' +
-    '</div>';
-} else {
-  otResultElement.innerHTML =
-    '<div class="info-box" ' +
-      'style="background: var(--success-bg); ' +
-      'border: 1px solid #a9e6be;">' +
-      '<strong class="text-success">' +
-        '<i class="bi bi-check-circle-fill me-1"></i>' +
-        "OT Required: No" +
-      '</strong>' +
-      '<br>' +
-      '<span class="small text-muted">' +
-        "No chargeable OT is required." +
-      '</span>' +
-    '</div>';
-}
-
-recipientResult.innerHTML = "";
-
-const toLine = document.createElement("div");
-const toLabel = document.createElement("strong");
-const toIcon = document.createElement("i");
-
-toIcon.className = "bi bi-send me-1";
-toLabel.appendChild(toIcon);
-toLabel.appendChild(
-  document.createTextNode("To:")
-);
-
-toLine.appendChild(toLabel);
-toLine.appendChild(
-  document.createTextNode(
-    " " + emailTo
-  )
-);
-
-const ccLine = document.createElement("div");
-ccLine.className = "mt-1";
-
-const ccLabel = document.createElement("strong");
-const ccIcon = document.createElement("i");
-
-ccIcon.className = "bi bi-copy me-1";
-ccLabel.appendChild(ccIcon);
-ccLabel.appendChild(
-  document.createTextNode("CC:")
-);
-
-ccLine.appendChild(ccLabel);
-ccLine.appendChild(
-  document.createTextNode(
-    " " + emailCc
-  )
-);
-
-recipientResult.appendChild(toLine);
-recipientResult.appendChild(ccLine);
-  
+    /*
+     * Result headings.
+     */
     const resultTatLabel = document.getElementById(
-  "resultTatLabel"
-);
+      "resultTatLabel"
+    );
 
-const resultModeDescription = document.getElementById(
-  "resultModeDescription"
-);
+    const resultModeDescription =
+      document.getElementById(
+        "resultModeDescription"
+      );
 
-if (assessmentMode === "rush") {
-  resultTatLabel.textContent =
-    "Rush Completion TAT";
+    if (assessmentMode === "rush") {
+      resultTatLabel.textContent =
+        "Rush Completion TAT";
 
-  resultModeDescription.textContent =
-    "Rush completion and OT assessment";
-} else if (assessmentMode === "client-requested") {
-  resultTatLabel.textContent =
-    "Client Requested TAT";
+      resultModeDescription.textContent =
+        "Rush completion, OT assessment and manpower recommendation";
+    } else if (assessmentMode === "client-requested") {
+      resultTatLabel.textContent =
+        "Client Requested TAT";
 
-  resultModeDescription.textContent =
-    "Client requested TAT and OT assessment";
-} else {
-  resultTatLabel.textContent =
-    "Standard Expected TAT";
+      resultModeDescription.textContent =
+        "Client requested TAT, OT assessment and manpower recommendation";
+    } else {
+      resultTatLabel.textContent =
+        "Standard Expected TAT";
 
-  resultModeDescription.textContent =
-    "Standard Expected TAT assessment";
-}
+      resultModeDescription.textContent =
+        "Standard Expected TAT and manpower recommendation";
+    }
 
-document.getElementById(
-  "standardTatDisplay"
-).textContent =
-  formatFullDateTime(finalTat);
+    document.getElementById(
+      "standardTatDisplay"
+    ).textContent =
+      formatFullDateTime(finalTat);
 
-document.getElementById(
-  "standardTatShortDisplay"
-).textContent =
-  formatShortDate(finalTat) +
-  " " +
-  formatEmailTime(finalTat);
+    document.getElementById(
+      "standardTatShortDisplay"
+    ).textContent =
+      formatShortDate(finalTat) +
+      " " +
+      formatEmailTime(finalTat);
 
-document.getElementById(
-  "calculationSteps"
-).textContent =
-  steps.join("\n");
+    document.getElementById(
+      "calculationSteps"
+    ).textContent =
+      steps.join("\n");
 
-document.getElementById(
-  "emailDraft"
-).textContent =
-  emailDraft;
+    resultCard.style.display = "block";
 
-resultCard.style.display = "block";
-
-resultCard.scrollIntoView({
-  behavior: "smooth",
-  block: "start"
-});
-    
-        } catch (error) {
-          showError(error.message);
-        }
-      });
+    resultCard.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
     });
+  } catch (error) {
+    showError(error.message);
+  }
+});
+});
   </script>
 </body>
 </html>
