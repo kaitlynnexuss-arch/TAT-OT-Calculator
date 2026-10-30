@@ -2496,42 +2496,124 @@ function updateAaLevelVisibility() {
 function updateTaskTypeOptions() {
   const workType = workTypeInput.value;
 
+  const jobType =
+    document.getElementById("jobType").value;
+
+  const language =
+    document.getElementById("language").value;
+
+  const previousTask = taskTypeInput.value;
+
   taskTypeInput.innerHTML = "";
 
   const blankOption =
     document.createElement("option");
 
   blankOption.value = "";
-  blankOption.textContent = workType
-    ? "-- Select Task Type --"
-    : "-- Select Work Type First --";
+
+  if (!workType) {
+    blankOption.textContent =
+      "-- Select Work Type First --";
+  } else if (!jobType || !language) {
+    blankOption.textContent =
+      "-- Select Job Type and Language First --";
+  } else {
+    blankOption.textContent =
+      "-- Select Task Type --";
+  }
 
   taskTypeInput.appendChild(blankOption);
 
-  if (!workType || !TASK_OPTIONS[workType]) {
+  if (
+    !workType ||
+    !jobType ||
+    !language ||
+    !TASK_OPTIONS[workType]
+  ) {
     taskTypeInput.disabled = true;
     hideAaLevelSection();
     return;
   }
 
+  const taskRates =
+    RATE_STANDARDS[jobType]?.[language]?.[workType];
+
+  function isValidRate(value) {
+    return (
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      value > 0
+    );
+  }
+
+  let availableTaskCount = 0;
+
   TASK_OPTIONS[workType].forEach(function (task) {
     const option =
       document.createElement("option");
 
+    const configuredRate =
+      taskRates?.[task.value];
+
+    const available =
+      task.value === "AA Markup"
+        ? ["AA_L1", "AA_L2", "AA_L3"].every(
+            function (level) {
+              return isValidRate(
+                configuredRate?.[level]
+              );
+            }
+          )
+        : isValidRate(configuredRate);
+
     option.value = task.value;
-    option.textContent = task.label;
+
+    option.textContent = available
+      ? task.label
+      : task.label + " (Unavailable)";
+
+    option.disabled = !available;
+
+    if (available) {
+      availableTaskCount += 1;
+
+      if (task.value === previousTask) {
+        option.selected = true;
+      }
+    }
 
     taskTypeInput.appendChild(option);
   });
 
-  taskTypeInput.disabled = false;
-  hideAaLevelSection();
+  taskTypeInput.disabled =
+    availableTaskCount === 0;
+
+  if (availableTaskCount === 0) {
+    blankOption.textContent =
+      "-- No Configured Rates --";
+  }
+
+  updateAaLevelVisibility();
 }
 
 workTypeInput.addEventListener(
   "change",
   updateTaskTypeOptions
 );
+
+document
+  .getElementById("jobType")
+  .addEventListener(
+    "change",
+    updateTaskTypeOptions
+  );
+
+document
+  .getElementById("language")
+  .addEventListener(
+    "change",
+    updateTaskTypeOptions
+  );
 
 taskTypeInput.addEventListener(
   "change",
@@ -2540,7 +2622,9 @@ taskTypeInput.addEventListener(
 
 updateTaskTypeOptions();
 hideAaLevelSection();
-const clearHolidaysBtn = document.getElementById("clearHolidaysBtn");
+
+const clearHolidaysBtn =
+  document.getElementById("clearHolidaysBtn");
 const form = document.getElementById("tatForm");
 const resultCard = document.getElementById("resultCard");
 const formError = document.getElementById("formError");
@@ -2551,7 +2635,10 @@ const otResultElement = document.getElementById("otResult");
 const recipientResult = document.getElementById("recipientResult");
 const holidayTags = document.getElementById("holidayTags");
 const saveHolidaysBtn = document.getElementById("saveHolidaysBtn");
-const firebaseStatus = document.getElementById("firebaseStatus");
+const firebaseStatus =
+  document.getElementById("firebaseStatus");
+
+let holidayDataLoading = true;
 const startTInput = document.getElementById("startT");
 const endTInput = document.getElementById("endT");
 const pagesInput = document.getElementById("pages");
@@ -2565,6 +2652,17 @@ const clientRequestsRushOT = document.getElementById("clientRequestsRushOT");
 function getTRangeState() {
   const startText = startTInput.value.trim();
   const endText = endTInput.value.trim();
+
+  if (
+  startTInput.validity.badInput ||
+  endTInput.validity.badInput
+) {
+  return {
+    present: true,
+    valid: false,
+    error: "T Numbers must be valid positive whole numbers."
+  };
+}
 
   if (!startText && !endText) {
     return {
@@ -3245,6 +3343,13 @@ if (
 }
 
 async function saveHolidaysOnline() {
+  if (
+  holidayDataLoading ||
+  saveHolidaysBtn.disabled
+) {
+  return;
+}
+  
   if (!firebaseReady || !realtimeDatabase) {
     showFirebaseStatus(
       "Firebase Realtime Database is not available. Holidays cannot be saved online.",
@@ -3253,7 +3358,13 @@ async function saveHolidaysOnline() {
     return;
   }
 
-  saveHolidaysBtn.disabled = true;
+  const holidayPanel =
+  document.querySelector(".holiday-panel");
+
+holidayPicker.close();
+holidayPanel.inert = true;
+saveHolidaysBtn.disabled = true;
+clearHolidaysBtn.disabled = true;
 
   showFirebaseStatus(
     "Saving holidays to Firebase Realtime Database...",
@@ -3285,6 +3396,7 @@ if (
 selectedHolidays = [
   ...new Set(selectedHolidays)
 ].sort();
+    const datesToSave = [...selectedHolidays];
 
     /*
      * Save without deleting other values that may exist
@@ -3294,8 +3406,8 @@ await realtimeDatabase
   .ref(HOLIDAY_DATABASE_PATH)
   .update({
     year: HOLIDAY_YEAR,
-    dates: selectedHolidays,
-    holidays: selectedHolidays,
+    dates: datesToSave,
+    holidays: datesToSave,
     updatedAt:
       firebase.database.ServerValue.TIMESTAMP
   });
@@ -3319,9 +3431,11 @@ await realtimeDatabase
         error.message,
       "danger"
     );
-  } finally {
-    saveHolidaysBtn.disabled = false;
-  }
+ } finally {
+  holidayPanel.inert = false;
+  saveHolidaysBtn.disabled = false;
+  clearHolidaysBtn.disabled = false;
+}
 }
 
 saveHolidaysBtn.addEventListener(
@@ -3351,7 +3465,43 @@ clearHolidaysBtn.addEventListener(
 /*
  * Show local holidays first, then try to load Firebase data.
  */
-loadHolidaysOnline();
+async function initializeHolidayData() {
+  const holidayPanel =
+    document.querySelector(".holiday-panel");
+
+  const calculateButton =
+    form.querySelector('button[type="submit"]');
+
+  holidayDataLoading = true;
+
+  holidayPanel.inert = true;
+  saveHolidaysBtn.disabled = true;
+  clearHolidaysBtn.disabled = true;
+  calculateButton.disabled = true;
+
+  try {
+    await loadHolidaysOnline();
+  } catch (error) {
+    console.error(
+      "Holiday initialization failed:",
+      error
+    );
+
+    showFirebaseStatus(
+      "Unable to initialize holidays. Please reload the page.",
+      "danger"
+    );
+  } finally {
+    holidayDataLoading = false;
+
+    holidayPanel.inert = false;
+    saveHolidaysBtn.disabled = false;
+    clearHolidaysBtn.disabled = false;
+    calculateButton.disabled = false;
+  }
+}
+
+initializeHolidayData();
 
 holidayTags.addEventListener(
   "click",
@@ -3496,10 +3646,10 @@ resetFormBtn.addEventListener(
      * Select fields return to their blank options.
      * Both client request checkboxes become unchecked.
      */
-    form.reset();
+form.reset();
 updateTaskTypeOptions();
 hideAaLevelSection();
-
+    
 document.getElementById(
   "manpowerResult"
 ).textContent = "";
@@ -3623,6 +3773,12 @@ form.addEventListener("submit", function (event) {
   resultCard.style.display = "none";
 
 try {
+  if (holidayDataLoading) {
+    throw new Error(
+      "Public holidays are still loading. Please wait before calculating."
+    );
+  }
+
   if (getHongKongYear() !== HOLIDAY_YEAR) {
     throw new Error(
       "The holiday year has changed. Please reload the page and confirm the new year's public holidays before calculating."
@@ -3914,6 +4070,39 @@ try {
       );
     }
 
+const datesToValidate = [
+  availableStartTime,
+  adjustedStart,
+  baseTat,
+  standardTatWithBuffer,
+  finalTat
+];
+
+if (clientTat) {
+  datesToValidate.push(clientTat);
+}
+
+if (assessmentMode === "rush") {
+  datesToValidate.push(
+    getRushOtComparisonTat(baseTat)
+  );
+}
+
+const usesAnotherHolidayYear =
+  datesToValidate.some(function (date) {
+    return date.getFullYear() !== HOLIDAY_YEAR;
+  });
+
+if (usesAnotherHolidayYear) {
+  throw new Error(
+    "This calculation extends outside " +
+      HOLIDAY_YEAR +
+      ". Only public holidays for " +
+      HOLIDAY_YEAR +
+      " are currently available. Cross-year TAT and OT calculations are not supported."
+  );
+}
+  
     /*
      * Build calculation steps.
      */
