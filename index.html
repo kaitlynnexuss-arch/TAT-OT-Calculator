@@ -4191,34 +4191,6 @@ const manpowerLines = [
     recipientResult.appendChild(toLine);
     recipientResult.appendChild(ccLine);
 
-    /*
-     * Email:
-     * No Subject, Job Name, Job ID or File Format.
-     */
-    const emailLanguage = {
-      E2C: "CHI",
-      C2E: "ENG",
-      Bilingual: "Bilingual"
-    }[language];
-
-    /*
-     * If a T-number range exists, use "up to Txx".
-     *
-     * If only Manual Pages exists, do not invent
-     * a T number. Show the page count instead.
-     */
-const formattedPages =
-  Number.isInteger(pages)
-    ? pages
-    : pages.toFixed(2);
-
-const emailScope =
-  pageSelection.hasTRange
-    ? " up to T" + pageSelection.endT
-    : " (" +
-      formattedPages +
-      (pages === 1 ? " page)" : " pages)");
-
 const emailLanguage = {
   E2C: "CHI",
   C2E: "ENG",
