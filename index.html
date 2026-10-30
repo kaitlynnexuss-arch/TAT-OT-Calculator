@@ -4219,15 +4219,27 @@ const emailScope =
       formattedPages +
       (pages === 1 ? " page)" : " pages)");
 
-    const emailDraft =
-      "TAT for " +
-      emailLanguage +
-      emailScope +
-      " is by " +
-      formatTatEmailDeadline(finalTat) +
-      ".";
+const emailLanguage = {
+  E2C: "CHI",
+  C2E: "ENG",
+  Bilingual: "Bilingual"
+}[language];
 
-    emailDraftElement.textContent = emailDraft;
+const emailScope = pageSelection.hasTRange
+  ? " (T" + pageSelection.endT + ")"
+  : " (" +
+    String(pages) +
+    (pages === 1 ? " page)" : " pages)");
+
+const emailDraft =
+  "TAT for " +
+  emailLanguage +
+  emailScope +
+  " is by " +
+  formatTatEmailDeadline(finalTat) +
+  ".";
+
+emailDraftElement.textContent = emailDraft;
 
     /*
      * Result headings.
