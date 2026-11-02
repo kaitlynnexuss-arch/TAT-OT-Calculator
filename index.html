@@ -3541,14 +3541,7 @@ function hideClientTatSection(clearValue = true) {
 }
 
 function syncClientTatMinimum() {
-  const availableDate = parseDateTime(
-    document.getElementById("availableStartTime").value
-  );
-
-  clientTatPicker.set(
-    "minDate",
-    availableDate || null
-  );
+  clientTatPicker.set("minDate", null);
 }
 
 availablePicker.config.onChange.push(
@@ -3563,46 +3556,27 @@ document
   );
 
 function showClientTatSection() {
-  /*
-   * Client Requested TAT and Rush OT
-   * cannot be selected together.
-   */
   clientRequestsRushOT.checked = false;
 
-  /*
-   * Show the Client Requested TAT section.
-   */
   clientTatSection.style.display = "flex";
 
-  const availableValue =
+  clientTatPicker.set("minDate", null);
+
+  const availableDate = parseDateTime(
     document.getElementById(
       "availableStartTime"
-    ).value;
+    ).value
+  );
 
-  const availableDate =
-    availablePicker.selectedDates.length > 0
-      ? availablePicker.selectedDates[0]
-      : parseDateTime(availableValue);
+  const selectedClientDate =
+    clientTatPicker.selectedDates[0];
 
-  if (availableDate) {
-    clientTatPicker.set(
-      "minDate",
-      availableDate
-    );
+  clientTatPicker.jumpToDate(
+    selectedClientDate ||
+    availableDate ||
+    new Date()
+  );
 
-    clientTatPicker.jumpToDate(
-      availableDate
-    );
-  } else {
-    clientTatPicker.set(
-      "minDate",
-      null
-    );
-  }
-
-  /*
-   * Wait until the previously hidden field is visible.
-   */
   window.requestAnimationFrame(function () {
     window.setTimeout(function () {
       clientTatPicker.open();
@@ -3910,14 +3884,14 @@ try {
       );
     }
 
-    if (
-      clientRequestsTat.checked &&
-      clientRequestsRushOT.checked
-    ) {
-      throw new Error(
-        "Please select only one client request option."
-      );
-    }
+if (
+  clientRequestsTat.checked &&
+  clientRequestsRushOT.checked
+) {
+  throw new Error(
+    "Please select only one client request option."
+  );
+}
 
     if (
       clientRequestsTat.checked &&
@@ -3959,14 +3933,14 @@ try {
       );
     }
 
-    if (
-      clientRequestsTat.checked &&
-      (!clientTat || clientTat <= availableStartTime)
-    ) {
-      throw new Error(
-        "Client Requested TAT must be valid and later than the Available Start Time."
-      );
-    }
+if (
+  clientRequestsTat.checked &&
+  !clientTat
+) {
+  throw new Error(
+    "Please provide a valid Client Requested TAT."
+  );
+}
 
     /*
      * Select the exact pages-per-hour standard.
