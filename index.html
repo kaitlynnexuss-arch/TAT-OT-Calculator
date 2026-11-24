@@ -2200,19 +2200,39 @@ function calculateOtAssessment(
     ) / MS_PER_HOUR
   );
 
-  const calendarDays =
-    calculateCalendarDayDifference(
-      earlierDeadline,
-      laterComparison
-    );
+  /*
+   * OT charging rule:
+   *
+   * - Every complete 24 hours = 10 OT hours.
+   * - Remaining period below 5 hours = no charge.
+   * - Remaining period of 5 hours or more = 5 OT hours.
+   *
+   * Examples:
+   * 4h   -> 0h OT
+   * 5h   -> 5h OT
+   * 23h  -> 5h OT
+   * 24h  -> 10h OT
+   * 28h  -> 10h OT
+   * 29h  -> 15h OT
+   * 129h -> 55h OT
+   */
+
+  const completeDays = Math.floor(
+    actualDifferenceHours / 24
+  );
+
+  const remainingHours =
+    actualDifferenceHours -
+    completeDays * 24;
 
   const chargeableHours =
-    actualDifferenceHours >= 24
-      ? calendarDays * 10
-      : Math.floor(actualDifferenceHours / 5) * 5;
+    completeDays * 10 +
+    (remainingHours >= 5 ? 5 : 0);
 
   return {
-    calendarDays,
+    calendarDays: completeDays,
+    actualDifferenceHours,
+    remainingHours,
     chargeableHours,
     earlierDateText: toLocalDateString(
       earlierDeadline
@@ -2226,17 +2246,22 @@ function calculateOtAssessment(
 function getOtDisplayLines(prefix, assessment) {
   return [
     prefix +
-      " Calendar-Day Difference: " +
-      assessment.laterDateText +
-      " - " +
-      assessment.earlierDateText +
-      " = " +
+      " Time Difference: " +
+      formatOtHoursForEmail(
+        assessment.actualDifferenceHours
+      ) +
+      " hours (" +
       assessment.calendarDays +
       (
         assessment.calendarDays === 1
-          ? " calendar day"
-          : " calendar days"
-      ),
+          ? " complete day"
+          : " complete days"
+      ) +
+      " + " +
+      formatOtHoursForEmail(
+        assessment.remainingHours
+      ) +
+      " hours)",
 
     prefix +
       " Hours: " +
