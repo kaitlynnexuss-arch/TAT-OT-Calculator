@@ -2911,6 +2911,128 @@ availablePicker.setDate(
     minuteIncrement: 1
   });
 
+function enableSmartTimeInput(picker) {
+  if (!picker || !picker.calendarContainer) {
+    return;
+  }
+
+  const hourInput =
+    picker.calendarContainer.querySelector(
+      ".flatpickr-hour"
+    );
+
+  const minuteInput =
+    picker.calendarContainer.querySelector(
+      ".flatpickr-minute"
+    );
+
+  if (!hourInput || !minuteInput) {
+    return;
+  }
+
+  function getLastTwoDigits(input) {
+    return String(input.value)
+      .replace(/\D/g, "")
+      .slice(-2);
+  }
+
+  /*
+   * Hour:
+   * - maximum 2 digits
+   * - valid range 00-23
+   * - after 2 digits, automatically move to Minute
+   */
+  hourInput.addEventListener("input", function () {
+    let value = getLastTwoDigits(hourInput);
+
+    if (value === "") {
+      return;
+    }
+
+    if (value.length >= 2) {
+      let hour = Number(value);
+
+      if (hour > 23) {
+        hour = 23;
+      }
+
+      hourInput.value = String(hour).padStart(
+        2,
+        "0"
+      );
+
+      /*
+       * Let Flatpickr save the new hour first.
+       */
+      hourInput.dispatchEvent(
+        new Event("change", {
+          bubbles: true
+        })
+      );
+
+      /*
+       * Then automatically move to Minute.
+       */
+      window.requestAnimationFrame(function () {
+        minuteInput.focus();
+        minuteInput.select();
+      });
+    }
+  });
+
+  /*
+   * Minute:
+   * - maximum 2 digits
+   * - valid range 00-59
+   * - after 2 digits, immediately update Flatpickr
+   * - no Enter required
+   */
+  minuteInput.addEventListener("input", function () {
+    let value = getLastTwoDigits(minuteInput);
+
+    if (value === "") {
+      return;
+    }
+
+    if (value.length >= 2) {
+      let minute = Number(value);
+
+      if (minute > 59) {
+        minute = 59;
+      }
+
+      minuteInput.value = String(minute).padStart(
+        2,
+        "0"
+      );
+
+      /*
+       * Important:
+       * Do NOT use picker.setDate() here.
+       *
+       * Flatpickr will read the Hour/Minute inputs
+       * and update its selected date from the
+       * change event.
+       */
+      minuteInput.dispatchEvent(
+        new Event("change", {
+          bubbles: true
+        })
+      );
+
+      /*
+       * Remove focus so Flatpickr finalizes
+       * the entered minute immediately.
+       */
+      minuteInput.blur();
+    }
+  });
+}
+
+enableSmartTimeInput(receivedPicker);
+enableSmartTimeInput(availablePicker);
+enableSmartTimeInput(clientTatPicker);
+      
 const holidayPicker = flatpickr(
   "#holidayDate",
   {
